@@ -48,7 +48,7 @@ export default function ProductCard({ product, delay = 0 }: Props) {
     : null
 
   const imgSrc = product.img ||
-    'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&q=80'
+    'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/logotipo_mi_tiendita_digital_ve-.png'
 
   const isOutOfStock = product.stock !== undefined && product.stock === 0
 
@@ -99,7 +99,7 @@ export default function ProductCard({ product, delay = 0 }: Props) {
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
-              e.currentTarget.src = 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&q=80'
+              e.currentTarget.src = 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/logotipo_mi_tiendita_digital_ve-.png'
             }}
           />
 

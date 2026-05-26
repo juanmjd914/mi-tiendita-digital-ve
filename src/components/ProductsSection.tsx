@@ -30,6 +30,9 @@ export default function ProductsSection() {
       .from('products')
       .select('*')
       .eq('active', true)
+      .not('category', 'ilike', '%JUEGO%')
+      .not('category', 'ilike', '%PLAYSTATION%')
+      .not('category', 'ilike', '%PS5%')
       .order('created_at', { ascending: false })
       .limit(4)
       .then(({ data }) => {
