@@ -19,7 +19,7 @@ interface OrderItem {
 }
 interface Order {
   id:             string
-  status:         'pending' | 'paid' | 'rejected' | 'cancelled'
+  status:         'pending' | 'paid' | 'rejected' | 'cancelled' | 'pending_transfer'
   total:          number
   customer_email: string
   customer_name:  string | null
@@ -28,10 +28,11 @@ interface Order {
 }
 
 const STATUS: Record<string, { label: string; bg: string; text: string; border: string }> = {
-  paid:      { label: 'Pagado',    bg: 'bg-green-500/15',  text: 'text-green-400',  border: 'border-green-500/30'  },
-  pending:   { label: 'Pendiente', bg: 'bg-yellow-500/15', text: 'text-yellow-400', border: 'border-yellow-500/30' },
-  rejected:  { label: 'Rechazado', bg: 'bg-red-500/15',    text: 'text-red-400',    border: 'border-red-500/30'    },
-  cancelled: { label: 'Cancelado', bg: 'bg-white/8',       text: 'text-white/40',   border: 'border-white/15'      },
+  paid:             { label: 'Pagado',              bg: 'bg-green-500/15',  text: 'text-green-400',  border: 'border-green-500/30'  },
+  pending:          { label: 'Pendiente',           bg: 'bg-yellow-500/15', text: 'text-yellow-400', border: 'border-yellow-500/30' },
+  pending_transfer: { label: 'Esperando pago',      bg: 'bg-cyan-500/15',   text: 'text-cyan-400',   border: 'border-cyan-500/30'   },
+  rejected:         { label: 'Rechazado',           bg: 'bg-red-500/15',    text: 'text-red-400',    border: 'border-red-500/30'    },
+  cancelled:        { label: 'Cancelado',           bg: 'bg-white/8',       text: 'text-white/40',   border: 'border-white/15'      },
 }
 
 // ── Tarjeta de pedido ───────────────────────────────────────────────────────
@@ -87,6 +88,17 @@ function OrderCard({ order }: { order: Order }) {
             className="overflow-hidden"
           >
             <div className="border-t border-white/5 px-4 pt-3 pb-4 space-y-2">
+              {/* Aviso transferencia pendiente */}
+              {order.status === 'pending_transfer' && (
+                <div className="bg-cyan-500/8 border border-cyan-500/20 rounded-xl px-3 py-2.5 mb-1">
+                  <p className="text-cyan-400 text-xs font-semibold mb-0.5" style={{ fontFamily: 'Space Grotesk' }}>
+                    ⏳ Esperando tu transferencia
+                  </p>
+                  <p className="text-white/40 text-xs" style={{ fontFamily: 'Inter' }}>
+                    Revisa tu correo con los datos bancarios. Te confirmaremos por email al recibir el pago.
+                  </p>
+                </div>
+              )}
               {(order.order_items || []).map(item => (
                 <div key={item.id} className="flex justify-between text-xs gap-2">
                   <span className="text-white/55 flex-1 truncate">

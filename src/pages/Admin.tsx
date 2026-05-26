@@ -11,7 +11,7 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const ADMIN_PIN_KEY = 'mtdv_admin_pin'
 
 const CATEGORIES = ['ACCESORIOS', 'COMPUTACION', 'AUDIO Y VIDEO', 'HOGAR', 'GABINETES GAMER']
-const BADGES     = ['', 'OFERTA', 'HOT', 'NUEVO', 'EXCLUSIVO']
+const BADGES     = ['', 'OFERTA', 'HOT', 'NUEVO', 'EXCLUSIVO', '🏆 #1', '🏆 #2', '🏆 #3', '🏆 #4', '🏆 #5']
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface Stats { paidOrders: number; totalRevenue: number; subscribers: number }
