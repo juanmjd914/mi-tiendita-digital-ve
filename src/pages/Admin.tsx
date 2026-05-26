@@ -4,7 +4,7 @@ import {
   Lock, BarChart3, ShoppingBag, Mail, TrendingUp, RefreshCw,
   ChevronDown, ChevronUp, LogOut, Package, Clock, CheckCircle2,
   XCircle, AlertCircle, Search, Filter, Plus, Edit2, Eye, EyeOff,
-  Save, X, Image as ImageIcon, Tag, DollarSign, Layers,
+  Save, X, Image as ImageIcon, Tag, DollarSign, Layers, Copy,
 } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
@@ -30,6 +30,12 @@ interface Product {
 }
 
 type OrderFilter = 'all'|'paid'|'pending'|'rejected'
+
+interface Subscriber {
+  id: number
+  email: string
+  created_at: string
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const fmt     = (n: number) => n.toLocaleString('es-CL')
@@ -519,6 +525,99 @@ function ProductosTab({ pin }: { pin: string }) {
   )
 }
 
+// ── NewsletterTab ──────────────────────────────────────────────────────────
+function NewsletterTab({ pin }: { pin: string }) {
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([])
+  const [loading,     setLoading]     = useState(true)
+  const [copied,      setCopied]      = useState(false)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch(`${API}/api/admin/newsletter`, { headers: { 'x-admin-pin': pin } })
+        if (res.ok) setSubscribers(await res.json())
+      } finally { setLoading(false) }
+    }
+    load()
+  }, [pin])
+
+  function copyEmails() {
+    const emails = subscribers.map(s => s.email).join(', ')
+    navigator.clipboard.writeText(emails)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+
+  return (
+    <>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <h2 className="text-white font-bold text-lg" style={{ fontFamily:'Space Grotesk' }}>Newsletter</h2>
+          <p className="text-white/30 text-xs mt-0.5" style={{ fontFamily:'Inter' }}>
+            {loading ? '…' : `${subscribers.length} suscriptor${subscribers.length !== 1 ? 'es' : ''} registrados`}
+          </p>
+        </div>
+        {subscribers.length > 0 && (
+          <motion.button onClick={copyEmails}
+            whileHover={{ scale:1.02 }} whileTap={{ scale:0.97 }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
+            style={{
+              fontFamily:'Space Grotesk',
+              background: copied ? 'rgba(129,215,66,0.15)' : 'rgba(255,255,255,0.05)',
+              border: copied ? '1px solid rgba(129,215,66,0.3)' : '1px solid rgba(255,255,255,0.1)',
+              color: copied ? '#81d742' : 'rgba(255,255,255,0.6)',
+            }}>
+            {copied ? <CheckCircle2 size={14}/> : <Copy size={14}/>}
+            {copied ? '¡Copiado!' : 'Copiar todos los emails'}
+          </motion.button>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-14 rounded-xl bg-white/3 animate-pulse"/>
+          ))}
+        </div>
+      ) : subscribers.length === 0 ? (
+        <div className="py-16 text-center">
+          <Mail size={40} className="text-white/15 mx-auto mb-3"/>
+          <p className="text-white/30 text-sm" style={{ fontFamily:'Space Grotesk' }}>No hay suscriptores aún</p>
+          <p className="text-white/20 text-xs mt-1" style={{ fontFamily:'Inter' }}>
+            Los emails del formulario Newsletter aparecerán aquí
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {subscribers.map((s, i) => (
+            <motion.div key={s.id} layout
+              initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay: i * 0.03 }}
+              className="flex items-center justify-between px-4 py-3 rounded-xl border border-white/8 hover:border-white/15 transition-all"
+              style={{ background:'rgba(255,255,255,0.02)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background:'rgba(255,194,34,0.12)', border:'1px solid rgba(255,194,34,0.2)' }}>
+                  <Mail size={13} className="text-brand-yellow"/>
+                </div>
+                <span className="text-white/80 text-sm" style={{ fontFamily:'Inter' }}>{s.email}</span>
+              </div>
+              <span className="text-white/25 text-xs hidden sm:block" style={{ fontFamily:'Inter' }}>
+                {fmtDate(s.created_at)}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {!loading && subscribers.length > 0 && (
+        <p className="text-white/20 text-xs mt-3 text-right" style={{ fontFamily:'Inter' }}>
+          {subscribers.length} email{subscribers.length !== 1 ? 's' : ''} en total
+        </p>
+      )}
+    </>
+  )
+}
+
 // ── StatCard ───────────────────────────────────────────────────────────────
 function StatCard({ icon:Icon, label, value, sub, color, delay }: {
   icon: React.ElementType; label: string; value: string; sub: string; color: string; delay: number
@@ -661,11 +760,12 @@ function PedidosTab({ pin }: { pin: string }) {
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 function Dashboard({ pin, onLogout }: { pin: string; onLogout: () => void }) {
-  const [tab, setTab] = useState<'pedidos'|'productos'>('pedidos')
+  const [tab, setTab] = useState<'pedidos'|'productos'|'newsletter'>('pedidos')
 
   const TABS = [
-    { id:'pedidos',   label:'📊 Pedidos',   },
-    { id:'productos', label:'📦 Productos', },
+    { id:'pedidos',     label:'📊 Pedidos',     },
+    { id:'productos',   label:'📦 Productos',   },
+    { id:'newsletter',  label:'📧 Newsletter',  },
   ] as const
 
   return (
@@ -714,9 +814,13 @@ function Dashboard({ pin, onLogout }: { pin: string; onLogout: () => void }) {
             <motion.div key="pedidos" initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:10 }} transition={{ duration:0.2 }}>
               <PedidosTab pin={pin}/>
             </motion.div>
-          ) : (
+          ) : tab === 'productos' ? (
             <motion.div key="productos" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} transition={{ duration:0.2 }}>
               <ProductosTab pin={pin}/>
+            </motion.div>
+          ) : (
+            <motion.div key="newsletter" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} transition={{ duration:0.2 }}>
+              <NewsletterTab pin={pin}/>
             </motion.div>
           )}
         </AnimatePresence>

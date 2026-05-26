@@ -45,6 +45,26 @@ function requirePin(req, res, next) {
   next()
 }
 
+// ── Helper: descuenta stock tras pago confirmado ──────────────────
+async function decrementStock(orderItems) {
+  if (!orderItems?.length) return
+  for (const item of orderItems) {
+    if (!item.product_id) continue
+    const { data: product } = await supabase
+      .from('products')
+      .select('stock')
+      .eq('id', item.product_id)
+      .single()
+    if (product != null) {
+      const newStock = Math.max(0, (product.stock || 0) - (item.quantity || 1))
+      await supabase
+        .from('products')
+        .update({ stock: newStock })
+        .eq('id', item.product_id)
+    }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 //  PRODUCTOS
 // ═══════════════════════════════════════════════════════════════
@@ -100,6 +120,20 @@ app.post('/api/payment/create', async (req, res) => {
 
     if (!items?.length) return res.status(400).json({ error: 'Carrito vacío' })
     if (!email)         return res.status(400).json({ error: 'Email requerido' })
+
+    // Verificar stock disponible para cada ítem
+    for (const item of items) {
+      const { data: product } = await supabase
+        .from('products')
+        .select('stock, active')
+        .eq('id', item.id)
+        .single()
+      if (product && product.active && product.stock < (item.quantity || 1)) {
+        return res.status(400).json({
+          error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock}`
+        })
+      }
+    }
 
     const total   = items.reduce((s, i) => s + i.price * i.quantity, 0)
     const subject = items.length === 1
@@ -170,6 +204,14 @@ app.post('/api/payment/confirm', async (req, res) => {
     const status = await getPaymentStatus(token)
     const statusLabel = status.statusLabel  // 'paid' | 'rejected' | 'cancelled' | 'pending'
 
+    // Verificar estado previo para evitar doble descuento de stock
+    const { data: existingOrder } = await supabase
+      .from('orders')
+      .select('status')
+      .eq('flow_token', token)
+      .single()
+    const wasPending = existingOrder?.status === 'pending'
+
     // Actualizar orden
     const { data: updatedOrder, error } = await supabase
       .from('orders')
@@ -183,12 +225,15 @@ app.post('/api/payment/confirm', async (req, res) => {
 
     if (error) console.error('Supabase update error:', error.message)
 
-    // Enviar email de confirmación solo si el pago fue exitoso
+    // Enviar email y descontar stock solo si el pago fue exitoso y estaba pendiente
     if (statusLabel === 'paid' && updatedOrder) {
       sendOrderConfirmation({
         order: updatedOrder,
         items: updatedOrder.order_items || [],
       })
+      if (wasPending) {
+        await decrementStock(updatedOrder.order_items || [])
+      }
     }
 
     res.status(200).send('OK')
@@ -225,9 +270,10 @@ app.get('/api/payment/status/:token', async (req, res) => {
 
           data.status = newStatus
 
-          // Enviar email de confirmación si acaba de pagarse
+          // Enviar email y descontar stock (orden estaba en pending, es la primera vez)
           if (newStatus === 'paid') {
             sendOrderConfirmation({ order: data, items: data.order_items || [] })
+            await decrementStock(data.order_items || [])
           }
         }
       } catch (flowErr) {
@@ -296,6 +342,20 @@ app.post('/api/newsletter', async (req, res) => {
 // ═══════════════════════════════════════════════════════════════
 //  ADMIN
 // ═══════════════════════════════════════════════════════════════
+
+// GET /api/admin/newsletter — lista de suscriptores
+app.get('/api/admin/newsletter', requirePin, async (_req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('newsletter_subscribers')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    res.json(data)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
 
 app.get('/api/admin/stats', requirePin, async (_req, res) => {
   try {
