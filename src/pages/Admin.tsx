@@ -7,7 +7,7 @@ import {
   Save, X, Image as ImageIcon, Tag, DollarSign, Layers,
 } from 'lucide-react'
 
-const API = 'http://localhost:3001'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const ADMIN_PIN_KEY = 'mtdv_admin_pin'
 
 const CATEGORIES = ['ACCESORIOS', 'COMPUTACION', 'AUDIO Y VIDEO', 'HOGAR', 'GABINETES GAMER']
