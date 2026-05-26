@@ -5,7 +5,9 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM   = process.env.RESEND_FROM || 'onboarding@resend.dev'
+const FROM   = process.env.RESEND_FROM
+  ? `Mi Tiendita Digital Ve <${process.env.RESEND_FROM}>`
+  : 'onboarding@resend.dev'
 
 // ── Formato moneda chilena ─────────────────────────────────────────
 const clp = (n) => `$${Number(n).toLocaleString('es-CL')}`
