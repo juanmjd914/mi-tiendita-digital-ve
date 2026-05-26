@@ -50,8 +50,11 @@ export default function ProductCard({ product, delay = 0 }: Props) {
   const imgSrc = product.img ||
     'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&q=80'
 
+  const isOutOfStock = product.stock !== undefined && product.stock === 0
+
   function handleAddToCart(e: React.MouseEvent) {
     e.stopPropagation()
+    if (isOutOfStock) return
     const cartProduct: CartProduct = {
       id:       product.id,
       name:     product.name,
@@ -122,18 +125,29 @@ export default function ProductCard({ product, delay = 0 }: Props) {
             </div>
           )}
 
+          {/* Overlay agotado */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="bg-black/70 text-white/80 text-xs font-black px-3 py-1.5 rounded-full border border-white/20 tracking-widest uppercase" style={{ fontFamily: 'Space Grotesk' }}>
+                Agotado
+              </span>
+            </div>
+          )}
+
           {/* Overlay carrito */}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleAddToCart}
-              className="w-10 h-10 rounded-full bg-brand-violet text-white flex items-center justify-center shadow-lg"
-              title="Añadir al carrito"
-            >
-              <ShoppingCart size={17} />
-            </motion.button>
-          </div>
+          {!isOutOfStock && (
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleAddToCart}
+                className="w-10 h-10 rounded-full bg-brand-violet text-white flex items-center justify-center shadow-lg"
+                title="Añadir al carrito"
+              >
+                <ShoppingCart size={17} />
+              </motion.button>
+            </div>
+          )}
         </div>
 
         {/* Info */}

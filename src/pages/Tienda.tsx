@@ -313,20 +313,30 @@ function ProductTile({
         <img
           src={imgSrc}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${product.stock === 0 ? 'opacity-40 grayscale' : ''}`}
           onError={e => {
             e.currentTarget.src = 'https://mitienditadigitalve.com/wp-content/uploads/2021/12/Gabinete-MX410T-6.webp'
           }}
         />
-        {discount && (
-          <div className="absolute top-2 right-2 bg-brand-violet text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
-            -{discount}%
+        {product.stock === 0 ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-black/70 text-white/80 text-xs font-black px-3 py-1.5 rounded-full border border-white/20 tracking-widest uppercase" style={{ fontFamily: 'Space Grotesk' }}>
+              Agotado
+            </span>
           </div>
-        )}
-        {product.badge && (
-          <div className="absolute top-2 left-2 bg-white/10 text-white/70 text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/10">
-            {product.badge}
-          </div>
+        ) : (
+          <>
+            {discount && (
+              <div className="absolute top-2 right-2 bg-brand-violet text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
+                -{discount}%
+              </div>
+            )}
+            {product.badge && (
+              <div className="absolute top-2 left-2 bg-white/10 text-white/70 text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/10">
+                {product.badge}
+              </div>
+            )}
+          </>
         )}
       </div>
       <div className="p-3 sm:p-4">

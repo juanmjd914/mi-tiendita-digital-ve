@@ -20,6 +20,7 @@ interface OrderItem { id: number; product_id: number; name: string; price: numbe
 interface Order {
   id: string; status: 'paid'|'pending'|'pending_transfer'|'rejected'|'cancelled'
   total: number; customer_email: string; customer_name: string|null
+  customer_phone: string|null; customer_address: string|null
   created_at: string; flow_token: string|null; order_items: OrderItem[]
 }
 
@@ -105,7 +106,35 @@ function OrderRow({ order, pin, onConfirmTransfer }: {
           <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }}
             exit={{ height:0, opacity:0 }} transition={{ duration:0.2 }} className="overflow-hidden">
             <div className="px-4 pb-3 pt-1 border-t border-white/5">
-              {order.customer_name && <p className="text-white/40 text-xs mb-2">Cliente: <span className="text-white/70">{order.customer_name}</span></p>}
+              {/* Datos del cliente */}
+              <div className="mb-3 p-3 rounded-xl space-y-1.5" style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)' }}>
+                <p className="text-white/30 text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ fontFamily:'Space Grotesk' }}>Datos del cliente</p>
+                {order.customer_name && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="text-white/30 shrink-0">👤</span>
+                    <span className="text-white/80 font-semibold">{order.customer_name}</span>
+                  </div>
+                )}
+                <div className="flex items-start gap-2 text-xs">
+                  <span className="text-white/30 shrink-0">📧</span>
+                  <span className="text-white/60">{order.customer_email}</span>
+                </div>
+                {order.customer_phone && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="text-white/30 shrink-0">📱</span>
+                    <a href={`https://wa.me/${order.customer_phone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer"
+                      className="text-brand-cyan hover:underline">{order.customer_phone}</a>
+                  </div>
+                )}
+                {order.customer_address && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="text-white/30 shrink-0">📍</span>
+                    <span className="text-white/60">{order.customer_address}</span>
+                  </div>
+                )}
+              </div>
+              {/* Ítems */}
+              <p className="text-white/30 text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ fontFamily:'Space Grotesk' }}>Productos</p>
               <div className="space-y-1.5">
                 {order.order_items?.map(item => (
                   <div key={item.id} className="flex items-center justify-between text-xs">

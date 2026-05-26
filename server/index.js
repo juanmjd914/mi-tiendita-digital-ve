@@ -125,12 +125,12 @@ app.post('/api/payment/create', async (req, res) => {
     for (const item of items) {
       const { data: product } = await supabase
         .from('products')
-        .select('stock, active')
+        .select('stock')
         .eq('id', item.id)
         .single()
-      if (product && product.active && product.stock < (item.quantity || 1)) {
+      if (product && (product.stock ?? 999) < (item.quantity || 1)) {
         return res.status(400).json({
-          error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock}`
+          error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock ?? 0}`
         })
       }
     }
@@ -144,10 +144,12 @@ app.post('/api/payment/create', async (req, res) => {
     const { data: order, error: orderErr } = await supabase
       .from('orders')
       .insert({
-        status:         'pending',
+        status:           'pending',
         total,
-        customer_email: email,
-        customer_name:  customerName || null,
+        customer_email:   email,
+        customer_name:    customerName    || null,
+        customer_phone:   customerPhone   || null,
+        customer_address: customerAddress || null,
       })
       .select()
       .single()
@@ -291,7 +293,7 @@ app.get('/api/payment/status/:token', async (req, res) => {
 // POST /api/payment/transfer — crea pedido pendiente de transferencia bancaria
 app.post('/api/payment/transfer', async (req, res) => {
   try {
-    const { items, email, customerName } = req.body
+    const { items, email, customerName, customerPhone, customerAddress } = req.body
 
     if (!items?.length) return res.status(400).json({ error: 'Carrito vacío' })
     if (!email)         return res.status(400).json({ error: 'Email requerido' })
@@ -300,12 +302,12 @@ app.post('/api/payment/transfer', async (req, res) => {
     for (const item of items) {
       const { data: product } = await supabase
         .from('products')
-        .select('stock, active')
+        .select('stock')
         .eq('id', item.id)
         .single()
-      if (product && product.active && product.stock < (item.quantity || 1)) {
+      if (product && (product.stock ?? 999) < (item.quantity || 1)) {
         return res.status(400).json({
-          error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock}`
+          error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock ?? 0}`
         })
       }
     }
@@ -316,10 +318,12 @@ app.post('/api/payment/transfer', async (req, res) => {
     const { data: order, error: orderErr } = await supabase
       .from('orders')
       .insert({
-        status:         'pending_transfer',
+        status:           'pending_transfer',
         total,
-        customer_email: email,
-        customer_name:  customerName || null,
+        customer_email:   email,
+        customer_name:    customerName    || null,
+        customer_phone:   customerPhone   || null,
+        customer_address: customerAddress || null,
       })
       .select()
       .single()
