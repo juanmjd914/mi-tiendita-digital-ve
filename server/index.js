@@ -507,7 +507,7 @@ app.delete('/api/admin/products/:id', requirePin, async (req, res) => {
 // POST /api/admin/orders/:id/confirm-transfer — confirma pago por transferencia
 app.post('/api/admin/orders/:id/confirm-transfer', requirePin, async (req, res) => {
   try {
-    const orderId = Number(req.params.id)
+    const orderId = req.params.id
 
     // Obtener orden con items
     const { data: order, error: fetchErr } = await supabase

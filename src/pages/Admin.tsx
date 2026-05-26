@@ -18,7 +18,7 @@ interface Stats { paidOrders: number; totalRevenue: number; subscribers: number 
 
 interface OrderItem { id: number; product_id: number; name: string; price: number; quantity: number }
 interface Order {
-  id: number; status: 'paid'|'pending'|'pending_transfer'|'rejected'|'cancelled'
+  id: string; status: 'paid'|'pending'|'pending_transfer'|'rejected'|'cancelled'
   total: number; customer_email: string; customer_name: string|null
   created_at: string; flow_token: string|null; order_items: OrderItem[]
 }
@@ -65,7 +65,7 @@ function StatusBadge({ status }: { status: Order['status'] }) {
 function OrderRow({ order, pin, onConfirmTransfer }: {
   order: Order
   pin: string
-  onConfirmTransfer: (id: number) => void
+  onConfirmTransfer: (id: string) => void
 }) {
   const [open,       setOpen]       = useState(false)
   const [confirming, setConfirming] = useState(false)
