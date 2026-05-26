@@ -2,7 +2,7 @@ import { motion } from 'motion/react'
 import { Zap, ArrowRight } from 'lucide-react'
 import ProductCard from './ProductCard'
 
-const WC = 'https://mitienditadigitalve.com/wp-content/uploads'
+const SB = 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE'
 
 const OFFERS = [
   {
@@ -12,7 +12,7 @@ const OFFERS = [
     originalPrice: 85000,
     category: 'Gabinetes Gamer',
     badge: 'OFERTA',
-    img: `${WC}/2021/12/Gabinete-MX410T-6.webp`,
+    img: `${SB}/Gabinete-MX410T-6.webp`,
     rating: 5,
     description: 'Factor de forma: Midi-Tower · Cristal Templado · Tarjetas madre: ATX, Micro ATX, Mini-ITX · 2x USB 2.0.',
   },
@@ -23,7 +23,7 @@ const OFFERS = [
     originalPrice: 40990,
     category: 'Computacion',
     badge: 'OFERTA',
-    img: `${WC}/2026/04/KIT-MONSTER-CREW-INSERTION-B-300x300.webp`,
+    img: `${SB}/KIT%20MONSTER%20CREW%20INSERTION%20B.webp`,
     rating: 5,
     description: 'Combo gaming completo: Teclado + Mouse + Audífonos + Mousepad. Todo lo que necesitas para jugar.',
   },
@@ -34,7 +34,7 @@ const OFFERS = [
     originalPrice: undefined,
     category: 'Computacion',
     badge: 'HOT',
-    img: `${WC}/2026/04/Teclado-Gaming-Backlight-Ultra1-600x600.webp`,
+    img: `${SB}/Teclado%20Gaming%20Backlight%20Ultra.webp`,
     rating: 4,
     description: 'Interface USB 1.1/2.0 · 104 teclas con luz · Teclas multimedia · Medidas: 485x185x25 mm.',
   },

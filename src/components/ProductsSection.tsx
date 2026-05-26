@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom'
 import ProductCard from './ProductCard'
 
-const WC = 'https://mitienditadigitalve.com/wp-content/uploads'
+const SB = 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE'
 
 const PRODUCTS = [
   {
@@ -12,7 +12,7 @@ const PRODUCTS = [
     originalPrice: 85000,
     category: 'Gabinetes Gamer',
     badge: 'OFERTA',
-    img: `${WC}/2021/12/Gabinete-MX410T-6.webp`,
+    img: `${SB}/Gabinete-MX410T-6.webp`,
     rating: 5,
     description: 'Factor de forma: Midi-Tower · Cristal Templado · Tarjetas madre: ATX, Micro ATX, Mini-ITX · 2x USB 2.0 · Ventilador trasero 120 mm.',
   },
@@ -23,7 +23,7 @@ const PRODUCTS = [
     originalPrice: undefined,
     category: 'Accesorios',
     badge: 'HOT',
-    img: `${WC}/2026/04/Joystick-Bluetooth-para-Celular-Ultra1.webp`,
+    img: `${SB}/Joystick%20Bluetooth%20para%20Celular%20Ultra1.webp`,
     rating: 5,
     description: 'Control inalámbrico Bluetooth 3.0 compatible con Android e iOS. Joysticks analógicos, gatillos L2/R2 y batería recargable.',
   },
@@ -34,7 +34,7 @@ const PRODUCTS = [
     originalPrice: undefined,
     category: 'Accesorios',
     badge: 'NUEVO',
-    img: `${WC}/2026/04/Powerbank-Philco-Carga-inalambrica-tipo-c1.webp`,
+    img: `${SB}/Powerbank%20Philco%20Carga%20inalambrica%20tipo%20c1.webp`,
     rating: 4,
     description: 'Powerbank 10.000 mAh con carga Qi inalámbrica. Salida USB-A + USB-C, carga rápida 18W.',
   },
@@ -45,7 +45,7 @@ const PRODUCTS = [
     originalPrice: undefined,
     category: 'Accesorios',
     badge: 'NUEVO',
-    img: `${WC}/2026/04/soporte-para-microfono-philco.webp`,
+    img: `${SB}/soporte%20para%20microfono%20philco.webp`,
     rating: 4,
     description: 'Soporte articulado de 360° con base estable. Compatible con todos los micrófonos de podcast y streaming.',
   },
