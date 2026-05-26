@@ -63,14 +63,17 @@ function StatusBadge({ status }: { status: Order['status'] }) {
 }
 
 // ── OrderRow ───────────────────────────────────────────────────────────────
-function OrderRow({ order, pin, onConfirmTransfer }: {
+function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
   order: Order
   pin: string
   onConfirmTransfer: (id: string) => void
+  onCancelOrder:     (id: string) => void
 }) {
-  const [open,       setOpen]       = useState(false)
-  const [confirming, setConfirming] = useState(false)
-  const [confirmErr, setConfirmErr] = useState('')
+  const [open,          setOpen]          = useState(false)
+  const [confirming,    setConfirming]    = useState(false)
+  const [confirmErr,    setConfirmErr]    = useState('')
+  const [cancelling,    setCancelling]    = useState(false)
+  const [cancelConfirm, setCancelConfirm] = useState(false)
 
   async function handleConfirmTransfer() {
     setConfirming(true)
@@ -87,6 +90,24 @@ function OrderRow({ order, pin, onConfirmTransfer }: {
       setConfirmErr(err instanceof Error ? err.message : 'Error')
     } finally {
       setConfirming(false)
+    }
+  }
+
+  async function handleCancel() {
+    setCancelling(true)
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${order.id}/cancel`, {
+        method: 'POST',
+        headers: { 'x-admin-pin': pin },
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al cancelar')
+      onCancelOrder(order.id)
+    } catch (err: unknown) {
+      setConfirmErr(err instanceof Error ? err.message : 'Error al cancelar')
+    } finally {
+      setCancelling(false)
+      setCancelConfirm(false)
     }
   }
 
@@ -144,28 +165,63 @@ function OrderRow({ order, pin, onConfirmTransfer }: {
                   </div>
                 ))}
               </div>
-              {/* Botón confirmar transferencia */}
-              {order.status === 'pending_transfer' && (
-                <div className="mt-3 pt-3 border-t border-white/5">
+              {/* Acciones según estado */}
+              {(order.status === 'pending_transfer' || order.status === 'pending') && (
+                <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
                   {confirmErr && (
-                    <p className="text-red-400 text-xs mb-2">{confirmErr}</p>
+                    <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">{confirmErr}</p>
                   )}
-                  <motion.button
-                    onClick={handleConfirmTransfer}
-                    disabled={confirming}
-                    whileHover={!confirming ? { scale:1.02 } : {}}
-                    whileTap={!confirming ? { scale:0.98 } : {}}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-xs font-bold disabled:opacity-50 transition-all"
-                    style={{ fontFamily:'Space Grotesk', background:'linear-gradient(135deg,#81d742,#06b6d4)' }}>
-                    {confirming ? (
-                      <><Loader2 size={13} className="animate-spin"/> Confirmando...</>
-                    ) : (
-                      <><CheckCircle2 size={13}/> ✅ Confirmar Pago por Transferencia</>
-                    )}
-                  </motion.button>
-                  <p className="text-white/25 text-[10px] mt-1.5" style={{ fontFamily:'Inter' }}>
-                    Esto marcará el pedido como Pagado, descontará el stock y enviará confirmación al cliente.
-                  </p>
+
+                  {/* Confirmar transferencia */}
+                  {order.status === 'pending_transfer' && (
+                    <>
+                      <motion.button
+                        onClick={handleConfirmTransfer}
+                        disabled={confirming || cancelling}
+                        whileHover={!confirming ? { scale:1.02 } : {}}
+                        whileTap={!confirming ? { scale:0.98 } : {}}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-white text-xs font-bold disabled:opacity-50 transition-all"
+                        style={{ fontFamily:'Space Grotesk', background:'linear-gradient(135deg,#81d742,#06b6d4)' }}>
+                        {confirming ? (
+                          <><Loader2 size={13} className="animate-spin"/> Confirmando...</>
+                        ) : (
+                          <><CheckCircle2 size={13}/> ✅ Confirmar Pago por Transferencia</>
+                        )}
+                      </motion.button>
+                      <p className="text-white/25 text-[10px]" style={{ fontFamily:'Inter' }}>
+                        Marcará como Pagado y enviará confirmación al cliente.
+                      </p>
+                    </>
+                  )}
+
+                  {/* Cancelar pedido */}
+                  {!cancelConfirm ? (
+                    <button
+                      onClick={() => setCancelConfirm(true)}
+                      disabled={confirming || cancelling}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-red-400/80 hover:text-red-400 text-xs font-semibold border border-red-400/20 hover:border-red-400/40 hover:bg-red-400/5 disabled:opacity-40 transition-all"
+                      style={{ fontFamily:'Space Grotesk' }}>
+                      <XCircle size={13}/> Cancelar pedido
+                    </button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleCancel}
+                        disabled={cancelling}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-bold disabled:opacity-50 hover:bg-red-500/30 transition-all"
+                        style={{ fontFamily:'Space Grotesk' }}>
+                        {cancelling ? <Loader2 size={12} className="animate-spin"/> : <XCircle size={12}/>}
+                        {cancelling ? 'Cancelando...' : '¿Confirmar cancelación?'}
+                      </button>
+                      <button
+                        onClick={() => setCancelConfirm(false)}
+                        disabled={cancelling}
+                        className="px-3 py-2 rounded-xl border border-white/10 text-white/40 hover:text-white text-xs transition-all"
+                        style={{ fontFamily:'Space Grotesk' }}>
+                        No
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -830,6 +886,9 @@ function PedidosTab({ pin }: { pin: string }) {
             <OrderRow key={o.id} order={o} pin={pin}
               onConfirmTransfer={(id) => {
                 setOrders(prev => prev.map(x => x.id === id ? { ...x, status: 'paid' } : x))
+              }}
+              onCancelOrder={(id) => {
+                setOrders(prev => prev.map(x => x.id === id ? { ...x, status: 'cancelled' } : x))
               }}
             />
           ))}</div>

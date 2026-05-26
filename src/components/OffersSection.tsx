@@ -1,46 +1,46 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { Zap, ArrowRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import type { Product } from '../lib/supabase'
 import ProductCard from './ProductCard'
 
-const SB = 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE'
-
-const OFFERS = [
-  {
-    id: 10,
-    name: 'Gabinete Gamer Cougar MX410-T',
-    price: 52500,
-    originalPrice: 85000,
-    category: 'Gabinetes Gamer',
-    badge: 'OFERTA',
-    img: `${SB}/Gabinete-MX410T-6.webp`,
-    rating: 5,
-    description: 'Factor de forma: Midi-Tower · Cristal Templado · Tarjetas madre: ATX, Micro ATX, Mini-ITX · 2x USB 2.0.',
-  },
-  {
-    id: 11,
-    name: 'Kit Gamer Monster 4 en 1',
-    price: 20000,
-    originalPrice: 40990,
-    category: 'Computacion',
-    badge: 'OFERTA',
-    img: `${SB}/KIT%20MONSTER%20CREW%20INSERTION%20B.webp`,
-    rating: 5,
-    description: 'Combo gaming completo: Teclado + Mouse + Audífonos + Mousepad. Todo lo que necesitas para jugar.',
-  },
-  {
-    id: 12,
-    name: 'Teclado Gaming Backlight Ultra',
-    price: 9800,
-    originalPrice: undefined,
-    category: 'Computacion',
-    badge: 'HOT',
-    img: `${SB}/Teclado%20Gaming%20Backlight%20Ultra.webp`,
-    rating: 4,
-    description: 'Interface USB 1.1/2.0 · 104 teclas con luz · Teclas multimedia · Medidas: 485x185x25 mm.',
-  },
-]
+function toLegacy(p: Product) {
+  return {
+    id:            p.id,
+    name:          p.name,
+    price:         p.price,
+    originalPrice: p.original_price ?? undefined,
+    category:      p.category,
+    badge:         p.badge         ?? undefined,
+    img:           p.img_url       ?? undefined,
+    rating:        p.rating,
+    description:   p.description   ?? undefined,
+    stock:         p.stock,
+  }
+}
 
 export default function OffersSection() {
+  const [offers,  setOffers]  = useState<ReturnType<typeof toLegacy>[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase
+      .from('products')
+      .select('*')
+      .eq('active', true)
+      .in('badge', ['OFERTA', 'HOT'])
+      .limit(3)
+      .then(({ data }) => {
+        if (data) setOffers(data.map(toLegacy))
+        setLoading(false)
+      })
+  }, [])
+
+  // Si no hay ofertas ni carga, no renderizamos la sección
+  if (!loading && offers.length === 0) return null
+
   return (
     <section className="py-20 px-4 relative overflow-hidden">
       {/* Fondo con partículas */}
@@ -53,10 +53,10 @@ export default function OffersSection() {
           key={i}
           className="absolute w-1 h-1 rounded-full bg-brand-violet/30"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animation: `pulse ${2 + Math.random() * 2}s ease-in-out infinite`,
-            animationDelay: `${Math.random() * 2}s`,
+            left: `${(i * 8.3) % 100}%`,
+            top:  `${(i * 13.7) % 100}%`,
+            animation: `pulse ${2 + (i % 3)}s ease-in-out infinite`,
+            animationDelay: `${(i * 0.3) % 2}s`,
           }}
         />
       ))}
@@ -89,22 +89,32 @@ export default function OffersSection() {
         </motion.div>
 
         {/* Productos */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-10">
-          {OFFERS.map((p, i) => (
-            <ProductCard key={p.id} product={p} delay={i * 0.12} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-10">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-white/3 rounded-2xl aspect-square animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-10">
+            {offers.map((p, i) => (
+              <ProductCard key={p.id} product={p} delay={i * 0.12} />
+            ))}
+          </div>
+        )}
 
         {/* CTA */}
         <div className="text-center">
-          <motion.button
-            whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(124,58,237,0.5)' }}
-            whileTap={{ scale: 0.96 }}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-violet to-brand-cyan text-white font-bold text-sm rounded-full"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-          >
-            Ver todas las ofertas <ArrowRight size={16} />
-          </motion.button>
+          <Link to="/tienda?cat=OFERTA">
+            <motion.button
+              whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(124,58,237,0.5)' }}
+              whileTap={{ scale: 0.96 }}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-violet to-brand-cyan text-white font-bold text-sm rounded-full"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              Ver todas las ofertas <ArrowRight size={16} />
+            </motion.button>
+          </Link>
         </div>
       </div>
 

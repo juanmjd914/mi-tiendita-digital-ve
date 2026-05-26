@@ -98,6 +98,33 @@ async function decrementStock(orderItems) {
   }
 }
 
+// ── Helper: restaura stock al cancelar un pedido ─────────────────
+async function restoreStock(orderItems) {
+  if (!orderItems?.length) return
+  for (const item of orderItems) {
+    let product   = null
+    let productId = null
+
+    if (item.name) {
+      const { data } = await supabase
+        .from('products').select('id, stock')
+        .ilike('name', item.name.trim()).maybeSingle()
+      if (data) { product = data; productId = data.id }
+    }
+    if (!product && item.product_id) {
+      const { data } = await supabase
+        .from('products').select('id, stock')
+        .eq('id', item.product_id).maybeSingle()
+      if (data) { product = data; productId = data.id }
+    }
+    if (!product) continue
+
+    const newStock = (product.stock ?? 0) + (item.quantity || 1)
+    const { error } = await supabase.from('products').update({ stock: newStock }).eq('id', productId)
+    if (!error) console.log(`📦 Stock restaurado: "${item.name}" ${product.stock} → ${newStock}`)
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 //  PRODUCTOS
 // ═══════════════════════════════════════════════════════════════
@@ -578,6 +605,38 @@ app.post('/api/admin/orders/:id/confirm-transfer', requirePin, async (req, res) 
     res.json({ ok: true, order: updated })
   } catch (err) {
     console.error('/api/admin/orders/:id/confirm-transfer error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/admin/orders/:id/cancel — cancela un pedido pendiente y restaura stock
+app.post('/api/admin/orders/:id/cancel', requirePin, async (req, res) => {
+  try {
+    const orderId = req.params.id
+
+    const { data: order, error: fetchErr } = await supabase
+      .from('orders')
+      .select('*, order_items(*)')
+      .eq('id', orderId)
+      .single()
+
+    if (fetchErr || !order) return res.status(404).json({ error: 'Orden no encontrada' })
+    if (!['pending_transfer', 'pending'].includes(order.status)) {
+      return res.status(400).json({ error: 'Solo se pueden cancelar pedidos pendientes' })
+    }
+
+    const { error: updateErr } = await supabase
+      .from('orders').update({ status: 'cancelled' }).eq('id', orderId)
+    if (updateErr) throw updateErr
+
+    // Solo restaura stock si ya se había descontado (transferencias)
+    if (order.status === 'pending_transfer') {
+      await restoreStock(order.order_items || [])
+    }
+
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('/api/admin/orders/:id/cancel error:', err.message)
     res.status(500).json({ error: err.message })
   }
 })
