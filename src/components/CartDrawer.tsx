@@ -68,7 +68,7 @@ export default function CartDrawer() {
 
     const payload = {
       email,
-      customerName: name,
+      customerName:    name,
       customerPhone:   phone,
       customerAddress: address,
       items: items.map(({ product, quantity }) => ({
@@ -91,22 +91,37 @@ export default function CartDrawer() {
         if (!res.ok) throw new Error(data.error || 'Error al crear el pago')
         clearCart()
         window.location.href = data.redirectUrl
+
       } else {
-        // ── Transferencia bancaria ──────────────────────────────────
-        const res  = await fetch(`${API_URL}/api/payment/transfer`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify(payload),
-        })
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error || 'Error al crear el pedido')
-        clearCart()
-        setTransferOrder({ id: data.orderId, total: data.total })
-        setStep('transfer-success')
+        // ── Transferencia bancaria — timeout 25s ───────────────────
+        const controller = new AbortController()
+        const timer = window.setTimeout(() => controller.abort(), 25000)
+
+        try {
+          const res = await fetch(`${API_URL}/api/payment/transfer`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(payload),
+            signal:  controller.signal,
+          })
+          clearTimeout(timer)
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.error || 'Error al crear el pedido')
+          clearCart()
+          setTransferOrder({ id: data.orderId, total: data.total })
+          setStep('transfer-success')
+        } catch (fetchErr: unknown) {
+          clearTimeout(timer)
+          if (fetchErr instanceof Error && fetchErr.name === 'AbortError') {
+            throw new Error('La solicitud tardó demasiado. Por favor intenta nuevamente.')
+          }
+          throw fetchErr
+        }
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al procesar el pago'
       setError(msg)
+    } finally {
       setLoading(false)
     }
   }

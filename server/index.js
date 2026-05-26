@@ -336,8 +336,8 @@ app.post('/api/payment/transfer', async (req, res) => {
     }))
     await supabase.from('order_items').insert(orderItems)
 
-    // Enviar email con instrucciones (no es fatal si falla)
-    sendTransferInstructions({ order, items: orderItems })
+    // Enviar email con instrucciones (no bloquea si falla)
+    try { await sendTransferInstructions({ order, items: orderItems }) } catch (_) { /* ignore */ }
 
     res.json({ orderId: order.id, total })
   } catch (err) {
