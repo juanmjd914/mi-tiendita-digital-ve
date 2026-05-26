@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   Lock, BarChart3, ShoppingBag, Mail, TrendingUp, RefreshCw,
   ChevronDown, ChevronUp, LogOut, Package, Clock, CheckCircle2,
   XCircle, AlertCircle, Search, Filter, Plus, Edit2, Eye, EyeOff,
   Save, X, Image as ImageIcon, Tag, DollarSign, Layers, Copy, Loader2,
+  Upload, Bell,
 } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
@@ -247,9 +248,39 @@ function ProductForm({
   onClose: () => void
 }) {
   const isNew = !product?.id
-  const [form,    setForm]    = useState<Partial<Product>>(product ?? EMPTY)
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState('')
+  const [form,      setForm]      = useState<Partial<Product>>(product ?? EMPTY)
+  const [loading,   setLoading]   = useState(false)
+  const [error,     setError]     = useState('')
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setError('')
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload  = () => resolve((reader.result as string).split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const res  = await fetch(`${API}/api/admin/upload-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pin': pin },
+        body: JSON.stringify({ data: base64, name: file.name, type: file.type }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al subir')
+      set('img_url', data.url)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al subir imagen')
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
 
   function set(key: keyof Product, val: unknown) {
     setForm(f => ({ ...f, [key]: val }))
@@ -381,13 +412,35 @@ function ProductForm({
               style={{ fontFamily:'Inter' }} />
           </div>
 
-          {/* URL imagen */}
+          {/* URL imagen + subida */}
           <div>
             <label className="text-white/50 text-xs mb-1.5 flex items-center gap-1.5" style={{ fontFamily:'Space Grotesk' }}>
-              <ImageIcon size={11}/> URL de imagen
+              <ImageIcon size={11}/> Imagen del producto
             </label>
+            {/* Input oculto para el archivo */}
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleFileUpload} className="hidden" />
+            {/* Botón subir */}
+            <motion.button type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              whileHover={!uploading ? { scale:1.02 } : {}}
+              whileTap={!uploading ? { scale:0.98 } : {}}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed text-sm font-semibold mb-2 transition-all disabled:opacity-50"
+              style={{
+                fontFamily:'Space Grotesk',
+                borderColor: uploading ? 'rgba(129,215,66,0.4)' : 'rgba(255,255,255,0.15)',
+                color:       uploading ? '#81d742'               : 'rgba(255,255,255,0.5)',
+                background:  uploading ? 'rgba(129,215,66,0.05)' : 'transparent',
+              }}>
+              {uploading
+                ? <><Loader2 size={14} className="animate-spin"/> Subiendo imagen...</>
+                : <><Upload size={14}/> Subir imagen desde PC</>
+              }
+            </motion.button>
+            {/* O pegar URL */}
             <input value={form.img_url ?? ''} onChange={e => set('img_url', e.target.value)}
-              placeholder="https://..."
+              placeholder="O pega una URL: https://..."
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
               style={{ fontFamily:'Inter' }} />
             {form.img_url && (
@@ -774,6 +827,22 @@ function StatCard({ icon:Icon, label, value, sub, color, delay }: {
 }
 
 // ── PedidosTab ─────────────────────────────────────────────────────────────
+// Genera un bip de notificación usando Web Audio API
+function playNotificationSound() {
+  try {
+    const ctx  = new AudioContext()
+    const osc  = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain); gain.connect(ctx.destination)
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(880, ctx.currentTime)
+    osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.15)
+    gain.gain.setValueAtTime(0.25, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6)
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.6)
+  } catch { /* silencioso si el browser bloquea audio */ }
+}
+
 function PedidosTab({ pin }: { pin: string }) {
   const [stats,         setStats]         = useState<Stats|null>(null)
   const [orders,        setOrders]        = useState<Order[]>([])
@@ -782,7 +851,10 @@ function PedidosTab({ pin }: { pin: string }) {
   const [loadingOrders, setLoadingOrders] = useState(true)
   const [searchQuery,   setSearchQuery]   = useState('')
   const [lastRefresh,   setLastRefresh]   = useState(new Date())
+  const [newOrderAlert, setNewOrderAlert] = useState<number>(0) // cantidad de pedidos nuevos
 
+  const knownIdsRef   = useRef<Set<string>>(new Set())
+  const initialLoad   = useRef(true)
   const headers = { 'x-admin-pin': pin }
 
   const loadStats = useCallback(async () => {
@@ -806,6 +878,33 @@ function PedidosTab({ pin }: { pin: string }) {
   useEffect(() => { loadStats() }, [loadStats])
   useEffect(() => { loadOrders() }, [loadOrders])
 
+  // Detectar pedidos nuevos tras cada carga
+  useEffect(() => {
+    if (loadingOrders) return
+    if (initialLoad.current) {
+      // Primera carga: registrar IDs actuales sin alertar
+      orders.forEach(o => knownIdsRef.current.add(o.id))
+      initialLoad.current = false
+      return
+    }
+    const newOnes = orders.filter(o => !knownIdsRef.current.has(o.id))
+    if (newOnes.length > 0) {
+      newOnes.forEach(o => knownIdsRef.current.add(o.id))
+      setNewOrderAlert(newOnes.length)
+      playNotificationSound()
+    }
+  }, [orders, loadingOrders])
+
+  // Auto-refresh cada 30 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadOrders()
+      loadStats()
+      setLastRefresh(new Date())
+    }, 30_000)
+    return () => clearInterval(interval)
+  }, [loadOrders, loadStats])
+
   function refresh() { loadStats(); loadOrders(); setLastRefresh(new Date()) }
 
   const filtered = orders.filter(o => {
@@ -824,6 +923,29 @@ function PedidosTab({ pin }: { pin: string }) {
 
   return (
     <>
+      {/* Alerta nuevo pedido */}
+      <AnimatePresence>
+        {newOrderAlert > 0 && (
+          <motion.div
+            initial={{ opacity:0, y:-16, scale:0.97 }}
+            animate={{ opacity:1, y:0,   scale:1    }}
+            exit={{    opacity:0, y:-16, scale:0.97 }}
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-4 border"
+            style={{ background:'rgba(129,215,66,0.08)', borderColor:'rgba(129,215,66,0.3)' }}
+          >
+            <motion.div animate={{ scale:[1,1.3,1] }} transition={{ duration:0.4, repeat:2 }}>
+              <Bell size={16} className="text-brand-violet" />
+            </motion.div>
+            <p className="text-white font-semibold text-sm flex-1" style={{ fontFamily:'Space Grotesk' }}>
+              🛒 {newOrderAlert === 1 ? '¡Nuevo pedido recibido!' : `¡${newOrderAlert} nuevos pedidos recibidos!`}
+            </p>
+            <button onClick={() => setNewOrderAlert(0)} className="text-white/30 hover:text-white transition-colors">
+              <X size={14}/>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Stats */}
       <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}
         className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

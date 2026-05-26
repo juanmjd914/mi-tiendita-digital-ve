@@ -29,7 +29,7 @@ app.use(cors({
     ? ['https://mitienditadigitalve.com', 'https://www.mitienditadigitalve.com']
     : ['http://localhost:5174', 'http://localhost:5175'],
 }))
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))        // 10mb para imágenes en base64
 app.use(express.urlencoded({ extended: true })) // requerido para webhooks de Flow
 
 if (isProd) {
@@ -605,6 +605,37 @@ app.post('/api/admin/orders/:id/confirm-transfer', requirePin, async (req, res) 
     res.json({ ok: true, order: updated })
   } catch (err) {
     console.error('/api/admin/orders/:id/confirm-transfer error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/admin/upload-image — sube imagen a Supabase Storage y devuelve URL pública
+app.post('/api/admin/upload-image', requirePin, async (req, res) => {
+  try {
+    const { data: base64Data, name, type } = req.body
+    if (!base64Data || !name) return res.status(400).json({ error: 'Datos requeridos' })
+
+    // Validar que sea una imagen
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+    if (!validTypes.includes(type)) return res.status(400).json({ error: 'Solo se permiten imágenes (JPG, PNG, WEBP)' })
+
+    const buffer   = Buffer.from(base64Data, 'base64')
+    const ext      = name.split('.').pop()?.toLowerCase() || 'jpg'
+    const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+    const { error: uploadErr } = await supabase.storage
+      .from('MI TIENDITA DIGITAL VE')
+      .upload(filename, buffer, { contentType: type, upsert: false })
+
+    if (uploadErr) throw uploadErr
+
+    const { data: urlData } = supabase.storage
+      .from('MI TIENDITA DIGITAL VE')
+      .getPublicUrl(filename)
+
+    res.json({ url: urlData.publicUrl })
+  } catch (err) {
+    console.error('/api/admin/upload-image error:', err.message)
     res.status(500).json({ error: err.message })
   }
 })
