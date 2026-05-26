@@ -30,9 +30,14 @@ export default function Login() {
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (authError) {
+      const msg = authError.message
       setError(
-        authError.message === 'Invalid login credentials'
+        msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')
           ? 'Email o contraseña incorrectos'
+          : msg.includes('Email not confirmed') || msg.includes('email_not_confirmed')
+          ? 'Debes confirmar tu email antes de ingresar. Revisa tu bandeja de entrada (o spam) y haz clic en el enlace de confirmación.'
+          : msg.includes('Too many requests') || msg.includes('over_email_send_rate_limit')
+          ? 'Demasiados intentos. Espera unos minutos e intenta de nuevo.'
           : 'Error al iniciar sesión. Intenta de nuevo.'
       )
       setLoading(false)
