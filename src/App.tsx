@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Navbar          from './components/Navbar'
 import CartDrawer      from './components/CartDrawer'
 import WhatsAppButton  from './components/WhatsAppButton'
@@ -68,7 +68,7 @@ function ComingSoon({ title }: { title: string }) {
 // Navbar/Cart/WhatsApp solo aparecen fuera del panel admin
 function SiteShell() {
   const { pathname } = useLocation()
-  if (pathname.startsWith('/admin')) return null
+  if (pathname.toLowerCase().startsWith('/admin')) return null
   return (
     <>
       <Navbar />
@@ -123,6 +123,7 @@ export default function App() {
         <Route path="/cuenta/nueva-password"        element={<NuevaPassword />} />
         <Route path="/politica-de-privacidad"    element={<PageLayout><PoliticaPrivacidad /></PageLayout>} />
         <Route path="/admin"                     element={<Admin />} />
+        <Route path="/ADMIN"                     element={<Navigate to="/admin" replace />} />
         <Route path="*"               element={<ComingSoon title="Página no encontrada" />} />
       </Routes>
     </BrowserRouter>

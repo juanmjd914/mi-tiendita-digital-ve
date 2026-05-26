@@ -1,22 +1,36 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, ShoppingCart, Trash2, Plus, Minus, ArrowRight, ShoppingBag, Mail, Loader2, Phone, MapPin } from 'lucide-react'
+import { X, ShoppingCart, Trash2, Plus, Minus, ArrowRight, ShoppingBag, Mail, Loader2, Phone, MapPin, CreditCard, Building2, CheckCircle2, Copy } from 'lucide-react'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
+type Step = 'cart' | 'checkout' | 'transfer-success'
+type PaymentMethod = 'flow' | 'transfer'
+
+const BANK_DETAILS = [
+  { label: 'Banco',          value: 'Banco Falabella' },
+  { label: 'Tipo',           value: 'Cuenta Corriente' },
+  { label: 'N° de cuenta',   value: '1-982-273710-0' },
+  { label: 'Titular',        value: 'Juan Carlos Mejias' },
+  { label: 'RUT',            value: '27.012.143-8' },
+]
+
 export default function CartDrawer() {
   const { isOpen, closeCart, items, removeItem, updateQuantity, totalPrice, clearCart } = useCartStore()
   const { user } = useAuthStore()
 
-  const [step,    setStep]    = useState<'cart' | 'checkout'>('cart')
-  const [email,   setEmail]   = useState('')
-  const [name,    setName]    = useState('')
-  const [phone,   setPhone]   = useState('')
-  const [address, setAddress] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState<string | null>(null)
+  const [step,          setStep]          = useState<Step>('cart')
+  const [email,         setEmail]         = useState('')
+  const [name,          setName]          = useState('')
+  const [phone,         setPhone]         = useState('')
+  const [address,       setAddress]       = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('flow')
+  const [loading,       setLoading]       = useState(false)
+  const [error,         setError]         = useState<string | null>(null)
+  const [transferOrder, setTransferOrder] = useState<{ id: number; total: number } | null>(null)
+  const [copied,        setCopied]        = useState<string | null>(null)
 
   // Pre-llenar datos si el usuario está logueado
   useEffect(() => {
@@ -31,8 +45,17 @@ export default function CartDrawer() {
 
   function handleClose() {
     closeCart()
-    setStep('cart')
-    setError(null)
+    setTimeout(() => {
+      setStep('cart')
+      setError(null)
+      setTransferOrder(null)
+    }, 300)
+  }
+
+  function copyToClipboard(text: string, key: string) {
+    navigator.clipboard.writeText(text)
+    setCopied(key)
+    setTimeout(() => setCopied(null), 2000)
   }
 
   async function handleCheckout(e: React.FormEvent) {
@@ -43,36 +66,55 @@ export default function CartDrawer() {
     setLoading(true)
     setError(null)
 
+    const payload = {
+      email,
+      customerName: name,
+      customerPhone:   phone,
+      customerAddress: address,
+      items: items.map(({ product, quantity }) => ({
+        id:       product.id,
+        name:     product.name,
+        price:    product.price,
+        quantity,
+      })),
+    }
+
     try {
-      const res = await fetch(`${API_URL}/api/payment/create`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          customerName: name,
-          customerPhone:   phone,
-          customerAddress: address,
-          items: items.map(({ product, quantity }) => ({
-            id:       product.id,
-            name:     product.name,
-            price:    product.price,
-            quantity,
-          })),
-        }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) throw new Error(data.error || 'Error al crear el pago')
-
-      // Redirigir al portal de pago de Flow
-      clearCart()
-      window.location.href = data.redirectUrl
+      if (paymentMethod === 'flow') {
+        // ── Flow Chile ─────────────────────────────────────────────
+        const res  = await fetch(`${API_URL}/api/payment/create`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Error al crear el pago')
+        clearCart()
+        window.location.href = data.redirectUrl
+      } else {
+        // ── Transferencia bancaria ──────────────────────────────────
+        const res  = await fetch(`${API_URL}/api/payment/transfer`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Error al crear el pedido')
+        clearCart()
+        setTransferOrder({ id: data.orderId, total: data.total })
+        setStep('transfer-success')
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al procesar el pago'
       setError(msg)
       setLoading(false)
     }
+  }
+
+  const headerTitle: Record<Step, string> = {
+    'cart':             'Mi Carrito',
+    'checkout':         'Datos de Pago',
+    'transfer-success': '✅ Pedido Creado',
   }
 
   return (
@@ -84,7 +126,7 @@ export default function CartDrawer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={handleClose}
+            onClick={step === 'transfer-success' ? undefined : handleClose}
             className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
           />
 
@@ -101,7 +143,7 @@ export default function CartDrawer() {
               <div className="flex items-center gap-2">
                 <ShoppingCart size={18} className="text-brand-violet" />
                 <h2 className="text-white font-bold text-base" style={{ fontFamily: 'Space Grotesk' }}>
-                  {step === 'cart' ? 'Mi Carrito' : 'Datos de Pago'}
+                  {headerTitle[step]}
                 </h2>
                 {step === 'cart' && items.length > 0 && (
                   <span className="bg-brand-violet/20 text-brand-violet text-xs font-bold px-2 py-0.5 rounded-full">
@@ -120,9 +162,11 @@ export default function CartDrawer() {
                     ← Volver
                   </button>
                 )}
-                <button onClick={handleClose} className="text-white/60 hover:text-white transition-colors p-1">
-                  <X size={20} />
-                </button>
+                {step !== 'transfer-success' && (
+                  <button onClick={handleClose} className="text-white/60 hover:text-white transition-colors p-1">
+                    <X size={20} />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -202,7 +246,7 @@ export default function CartDrawer() {
                       </span>
                     </div>
                     <motion.button
-                      whileHover={{ scale: 1.02, boxShadow: '0 0 25px rgba(129,215,66,0.3)' }}
+                      whileHover={{ scale: 1.02, boxShadow: '0 0 25px rgba(124,58,237,0.3)' }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setStep('checkout')}
                       className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-brand-violet to-brand-cyan text-white font-bold text-sm rounded-xl"
@@ -210,15 +254,15 @@ export default function CartDrawer() {
                     >
                       Proceder al Pago <ArrowRight size={16} />
                     </motion.button>
-                    <p className="text-white/25 text-xs text-center">Pago seguro con Flow Chile</p>
+                    <p className="text-white/25 text-xs text-center">Pago seguro · Flow Chile o Transferencia</p>
                   </div>
                 )}
               </>
             )}
 
-            {/* ── STEP 2: datos para pago ── */}
+            {/* ── STEP 2: datos + método de pago ── */}
             {step === 'checkout' && (
-              <form onSubmit={handleCheckout} className="flex flex-col flex-1">
+              <form onSubmit={handleCheckout} className="flex flex-col flex-1 overflow-hidden">
                 <div className="flex-1 overflow-y-auto p-5 space-y-4">
                   {/* Resumen */}
                   <div className="glass rounded-xl p-4 border border-white/5 space-y-2">
@@ -300,40 +344,224 @@ export default function CartDrawer() {
                         />
                       </div>
                     </div>
-
-                    {error && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl px-3 py-2"
-                      >
-                        {error}
-                      </motion.p>
-                    )}
-
-                    <p className="text-white/25 text-xs leading-relaxed">
-                      Al continuar serás redirigido al portal seguro de <strong className="text-white/40">Flow Chile</strong> para completar tu pago.
-                    </p>
                   </div>
+
+                  {/* Selector de método de pago */}
+                  <div className="space-y-2">
+                    <p className="text-white/40 text-xs uppercase tracking-widest" style={{ fontFamily: 'Space Grotesk' }}>Método de pago</p>
+
+                    {/* Flow */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('flow')}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left"
+                      style={{
+                        background: paymentMethod === 'flow' ? 'rgba(124,58,237,0.1)' : 'rgba(255,255,255,0.03)',
+                        borderColor: paymentMethod === 'flow' ? 'rgba(124,58,237,0.5)' : 'rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ background: paymentMethod === 'flow' ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.05)' }}>
+                        <CreditCard size={16} style={{ color: paymentMethod === 'flow' ? '#7c3aed' : 'rgba(255,255,255,0.4)' }} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold" style={{ fontFamily: 'Space Grotesk', color: paymentMethod === 'flow' ? '#c4b5fd' : 'rgba(255,255,255,0.7)' }}>
+                          Pagar con Flow Chile
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'Inter' }}>
+                          Débito, crédito, Webpay, efectivo
+                        </p>
+                      </div>
+                      <div className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
+                        style={{ borderColor: paymentMethod === 'flow' ? '#7c3aed' : 'rgba(255,255,255,0.2)' }}>
+                        {paymentMethod === 'flow' && (
+                          <div className="w-2 h-2 rounded-full bg-brand-violet" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Transferencia */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('transfer')}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left"
+                      style={{
+                        background: paymentMethod === 'transfer' ? 'rgba(6,182,212,0.1)' : 'rgba(255,255,255,0.03)',
+                        borderColor: paymentMethod === 'transfer' ? 'rgba(6,182,212,0.5)' : 'rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ background: paymentMethod === 'transfer' ? 'rgba(6,182,212,0.2)' : 'rgba(255,255,255,0.05)' }}>
+                        <Building2 size={16} style={{ color: paymentMethod === 'transfer' ? '#06b6d4' : 'rgba(255,255,255,0.4)' }} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold" style={{ fontFamily: 'Space Grotesk', color: paymentMethod === 'transfer' ? '#67e8f9' : 'rgba(255,255,255,0.7)' }}>
+                          Transferencia Bancaria
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: 'Inter' }}>
+                          Banco Falabella · Cuenta Corriente
+                        </p>
+                      </div>
+                      <div className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
+                        style={{ borderColor: paymentMethod === 'transfer' ? '#06b6d4' : 'rgba(255,255,255,0.2)' }}>
+                        {paymentMethod === 'transfer' && (
+                          <div className="w-2 h-2 rounded-full bg-brand-cyan" />
+                        )}
+                      </div>
+                    </button>
+                  </div>
+
+                  {error && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl px-3 py-2"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
+
+                  <p className="text-white/25 text-xs leading-relaxed">
+                    {paymentMethod === 'flow'
+                      ? <>Al continuar serás redirigido al portal seguro de <strong className="text-white/40">Flow Chile</strong> para completar tu pago.</>
+                      : <>Recibirás los datos de transferencia por email. Tu pedido quedará reservado hasta confirmar el pago.</>
+                    }
+                  </p>
                 </div>
 
                 <div className="p-5 border-t border-white/5">
                   <motion.button
                     type="submit"
                     disabled={loading}
-                    whileHover={!loading ? { scale: 1.02, boxShadow: '0 0 25px rgba(129,215,66,0.3)' } : {}}
+                    whileHover={!loading ? { scale: 1.02, boxShadow: paymentMethod === 'flow' ? '0 0 25px rgba(124,58,237,0.3)' : '0 0 25px rgba(6,182,212,0.3)' } : {}}
                     whileTap={!loading ? { scale: 0.98 } : {}}
-                    className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-brand-violet to-brand-cyan text-white font-bold text-sm rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
-                    style={{ fontFamily: 'Space Grotesk' }}
+                    className="w-full flex items-center justify-center gap-2 py-4 text-white font-bold text-sm rounded-xl disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                    style={{
+                      fontFamily: 'Space Grotesk',
+                      background: paymentMethod === 'flow'
+                        ? 'linear-gradient(135deg, #7c3aed, #06b6d4)'
+                        : 'linear-gradient(135deg, #0891b2, #06b6d4)',
+                    }}
                   >
                     {loading ? (
                       <><Loader2 size={16} className="animate-spin" /> Procesando...</>
+                    ) : paymentMethod === 'flow' ? (
+                      <><CreditCard size={16} /> Pagar con Flow</>
                     ) : (
-                      <>Pagar con Flow <ArrowRight size={16} /></>
+                      <><Building2 size={16} /> Reservar con Transferencia</>
                     )}
                   </motion.button>
                 </div>
               </form>
+            )}
+
+            {/* ── STEP 3: éxito transferencia ── */}
+            {step === 'transfer-success' && transferOrder && (
+              <div className="flex-1 overflow-y-auto">
+                {/* Banner éxito */}
+                <div className="p-6 text-center border-b border-white/5"
+                  style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.08), rgba(10,10,15,0))' }}>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
+                    className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(6,182,212,0.15)', border: '2px solid rgba(6,182,212,0.3)' }}
+                  >
+                    <CheckCircle2 size={32} className="text-brand-cyan" />
+                  </motion.div>
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                    <p className="text-brand-cyan text-xs font-bold tracking-widest uppercase mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+                      ¡Pedido reservado!
+                    </p>
+                    <p className="text-white font-black text-xl mb-1" style={{ fontFamily: 'Space Grotesk' }}>
+                      Orden #{transferOrder.id}
+                    </p>
+                    <p className="text-white/50 text-sm">
+                      Total a transferir:{' '}
+                      <span className="text-brand-cyan font-bold">${transferOrder.total.toLocaleString('es-CL')}</span>
+                    </p>
+                  </motion.div>
+                </div>
+
+                <div className="p-5 space-y-4">
+                  {/* Datos bancarios */}
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                    <p className="text-white/40 text-xs uppercase tracking-widest mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+                      Datos para la transferencia
+                    </p>
+                    <div className="rounded-xl border overflow-hidden"
+                      style={{ background: 'rgba(6,182,212,0.04)', borderColor: 'rgba(6,182,212,0.2)' }}>
+                      {BANK_DETAILS.map(({ label, value }) => (
+                        <div key={label}
+                          className="flex items-center justify-between px-4 py-2.5 border-b last:border-b-0"
+                          style={{ borderColor: 'rgba(6,182,212,0.1)' }}>
+                          <span className="text-white/45 text-xs" style={{ fontFamily: 'Space Grotesk' }}>{label}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-semibold text-sm" style={{ fontFamily: 'Inter' }}>{value}</span>
+                            <button
+                              onClick={() => copyToClipboard(value, label)}
+                              className="text-white/20 hover:text-brand-cyan transition-colors"
+                              title="Copiar"
+                            >
+                              {copied === label
+                                ? <CheckCircle2 size={13} className="text-brand-cyan" />
+                                : <Copy size={13} />
+                              }
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  {/* Instrucciones */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="rounded-xl border p-4"
+                    style={{ background: 'rgba(255,194,34,0.04)', borderColor: 'rgba(255,194,34,0.2)' }}
+                  >
+                    <p className="text-brand-yellow text-xs font-bold mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+                      ⚡ Próximos pasos
+                    </p>
+                    <ol className="space-y-1.5 text-white/50 text-xs list-decimal list-inside leading-relaxed" style={{ fontFamily: 'Inter' }}>
+                      <li>Transfiere <span className="text-white/80 font-semibold">${transferOrder.total.toLocaleString('es-CL')}</span> a los datos de arriba.</li>
+                      <li>Envía el comprobante por WhatsApp con el N° de orden <span className="text-white/80 font-semibold">#{transferOrder.id}</span>.</li>
+                      <li>Confirmaremos tu pedido y coordinaremos la entrega.</li>
+                    </ol>
+                    <p className="text-white/30 text-xs mt-3" style={{ fontFamily: 'Inter' }}>
+                      También te enviamos las instrucciones a tu email.
+                    </p>
+                  </motion.div>
+
+                  {/* Botón WhatsApp */}
+                  <motion.a
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    href={`https://wa.me/56946216579?text=Hola%2C%20quiero%20enviar%20el%20comprobante%20de%20transferencia%20del%20pedido%20%23${transferOrder.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-white font-bold text-sm"
+                    style={{ fontFamily: 'Space Grotesk', background: '#25d366' }}
+                  >
+                    💬 Enviar Comprobante por WhatsApp
+                  </motion.a>
+
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    onClick={handleClose}
+                    className="w-full py-3 rounded-xl text-white/40 hover:text-white text-sm font-semibold transition-colors border border-white/8 hover:border-white/20"
+                    style={{ fontFamily: 'Space Grotesk' }}
+                  >
+                    Cerrar
+                  </motion.button>
+                </div>
+              </div>
             )}
           </motion.div>
         </>

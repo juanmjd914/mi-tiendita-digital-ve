@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
 import supabase   from './supabase.js'
 import { createPayment, getPaymentStatus, verifySignature } from './flow.js'
-import { sendOrderConfirmation } from './email.js'
+import { sendOrderConfirmation, sendTransferInstructions } from './email.js'
 
 // Cliente anon — solo para verificar JWTs de usuarios
 const authClient = createClient(
@@ -288,6 +288,64 @@ app.get('/api/payment/status/:token', async (req, res) => {
   }
 })
 
+// POST /api/payment/transfer — crea pedido pendiente de transferencia bancaria
+app.post('/api/payment/transfer', async (req, res) => {
+  try {
+    const { items, email, customerName } = req.body
+
+    if (!items?.length) return res.status(400).json({ error: 'Carrito vacío' })
+    if (!email)         return res.status(400).json({ error: 'Email requerido' })
+
+    // Verificar stock
+    for (const item of items) {
+      const { data: product } = await supabase
+        .from('products')
+        .select('stock, active')
+        .eq('id', item.id)
+        .single()
+      if (product && product.active && product.stock < (item.quantity || 1)) {
+        return res.status(400).json({
+          error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock}`
+        })
+      }
+    }
+
+    const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
+
+    // Crear orden con status pending_transfer
+    const { data: order, error: orderErr } = await supabase
+      .from('orders')
+      .insert({
+        status:         'pending_transfer',
+        total,
+        customer_email: email,
+        customer_name:  customerName || null,
+      })
+      .select()
+      .single()
+
+    if (orderErr) throw orderErr
+
+    // Insertar items
+    const orderItems = items.map(i => ({
+      order_id:   order.id,
+      product_id: i.id,
+      name:       i.name,
+      price:      i.price,
+      quantity:   i.quantity,
+    }))
+    await supabase.from('order_items').insert(orderItems)
+
+    // Enviar email con instrucciones (no es fatal si falla)
+    sendTransferInstructions({ order, items: orderItems })
+
+    res.json({ orderId: order.id, total })
+  } catch (err) {
+    console.error('/api/payment/transfer error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // ═══════════════════════════════════════════════════════════════
 //  MI CUENTA — pedidos del usuario autenticado
 // ═══════════════════════════════════════════════════════════════
@@ -442,6 +500,44 @@ app.delete('/api/admin/products/:id', requirePin, async (req, res) => {
     if (error) throw error
     res.json({ ok: true })
   } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/admin/orders/:id/confirm-transfer — confirma pago por transferencia
+app.post('/api/admin/orders/:id/confirm-transfer', requirePin, async (req, res) => {
+  try {
+    const orderId = Number(req.params.id)
+
+    // Obtener orden con items
+    const { data: order, error: fetchErr } = await supabase
+      .from('orders')
+      .select('*, order_items(*)')
+      .eq('id', orderId)
+      .single()
+
+    if (fetchErr || !order) return res.status(404).json({ error: 'Orden no encontrada' })
+    if (order.status !== 'pending_transfer') {
+      return res.status(400).json({ error: 'La orden no está pendiente de transferencia' })
+    }
+
+    // Marcar como pagada
+    const { data: updated, error: updateErr } = await supabase
+      .from('orders')
+      .update({ status: 'paid' })
+      .eq('id', orderId)
+      .select('*, order_items(*)')
+      .single()
+
+    if (updateErr) throw updateErr
+
+    // Descontar stock y enviar email de confirmación
+    await decrementStock(updated.order_items || [])
+    sendOrderConfirmation({ order: updated, items: updated.order_items || [] })
+
+    res.json({ ok: true, order: updated })
+  } catch (err) {
+    console.error('/api/admin/orders/:id/confirm-transfer error:', err.message)
     res.status(500).json({ error: err.message })
   }
 })

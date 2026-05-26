@@ -4,7 +4,7 @@ import {
   Lock, BarChart3, ShoppingBag, Mail, TrendingUp, RefreshCw,
   ChevronDown, ChevronUp, LogOut, Package, Clock, CheckCircle2,
   XCircle, AlertCircle, Search, Filter, Plus, Edit2, Eye, EyeOff,
-  Save, X, Image as ImageIcon, Tag, DollarSign, Layers, Copy,
+  Save, X, Image as ImageIcon, Tag, DollarSign, Layers, Copy, Loader2,
 } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
@@ -18,7 +18,7 @@ interface Stats { paidOrders: number; totalRevenue: number; subscribers: number 
 
 interface OrderItem { id: number; product_id: number; name: string; price: number; quantity: number }
 interface Order {
-  id: number; status: 'paid'|'pending'|'rejected'|'cancelled'
+  id: number; status: 'paid'|'pending'|'pending_transfer'|'rejected'|'cancelled'
   total: number; customer_email: string; customer_name: string|null
   created_at: string; flow_token: string|null; order_items: OrderItem[]
 }
@@ -29,7 +29,7 @@ interface Product {
   active: boolean; description: string|null; img_url: string|null; created_at: string
 }
 
-type OrderFilter = 'all'|'paid'|'pending'|'rejected'
+type OrderFilter = 'all'|'paid'|'pending'|'pending_transfer'|'rejected'
 
 interface Subscriber {
   id: number
@@ -46,10 +46,11 @@ const fmtDate = (s: string) => new Date(s).toLocaleString('es-CL', {
 // ── StatusBadge ────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: Order['status'] }) {
   const map = {
-    paid:      { label:'Pagado',    color:'#81d742', bg:'rgba(129,215,66,0.12)', icon: CheckCircle2 },
-    pending:   { label:'Pendiente', color:'#ffc222', bg:'rgba(255,194,34,0.12)', icon: Clock },
-    rejected:  { label:'Rechazado', color:'#ef4444', bg:'rgba(239,68,68,0.12)',  icon: XCircle },
-    cancelled: { label:'Cancelado', color:'#6b7280', bg:'rgba(107,114,128,0.12)',icon: AlertCircle },
+    paid:             { label:'Pagado',        color:'#81d742', bg:'rgba(129,215,66,0.12)', icon: CheckCircle2 },
+    pending:          { label:'Pendiente',     color:'#ffc222', bg:'rgba(255,194,34,0.12)', icon: Clock },
+    pending_transfer: { label:'Transferencia', color:'#06b6d4', bg:'rgba(6,182,212,0.12)',  icon: AlertCircle },
+    rejected:         { label:'Rechazado',     color:'#ef4444', bg:'rgba(239,68,68,0.12)',  icon: XCircle },
+    cancelled:        { label:'Cancelado',     color:'#6b7280', bg:'rgba(107,114,128,0.12)',icon: AlertCircle },
   }
   const { label, color, bg, icon: Icon } = map[status] ?? map.cancelled
   return (
@@ -61,8 +62,33 @@ function StatusBadge({ status }: { status: Order['status'] }) {
 }
 
 // ── OrderRow ───────────────────────────────────────────────────────────────
-function OrderRow({ order }: { order: Order }) {
-  const [open, setOpen] = useState(false)
+function OrderRow({ order, pin, onConfirmTransfer }: {
+  order: Order
+  pin: string
+  onConfirmTransfer: (id: number) => void
+}) {
+  const [open,       setOpen]       = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const [confirmErr, setConfirmErr] = useState('')
+
+  async function handleConfirmTransfer() {
+    setConfirming(true)
+    setConfirmErr('')
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${order.id}/confirm-transfer`, {
+        method: 'POST',
+        headers: { 'x-admin-pin': pin },
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al confirmar')
+      onConfirmTransfer(order.id)
+    } catch (err: unknown) {
+      setConfirmErr(err instanceof Error ? err.message : 'Error')
+    } finally {
+      setConfirming(false)
+    }
+  }
+
   return (
     <motion.div layout className="border border-white/8 rounded-xl overflow-hidden" style={{ background:'rgba(255,255,255,0.02)' }}>
       <button onClick={() => setOpen(!open)}
@@ -89,6 +115,30 @@ function OrderRow({ order }: { order: Order }) {
                   </div>
                 ))}
               </div>
+              {/* Botón confirmar transferencia */}
+              {order.status === 'pending_transfer' && (
+                <div className="mt-3 pt-3 border-t border-white/5">
+                  {confirmErr && (
+                    <p className="text-red-400 text-xs mb-2">{confirmErr}</p>
+                  )}
+                  <motion.button
+                    onClick={handleConfirmTransfer}
+                    disabled={confirming}
+                    whileHover={!confirming ? { scale:1.02 } : {}}
+                    whileTap={!confirming ? { scale:0.98 } : {}}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-xs font-bold disabled:opacity-50 transition-all"
+                    style={{ fontFamily:'Space Grotesk', background:'linear-gradient(135deg,#81d742,#06b6d4)' }}>
+                    {confirming ? (
+                      <><Loader2 size={13} className="animate-spin"/> Confirmando...</>
+                    ) : (
+                      <><CheckCircle2 size={13}/> ✅ Confirmar Pago por Transferencia</>
+                    )}
+                  </motion.button>
+                  <p className="text-white/25 text-[10px] mt-1.5" style={{ fontFamily:'Inter' }}>
+                    Esto marcará el pedido como Pagado, descontará el stock y enviará confirmación al cliente.
+                  </p>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -680,10 +730,11 @@ function PedidosTab({ pin }: { pin: string }) {
   })
 
   const STATUS_TABS: { label:string; value:OrderFilter; color:string }[] = [
-    { label:'Todos',      value:'all',      color:'#ffffff' },
-    { label:'Pagados',    value:'paid',     color:'#81d742' },
-    { label:'Pendientes', value:'pending',  color:'#ffc222' },
-    { label:'Rechazados', value:'rejected', color:'#ef4444' },
+    { label:'Todos',          value:'all',              color:'#ffffff' },
+    { label:'Pagados',        value:'paid',             color:'#81d742' },
+    { label:'Transferencias', value:'pending_transfer', color:'#06b6d4' },
+    { label:'Pendientes',     value:'pending',          color:'#ffc222' },
+    { label:'Rechazados',     value:'rejected',         color:'#ef4444' },
   ]
 
   return (
@@ -746,7 +797,13 @@ function PedidosTab({ pin }: { pin: string }) {
             </p>
           </div>
         ) : (
-          <div className="space-y-2">{filtered.map(o=><OrderRow key={o.id} order={o}/>)}</div>
+          <div className="space-y-2">{filtered.map(o=>(
+            <OrderRow key={o.id} order={o} pin={pin}
+              onConfirmTransfer={(id) => {
+                setOrders(prev => prev.map(x => x.id === id ? { ...x, status: 'paid' } : x))
+              }}
+            />
+          ))}</div>
         )}
         {!loadingOrders && filtered.length > 0 && (
           <p className="text-white/20 text-xs mt-3 text-right" style={{ fontFamily:'Inter' }}>
