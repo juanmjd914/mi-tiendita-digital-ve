@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item -ItemType Directory -Force \"E:\\\\web mi tiendita digital ve claude code\\\\src\\\\store\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"E:\\\\web mi tiendita digital ve claude code\\\\src\\\\lib\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"E:\\\\web mi tiendita digital ve claude code\\\\src\\\\hooks\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"E:\\\\web mi tiendita digital ve claude code\\\\src\\\\components\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"E:\\\\web mi tiendita digital ve claude code\\\\src\\\\pages\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"E:\\\\web mi tiendita digital ve claude code\\\\server\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"E:\\\\web mi tiendita digital ve claude code\\\\supabase\")",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "WebFetch(domain:hhhijebsmajvphazvxlm.supabase.co)",
+      "Bash(ls \"E:\\\\web mi tiendita digital ve claude code\\\\\" )",
+      "Bash(npx kill-port *)",
+      "Bash(node scripts/update-images.js)",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__get_page_text",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__javascript_tool",
+      "Bash(node scripts/seed-all-products.js)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(node --input-type=module --eval ' *)",
+      "Bash(npm install *)",
+      "Bash(node -e \"import\\('resend'\\).then\\(m => console.log\\('resend OK:', !!m.Resend\\)\\).catch\\(e => console.log\\('error:', e.message\\)\\)\")",
+      "Bash(node --input-type=module)",
+      "Bash(start cmd *)",
+      "Bash(curl -s http://localhost:3001/api/salud)",
+      "Bash(curl -s \"http://localhost:3001/api/admin/orders?limit=3\" -H \"x-admin-pin: Jm159670_KP.\")",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const j=JSON.parse\\(d\\); j.forEach\\(o=>console.log\\(\\\\`#\\\\${o.id} | \\\\${o.status} | \\\\$\\\\${o.total} | \\\\${o.customer_email} | token:\\\\${o.flow_token?.slice\\(0,12\\)}...\\\\`\\)\\)\")",
+      "PowerShell($r = Invoke-RestMethod -Uri \"http://localhost:3001/api/admin/orders?limit=3\" -Headers @{\"x-admin-pin\"=\"Jm159670_KP.\"}; $r | ForEach-Object { Write-Output \"#$\\($_.id\\) | $\\($_.status\\) | $$\\($_.total\\) | $\\($_.customer_email\\) | token: $\\($_.flow_token\\)\" })",
+      "PowerShell($r = Invoke-RestMethod -Uri \"http://localhost:3001/api/admin/orders?limit=1\" -Headers @{\"x-admin-pin\"=\"Jm159670_KP.\"}; Write-Output \"Status: $\\($r[0].status\\) | Email: $\\($r[0].customer_email\\)\")",
+      "Bash(npm run *)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}

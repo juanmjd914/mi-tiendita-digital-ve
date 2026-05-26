@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# No indexar panel de administración ni rutas de pago
+Disallow: /admin
+Disallow: /pago/
+Disallow: /cuenta/login
+Disallow: /cuenta/registro
+Disallow: /cuenta/recuperar-password
+Disallow: /cuenta/nueva-password
+
+Sitemap: https://mitienditadigitalve.com/sitemap.xml
