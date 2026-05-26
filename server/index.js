@@ -47,43 +47,54 @@ function requirePin(req, res, next) {
 
 // ── Helper: descuenta stock tras pago confirmado ──────────────────
 async function decrementStock(orderItems) {
-  if (!orderItems?.length) return
+  if (!orderItems?.length) {
+    console.warn('⚠️  decrementStock: orderItems vacío o nulo')
+    return
+  }
+  console.log(`📦 decrementStock: procesando ${orderItems.length} ítem(s)`)
+
   for (const item of orderItems) {
-    // 1. Intentar buscar por product_id
-    let productId = item.product_id || null
     let product   = null
+    let productId = null
 
-    if (productId) {
-      const { data } = await supabase
-        .from('products')
-        .select('id, stock')
-        .eq('id', productId)
-        .single()
-      product = data
-    }
-
-    // 2. Si no se encontró por ID, buscar por nombre (fallback para productos del home)
-    if (!product && item.name) {
-      const { data } = await supabase
+    // 1. Buscar por nombre PRIMERO (más confiable — IDs del home pueden no coincidir)
+    if (item.name) {
+      const { data, error } = await supabase
         .from('products')
         .select('id, stock')
         .ilike('name', item.name.trim())
         .maybeSingle()
-      if (data) { product = data; productId = data.id }
+      if (error) console.warn(`⚠️  Búsqueda por nombre falló: ${error.message}`)
+      if (data)  { product = data; productId = data.id }
     }
 
-    if (!product || productId == null) {
+    // 2. Fallback: buscar por product_id si no encontró por nombre
+    if (!product && item.product_id) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, stock')
+        .eq('id', item.product_id)
+        .maybeSingle()
+      if (error) console.warn(`⚠️  Búsqueda por id falló: ${error.message}`)
+      if (data)  { product = data; productId = data.id }
+    }
+
+    if (!product) {
       console.warn(`⚠️  decrementStock: producto no encontrado — id=${item.product_id} name="${item.name}"`)
       continue
     }
 
-    const newStock = Math.max(0, (product.stock || 0) - (item.quantity || 1))
-    await supabase
+    const newStock = Math.max(0, (product.stock ?? 0) - (item.quantity || 1))
+    const { error: updateErr } = await supabase
       .from('products')
       .update({ stock: newStock })
       .eq('id', productId)
 
-    console.log(`📦 Stock actualizado: "${item.name}" → ${product.stock} → ${newStock}`)
+    if (updateErr) {
+      console.error(`❌ No se pudo actualizar stock de "${item.name}": ${updateErr.message}`)
+    } else {
+      console.log(`📦 Stock OK: "${item.name}" ${product.stock} → ${newStock}`)
+    }
   }
 }
 
@@ -138,7 +149,7 @@ app.get('/api/products/:id', async (req, res) => {
 // POST /api/payment/create — inicia el pago con Flow
 app.post('/api/payment/create', async (req, res) => {
   try {
-    const { items, email, customerName } = req.body
+    const { items, email, customerName, customerPhone, customerAddress } = req.body
 
     if (!items?.length) return res.status(400).json({ error: 'Carrito vacío' })
     if (!email)         return res.status(400).json({ error: 'Email requerido' })
@@ -362,6 +373,9 @@ app.post('/api/payment/transfer', async (req, res) => {
     }))
     await supabase.from('order_items').insert(orderItems)
 
+    // Descontar stock inmediatamente al reservar la orden de transferencia
+    await decrementStock(orderItems)
+
     // Enviar email con instrucciones (no bloquea si falla)
     try { await sendTransferInstructions({ order, items: orderItems }) } catch (_) { /* ignore */ }
 
@@ -557,8 +571,8 @@ app.post('/api/admin/orders/:id/confirm-transfer', requirePin, async (req, res) 
 
     if (updateErr) throw updateErr
 
-    // Descontar stock y enviar email de confirmación
-    await decrementStock(updated.order_items || [])
+    // Nota: el stock ya fue descontado al crear la orden de transferencia
+    // Solo enviamos el email de confirmación de pago recibido
     sendOrderConfirmation({ order: updated, items: updated.order_items || [] })
 
     res.json({ ok: true, order: updated })
