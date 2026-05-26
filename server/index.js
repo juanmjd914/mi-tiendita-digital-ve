@@ -126,6 +126,92 @@ async function restoreStock(orderItems) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  CUPONES
+// ═══════════════════════════════════════════════════════════════
+
+// POST /api/coupons/validate — valida un cupón (público)
+app.post('/api/coupons/validate', async (req, res) => {
+  const { code, total } = req.body
+  if (!code) return res.status(400).json({ error: 'Código requerido' })
+
+  const { data: coupon } = await supabase
+    .from('coupons').select('*').ilike('code', code.trim()).eq('active', true).maybeSingle()
+
+  if (!coupon) return res.status(404).json({ error: 'Cupón no válido o inactivo' })
+  if (coupon.expires_at && new Date(coupon.expires_at) < new Date())
+    return res.status(400).json({ error: 'El cupón ha expirado' })
+  if (coupon.max_uses !== null && coupon.uses >= coupon.max_uses)
+    return res.status(400).json({ error: 'El cupón ha alcanzado su límite de usos' })
+  if (total && Number(total) < Number(coupon.min_order))
+    return res.status(400).json({ error: `Monto mínimo para este cupón: $${Number(coupon.min_order).toLocaleString('es-CL')}` })
+
+  const base   = Number(total) || 0
+  const val    = Number(coupon.discount_value)
+  const discountAmount = coupon.discount_type === 'percentage'
+    ? Math.round(base * val / 100)
+    : Math.min(val, base)
+
+  res.json({
+    valid: true, code: coupon.code.toUpperCase(),
+    description: coupon.description,
+    discountType: coupon.discount_type, discountValue: val,
+    discountAmount, newTotal: Math.max(0, base - discountAmount),
+  })
+})
+
+// GET /api/admin/coupons
+app.get('/api/admin/coupons', requirePin, async (req, res) => {
+  const { data, error } = await supabase.from('coupons').select('*').order('created_at', { ascending: false })
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
+})
+
+// POST /api/admin/coupons — crear cupón
+app.post('/api/admin/coupons', requirePin, async (req, res) => {
+  const { code, description, discount_type, discount_value, min_order, max_uses, expires_at } = req.body
+  if (!code?.trim() || !discount_type || !discount_value)
+    return res.status(400).json({ error: 'Código, tipo y valor son requeridos' })
+  const { data, error } = await supabase.from('coupons').insert({
+    code:           code.trim().toUpperCase(),
+    description:    description || null,
+    discount_type,
+    discount_value: Number(discount_value),
+    min_order:      Number(min_order) || 0,
+    max_uses:       max_uses ? Number(max_uses) : null,
+    expires_at:     expires_at || null,
+  }).select().single()
+  if (error) return res.status(400).json({ error: error.message })
+  res.json(data)
+})
+
+// PUT /api/admin/coupons/:id — actualizar / toggle
+app.put('/api/admin/coupons/:id', requirePin, async (req, res) => {
+  const { data, error } = await supabase
+    .from('coupons').update(req.body).eq('id', req.params.id).select().single()
+  if (error) return res.status(400).json({ error: error.message })
+  res.json(data)
+})
+
+// ── Helper interno: aplica cupón y retorna descuento + total final ───────────
+async function applyCoupon(code, subtotal) {
+  if (!code) return { discountAmount: 0, finalTotal: subtotal, couponData: null }
+  const { data: coupon } = await supabase
+    .from('coupons').select('*').ilike('code', code.trim()).eq('active', true).maybeSingle()
+  if (!coupon) return { discountAmount: 0, finalTotal: subtotal, couponData: null }
+
+  const val    = Number(coupon.discount_value)
+  const discount = coupon.discount_type === 'percentage'
+    ? Math.round(subtotal * val / 100)
+    : Math.min(val, subtotal)
+  const finalTotal = Math.max(0, subtotal - discount)
+
+  // Incrementar contador de usos
+  await supabase.from('coupons').update({ uses: (coupon.uses || 0) + 1 }).eq('id', coupon.id)
+
+  return { discountAmount: discount, finalTotal, couponData: coupon }
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  PRODUCTOS
 // ═══════════════════════════════════════════════════════════════
 
@@ -176,7 +262,7 @@ app.get('/api/products/:id', async (req, res) => {
 // POST /api/payment/create — inicia el pago con Flow
 app.post('/api/payment/create', async (req, res) => {
   try {
-    const { items, email, customerName, customerPhone, customerAddress } = req.body
+    const { items, email, customerName, customerPhone, customerAddress, couponCode } = req.body
 
     if (!items?.length) return res.status(400).json({ error: 'Carrito vacío' })
     if (!email)         return res.status(400).json({ error: 'Email requerido' })
@@ -184,10 +270,7 @@ app.post('/api/payment/create', async (req, res) => {
     // Verificar stock disponible para cada ítem
     for (const item of items) {
       const { data: product } = await supabase
-        .from('products')
-        .select('stock')
-        .eq('id', item.id)
-        .single()
+        .from('products').select('stock').eq('id', item.id).single()
       if (product && (product.stock ?? 999) < (item.quantity || 1)) {
         return res.status(400).json({
           error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock ?? 0}`
@@ -195,50 +278,33 @@ app.post('/api/payment/create', async (req, res) => {
       }
     }
 
-    const total   = items.reduce((s, i) => s + i.price * i.quantity, 0)
-    const subject = items.length === 1
-      ? items[0].name.slice(0, 80)
-      : `Mi Tiendita Digital Ve — ${items.length} productos`
+    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
+    const { discountAmount, finalTotal } = await applyCoupon(couponCode, subtotal)
+    const subject  = items.length === 1 ? items[0].name.slice(0, 80) : `Mi Tiendita Digital Ve — ${items.length} productos`
 
-    // 1. Crear orden en Supabase con status pending
+    // Crear orden
     const { data: order, error: orderErr } = await supabase
-      .from('orders')
-      .insert({
+      .from('orders').insert({
         status:           'pending',
-        total,
+        total:            finalTotal,
         customer_email:   email,
         customer_name:    customerName    || null,
         customer_phone:   customerPhone   || null,
         customer_address: customerAddress || null,
-      })
-      .select()
-      .single()
+        coupon_code:      couponCode      || null,
+        discount_amount:  discountAmount,
+      }).select().single()
 
     if (orderErr) throw orderErr
 
-    // 2. Insertar items de la orden
     const orderItems = items.map(i => ({
-      order_id:   order.id,
-      product_id: i.id,
-      name:       i.name,
-      price:      i.price,
-      quantity:   i.quantity,
+      order_id: order.id, product_id: i.id,
+      name: i.name, price: i.price, quantity: i.quantity,
     }))
     await supabase.from('order_items').insert(orderItems)
 
-    // 3. Crear pago en Flow
-    const payment = await createPayment({
-      orderId: order.id,
-      subject,
-      amount:  total,
-      email,
-    })
-
-    // 4. Guardar flow_token en la orden
-    await supabase
-      .from('orders')
-      .update({ flow_token: payment.token })
-      .eq('id', order.id)
+    const payment = await createPayment({ orderId: order.id, subject, amount: finalTotal, email })
+    await supabase.from('orders').update({ flow_token: payment.token }).eq('id', order.id)
 
     res.json({ redirectUrl: payment.redirectUrl, orderId: order.id })
   } catch (err) {
@@ -353,7 +419,7 @@ app.get('/api/payment/status/:token', async (req, res) => {
 // POST /api/payment/transfer — crea pedido pendiente de transferencia bancaria
 app.post('/api/payment/transfer', async (req, res) => {
   try {
-    const { items, email, customerName, customerPhone, customerAddress } = req.body
+    const { items, email, customerName, customerPhone, customerAddress, couponCode } = req.body
 
     if (!items?.length) return res.status(400).json({ error: 'Carrito vacío' })
     if (!email)         return res.status(400).json({ error: 'Email requerido' })
@@ -361,10 +427,7 @@ app.post('/api/payment/transfer', async (req, res) => {
     // Verificar stock
     for (const item of items) {
       const { data: product } = await supabase
-        .from('products')
-        .select('stock')
-        .eq('id', item.id)
-        .single()
+        .from('products').select('stock').eq('id', item.id).single()
       if (product && (product.stock ?? 999) < (item.quantity || 1)) {
         return res.status(400).json({
           error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock ?? 0}`
@@ -372,41 +435,34 @@ app.post('/api/payment/transfer', async (req, res) => {
       }
     }
 
-    const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
+    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
+    const { discountAmount, finalTotal } = await applyCoupon(couponCode, subtotal)
 
-    // Crear orden con status pending_transfer
     const { data: order, error: orderErr } = await supabase
-      .from('orders')
-      .insert({
+      .from('orders').insert({
         status:           'pending_transfer',
-        total,
+        total:            finalTotal,
         customer_email:   email,
         customer_name:    customerName    || null,
         customer_phone:   customerPhone   || null,
         customer_address: customerAddress || null,
-      })
-      .select()
-      .single()
+        coupon_code:      couponCode      || null,
+        discount_amount:  discountAmount,
+      }).select().single()
 
     if (orderErr) throw orderErr
 
-    // Insertar items
     const orderItems = items.map(i => ({
-      order_id:   order.id,
-      product_id: i.id,
-      name:       i.name,
-      price:      i.price,
-      quantity:   i.quantity,
+      order_id: order.id, product_id: i.id,
+      name: i.name, price: i.price, quantity: i.quantity,
     }))
     await supabase.from('order_items').insert(orderItems)
 
-    // Descontar stock inmediatamente al reservar la orden de transferencia
     await decrementStock(orderItems)
 
-    // Enviar email con instrucciones (no bloquea si falla)
     try { await sendTransferInstructions({ order, items: orderItems }) } catch (_) { /* ignore */ }
 
-    res.json({ orderId: order.id, total })
+    res.json({ orderId: order.id, total: finalTotal })
   } catch (err) {
     console.error('/api/payment/transfer error:', err.message)
     res.status(500).json({ error: err.message })

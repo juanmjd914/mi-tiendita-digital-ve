@@ -39,6 +39,20 @@ interface Subscriber {
   created_at: string
 }
 
+interface Coupon {
+  id: number
+  code: string
+  description: string | null
+  discount_type: 'percentage' | 'fixed'
+  discount_value: number
+  min_order: number
+  max_uses: number | null
+  uses: number
+  active: boolean
+  expires_at: string | null
+  created_at: string
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 const fmt     = (n: number) => n.toLocaleString('es-CL')
 const fmtDate = (s: string) => new Date(s).toLocaleString('es-CL', {
@@ -1025,14 +1039,300 @@ function PedidosTab({ pin }: { pin: string }) {
   )
 }
 
+// ── CuponesTab ─────────────────────────────────────────────────────────────
+const EMPTY_COUPON = {
+  code: '', description: '', discount_type: 'percentage' as const,
+  discount_value: 10, min_order: 0, max_uses: '', expires_at: '',
+}
+
+function CuponesTab({ pin }: { pin: string }) {
+  const [coupons,    setCoupons]    = useState<Coupon[]>([])
+  const [loading,    setLoading]    = useState(true)
+  const [showForm,   setShowForm]   = useState(false)
+  const [form,       setForm]       = useState(EMPTY_COUPON)
+  const [saving,     setSaving]     = useState(false)
+  const [formError,  setFormError]  = useState('')
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      try {
+        const res = await fetch(`${API}/api/admin/coupons`, { headers: { 'x-admin-pin': pin } })
+        if (res.ok) setCoupons(await res.json())
+      } finally { setLoading(false) }
+    }
+    load()
+  }, [pin])
+
+  async function handleToggle(coupon: Coupon) {
+    const res = await fetch(`${API}/api/admin/coupons/${coupon.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'x-admin-pin': pin },
+      body: JSON.stringify({ active: !coupon.active }),
+    })
+    if (res.ok) {
+      setCoupons(prev => prev.map(c => c.id === coupon.id ? { ...c, active: !c.active } : c))
+    }
+  }
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.code.trim())            { setFormError('El código es obligatorio'); return }
+    if (form.discount_value <= 0)     { setFormError('El descuento debe ser > 0'); return }
+    if (form.discount_type === 'percentage' && form.discount_value > 100) {
+      setFormError('El porcentaje no puede superar 100'); return
+    }
+    setSaving(true)
+    setFormError('')
+    try {
+      const body = {
+        code:           form.code.trim().toUpperCase(),
+        description:    form.description.trim() || null,
+        discount_type:  form.discount_type,
+        discount_value: Number(form.discount_value),
+        min_order:      Number(form.min_order) || 0,
+        max_uses:       form.max_uses ? Number(form.max_uses) : null,
+        expires_at:     form.expires_at || null,
+        active:         true,
+      }
+      const res = await fetch(`${API}/api/admin/coupons`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pin': pin },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al crear')
+      setCoupons(prev => [data, ...prev])
+      setShowForm(false)
+      setForm(EMPTY_COUPON)
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Error desconocido')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function set(key: keyof typeof EMPTY_COUPON, val: string | number) {
+    setForm(f => ({ ...f, [key]: val }))
+  }
+
+  return (
+    <>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <h2 className="text-white font-bold text-lg" style={{ fontFamily: 'Space Grotesk' }}>Cupones de Descuento</h2>
+          <p className="text-white/30 text-xs mt-0.5" style={{ fontFamily: 'Inter' }}>
+            {loading ? '…' : `${coupons.length} cupón${coupons.length !== 1 ? 'es' : ''} creado${coupons.length !== 1 ? 's' : ''}`}
+          </p>
+        </div>
+        <motion.button onClick={() => { setShowForm(!showForm); setFormError('') }}
+          whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-bold text-sm"
+          style={{ fontFamily: 'Space Grotesk', background: 'linear-gradient(135deg,#81d742,#06b6d4)' }}>
+          <Plus size={15} /> {showForm ? 'Cancelar' : 'Nuevo Cupón'}
+        </motion.button>
+      </div>
+
+      {/* Formulario crear */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.form
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}
+            onSubmit={handleCreate}
+            className="overflow-hidden mb-6"
+          >
+            <div className="rounded-2xl border border-white/10 p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.025)' }}>
+              <p className="text-white/70 text-sm font-semibold" style={{ fontFamily: 'Space Grotesk' }}>Crear nuevo cupón</p>
+
+              {/* Código + Descripción */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-white/40 text-xs mb-1.5 block" style={{ fontFamily: 'Space Grotesk' }}>Código *</label>
+                  <input value={form.code} onChange={e => set('code', e.target.value.toUpperCase())}
+                    placeholder="DESCUENTO20"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 text-sm font-mono focus:outline-none focus:border-brand-violet/50 transition-colors uppercase"
+                    style={{ fontFamily: 'monospace' }} />
+                </div>
+                <div>
+                  <label className="text-white/40 text-xs mb-1.5 block" style={{ fontFamily: 'Space Grotesk' }}>Descripción</label>
+                  <input value={form.description} onChange={e => set('description', e.target.value)}
+                    placeholder="20% en toda la tienda"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                    style={{ fontFamily: 'Inter' }} />
+                </div>
+              </div>
+
+              {/* Tipo + Valor */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-white/40 text-xs mb-1.5 block" style={{ fontFamily: 'Space Grotesk' }}>Tipo de descuento</label>
+                  <select value={form.discount_type} onChange={e => set('discount_type', e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-violet/50 cursor-pointer"
+                    style={{ fontFamily: 'Space Grotesk' }}>
+                    <option value="percentage" className="bg-[#0f0f1a]">% Porcentaje</option>
+                    <option value="fixed"      className="bg-[#0f0f1a]">$ Monto fijo CLP</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-white/40 text-xs mb-1.5 block" style={{ fontFamily: 'Space Grotesk' }}>
+                    Valor {form.discount_type === 'percentage' ? '(%)' : '(CLP)'} *
+                  </label>
+                  <input type="number" min="1" max={form.discount_type === 'percentage' ? 100 : undefined}
+                    value={form.discount_value} onChange={e => set('discount_value', Number(e.target.value))}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                    style={{ fontFamily: 'Inter' }} />
+                </div>
+              </div>
+
+              {/* Min order + Max usos + Vencimiento */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-white/40 text-xs mb-1.5 block" style={{ fontFamily: 'Space Grotesk' }}>Mín. de compra (CLP)</label>
+                  <input type="number" min="0" value={form.min_order} onChange={e => set('min_order', Number(e.target.value))}
+                    placeholder="0"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                    style={{ fontFamily: 'Inter' }} />
+                </div>
+                <div>
+                  <label className="text-white/40 text-xs mb-1.5 block" style={{ fontFamily: 'Space Grotesk' }}>Máx. usos (vacío = ilimitado)</label>
+                  <input type="number" min="1" value={form.max_uses} onChange={e => set('max_uses', e.target.value)}
+                    placeholder="Ilimitado"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                    style={{ fontFamily: 'Inter' }} />
+                </div>
+                <div>
+                  <label className="text-white/40 text-xs mb-1.5 block" style={{ fontFamily: 'Space Grotesk' }}>Vence (vacío = sin venc.)</label>
+                  <input type="date" value={form.expires_at} onChange={e => set('expires_at', e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white/70 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors cursor-pointer"
+                    style={{ fontFamily: 'Inter', colorScheme: 'dark' }} />
+                </div>
+              </div>
+
+              {formError && (
+                <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl px-3 py-2">
+                  {formError}
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setShowForm(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/50 hover:text-white hover:bg-white/5 text-sm font-semibold transition-all"
+                  style={{ fontFamily: 'Space Grotesk' }}>
+                  Cancelar
+                </button>
+                <motion.button type="submit" disabled={saving}
+                  whileHover={!saving ? { scale: 1.02 } : {}} whileTap={!saving ? { scale: 0.98 } : {}}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm font-bold disabled:opacity-50 transition-all"
+                  style={{ fontFamily: 'Space Grotesk', background: 'linear-gradient(135deg,#7c3aed,#06b6d4)' }}>
+                  {saving
+                    ? <><Loader2 size={14} className="animate-spin"/> Creando...</>
+                    : <><Tag size={14}/> Crear Cupón</>
+                  }
+                </motion.button>
+              </div>
+            </div>
+          </motion.form>
+        )}
+      </AnimatePresence>
+
+      {/* Lista de cupones */}
+      {loading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-16 rounded-xl bg-white/3 animate-pulse" />
+          ))}
+        </div>
+      ) : coupons.length === 0 ? (
+        <div className="py-16 text-center">
+          <Tag size={40} className="text-white/15 mx-auto mb-3" />
+          <p className="text-white/30 text-sm" style={{ fontFamily: 'Space Grotesk' }}>No hay cupones creados</p>
+          <p className="text-white/20 text-xs mt-1" style={{ fontFamily: 'Inter' }}>
+            Crea tu primer cupón con el botón de arriba
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {coupons.map((c, i) => {
+            const isExpired = c.expires_at && new Date(c.expires_at) < new Date()
+            const maxedOut  = c.max_uses !== null && c.uses >= c.max_uses
+            const effectiveActive = c.active && !isExpired && !maxedOut
+            return (
+              <motion.div key={c.id} layout
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border transition-all"
+                style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  borderColor: effectiveActive ? 'rgba(124,58,237,0.25)' : 'rgba(255,255,255,0.06)',
+                  opacity: effectiveActive ? 1 : 0.55,
+                }}>
+
+                {/* Código */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-white font-black text-sm font-mono tracking-wider" style={{ fontFamily: 'monospace' }}>
+                      {c.code}
+                    </span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{
+                        background: c.discount_type === 'percentage' ? 'rgba(124,58,237,0.15)' : 'rgba(255,194,34,0.12)',
+                        color:      c.discount_type === 'percentage' ? '#a78bfa'                : '#ffc222',
+                        border:     c.discount_type === 'percentage' ? '1px solid rgba(124,58,237,0.3)' : '1px solid rgba(255,194,34,0.25)',
+                      }}>
+                      {c.discount_type === 'percentage' ? `-${c.discount_value}%` : `-$${fmt(c.discount_value)}`}
+                    </span>
+                    {isExpired && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-400/10 text-red-400 border border-red-400/20">
+                        Vencido
+                      </span>
+                    )}
+                    {maxedOut && !isExpired && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-white/8 text-white/40 border border-white/10">
+                        Agotado
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-white/30 text-xs mt-0.5" style={{ fontFamily: 'Inter' }}>
+                    {c.description && <span className="mr-2">{c.description}</span>}
+                    <span>Usado: {c.uses}{c.max_uses ? `/${c.max_uses}` : ''} veces</span>
+                    {c.min_order > 0 && <span className="ml-2">· Mín. ${fmt(c.min_order)}</span>}
+                    {c.expires_at && <span className="ml-2">· Vence {new Date(c.expires_at).toLocaleDateString('es-CL')}</span>}
+                  </p>
+                </div>
+
+                {/* Toggle activo */}
+                <button onClick={() => handleToggle(c)}
+                  className="w-9 h-5 rounded-full transition-all duration-300 relative shrink-0"
+                  style={{ background: c.active ? '#7c3aed' : 'rgba(255,255,255,0.1)' }}
+                  title={c.active ? 'Desactivar' : 'Activar'}>
+                  <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-300"
+                    style={{ left: c.active ? '20px' : '2px' }} />
+                </button>
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
+
+      {!loading && coupons.length > 0 && (
+        <p className="text-white/20 text-xs mt-3 text-right" style={{ fontFamily: 'Inter' }}>
+          {coupons.filter(c => c.active).length} activos de {coupons.length} en total
+        </p>
+      )}
+    </>
+  )
+}
+
 // ── Dashboard ──────────────────────────────────────────────────────────────
 function Dashboard({ pin, onLogout }: { pin: string; onLogout: () => void }) {
-  const [tab, setTab] = useState<'pedidos'|'productos'|'newsletter'>('pedidos')
+  const [tab, setTab] = useState<'pedidos'|'productos'|'newsletter'|'cupones'>('pedidos')
 
   const TABS = [
     { id:'pedidos',     label:'📊 Pedidos',     },
     { id:'productos',   label:'📦 Productos',   },
     { id:'newsletter',  label:'📧 Newsletter',  },
+    { id:'cupones',     label:'🏷️ Cupones',     },
   ] as const
 
   return (
@@ -1084,6 +1384,10 @@ function Dashboard({ pin, onLogout }: { pin: string; onLogout: () => void }) {
           ) : tab === 'productos' ? (
             <motion.div key="productos" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} transition={{ duration:0.2 }}>
               <ProductosTab pin={pin}/>
+            </motion.div>
+          ) : tab === 'cupones' ? (
+            <motion.div key="cupones" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} transition={{ duration:0.2 }}>
+              <CuponesTab pin={pin}/>
             </motion.div>
           ) : (
             <motion.div key="newsletter" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} transition={{ duration:0.2 }}>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, ShoppingCart, Trash2, Plus, Minus, ArrowRight, ShoppingBag, Mail, Loader2, Phone, MapPin, CreditCard, Building2, CheckCircle2, Copy } from 'lucide-react'
+import { X, ShoppingCart, Trash2, Plus, Minus, ArrowRight, ShoppingBag, Mail, Loader2, Phone, MapPin, CreditCard, Building2, CheckCircle2, Copy, Tag } from 'lucide-react'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 
@@ -8,6 +8,12 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 type Step = 'cart' | 'checkout' | 'transfer-success'
 type PaymentMethod = 'flow' | 'transfer'
+
+interface CouponState {
+  code: string
+  discountAmount: number
+  description: string | null
+}
 
 const BANK_DETAILS = [
   { label: 'Banco',          value: 'Banco Falabella' },
@@ -21,16 +27,21 @@ export default function CartDrawer() {
   const { isOpen, closeCart, items, removeItem, updateQuantity, totalPrice, clearCart } = useCartStore()
   const { user } = useAuthStore()
 
-  const [step,          setStep]          = useState<Step>('cart')
-  const [email,         setEmail]         = useState('')
-  const [name,          setName]          = useState('')
-  const [phone,         setPhone]         = useState('')
-  const [address,       setAddress]       = useState('')
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('flow')
-  const [loading,       setLoading]       = useState(false)
-  const [error,         setError]         = useState<string | null>(null)
-  const [transferOrder, setTransferOrder] = useState<{ id: number; total: number } | null>(null)
-  const [copied,        setCopied]        = useState<string | null>(null)
+  const [step,           setStep]           = useState<Step>('cart')
+  const [email,          setEmail]          = useState('')
+  const [name,           setName]           = useState('')
+  const [phone,          setPhone]          = useState('')
+  const [address,        setAddress]        = useState('')
+  const [paymentMethod,  setPaymentMethod]  = useState<PaymentMethod>('flow')
+  const [loading,        setLoading]        = useState(false)
+  const [error,          setError]          = useState<string | null>(null)
+  const [transferOrder,  setTransferOrder]  = useState<{ id: string; total: number } | null>(null)
+  const [copied,         setCopied]         = useState<string | null>(null)
+  // Cupón
+  const [couponInput,    setCouponInput]    = useState('')
+  const [coupon,         setCoupon]         = useState<CouponState | null>(null)
+  const [couponError,    setCouponError]    = useState<string | null>(null)
+  const [applyingCoupon, setApplyingCoupon] = useState(false)
 
   // Pre-llenar datos si el usuario está logueado
   useEffect(() => {
@@ -43,13 +54,40 @@ export default function CartDrawer() {
     }
   }, [user])
 
+  const baseTotal  = totalPrice()
+  const finalTotal = coupon ? Math.max(0, baseTotal - coupon.discountAmount) : baseTotal
+
   function handleClose() {
     closeCart()
     setTimeout(() => {
       setStep('cart')
       setError(null)
       setTransferOrder(null)
+      setCoupon(null)
+      setCouponInput('')
+      setCouponError(null)
     }, 300)
+  }
+
+  async function handleApplyCoupon() {
+    if (!couponInput.trim()) return
+    setApplyingCoupon(true)
+    setCouponError(null)
+    try {
+      const res  = await fetch(`${API_URL}/api/coupons/validate`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ code: couponInput.trim(), total: baseTotal }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setCoupon({ code: data.code, discountAmount: data.discountAmount, description: data.description })
+      setCouponInput('')
+    } catch (err: unknown) {
+      setCouponError(err instanceof Error ? err.message : 'Cupón inválido')
+    } finally {
+      setApplyingCoupon(false)
+    }
   }
 
   function copyToClipboard(text: string, key: string) {
@@ -71,6 +109,7 @@ export default function CartDrawer() {
       customerName:    name,
       customerPhone:   phone,
       customerAddress: address,
+      couponCode:      coupon?.code || undefined,
       items: items.map(({ product, quantity }) => ({
         id:       product.id,
         name:     product.name,
@@ -288,12 +327,67 @@ export default function CartDrawer() {
                         <span className="text-white font-semibold whitespace-nowrap">${(product.price * quantity).toLocaleString('es-CL')}</span>
                       </div>
                     ))}
+                    {coupon && (
+                      <>
+                        <div className="flex justify-between text-xs text-white/40">
+                          <span>Subtotal</span>
+                          <span>${baseTotal.toLocaleString('es-CL')}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-green-400">🎟 Cupón {coupon.code}</span>
+                          <span className="text-green-400 font-semibold">-${coupon.discountAmount.toLocaleString('es-CL')}</span>
+                        </div>
+                      </>
+                    )}
                     <div className="border-t border-white/5 pt-2 flex justify-between">
                       <span className="text-white/60 text-sm">Total</span>
                       <span className="text-white font-black text-base" style={{ fontFamily: 'Space Grotesk' }}>
-                        ${totalPrice().toLocaleString('es-CL')}
+                        ${finalTotal.toLocaleString('es-CL')}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Cupón de descuento */}
+                  <div className="space-y-1.5">
+                    <p className="text-white/40 text-xs uppercase tracking-widest flex items-center gap-1.5" style={{ fontFamily: 'Space Grotesk' }}>
+                      <Tag size={11}/> Cupón de descuento
+                    </p>
+                    {coupon ? (
+                      <div className="flex items-center justify-between px-3 py-2.5 rounded-xl border relative"
+                        style={{ background:'rgba(129,215,66,0.06)', borderColor:'rgba(129,215,66,0.25)' }}>
+                        <div>
+                          <p className="text-brand-violet text-xs font-bold" style={{ fontFamily:'Space Grotesk' }}>🎟 {coupon.code}</p>
+                          {coupon.description && <p className="text-white/35 text-xs">{coupon.description}</p>}
+                          <p className="text-green-400 text-xs font-semibold">-${coupon.discountAmount.toLocaleString('es-CL')}</p>
+                        </div>
+                        <button onClick={() => setCoupon(null)} className="text-white/30 hover:text-red-400 transition-colors ml-3">
+                          <X size={14}/>
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={couponInput}
+                            onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null) }}
+                            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleApplyCoupon())}
+                            placeholder="Código de cupón"
+                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors uppercase"
+                            style={{ fontFamily:'Space Grotesk', letterSpacing:'0.05em' }}
+                          />
+                          <motion.button type="button" onClick={handleApplyCoupon}
+                            disabled={applyingCoupon || !couponInput.trim()}
+                            whileHover={!applyingCoupon ? { scale:1.04 } : {}}
+                            whileTap={!applyingCoupon ? { scale:0.96 } : {}}
+                            className="px-3 py-2.5 rounded-xl text-sm font-bold disabled:opacity-40 transition-all"
+                            style={{ background:'rgba(129,215,66,0.15)', border:'1px solid rgba(129,215,66,0.3)', color:'#81d742', fontFamily:'Space Grotesk' }}>
+                            {applyingCoupon ? <Loader2 size={13} className="animate-spin"/> : 'Aplicar'}
+                          </motion.button>
+                        </div>
+                        {couponError && <p className="text-red-400 text-xs">{couponError}</p>}
+                      </>
+                    )}
                   </div>
 
                   {/* Formulario */}

@@ -5,9 +5,10 @@ import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-
 import { useSEO } from '../hooks/useSEO'
 import { useProducts, type SortOption } from '../hooks/useProducts'
 import ProductModal from '../components/ProductModal'
+import { supabase } from '../lib/supabase'
 import type { Product } from '../lib/supabase'
 
-const CATEGORIES = [
+const CATEGORIES_DEFAULT = [
   { label: 'Todas',            value: 'Todas'           },
   { label: 'Accesorios',       value: 'ACCESORIOS'      },
   { label: 'Computación',      value: 'COMPUTACION'     },
@@ -109,6 +110,27 @@ export default function Tienda() {
   const [modalProduct, setModalProduct] = useState<Product | null>(null)
   const [showFilters,  setShowFilters]  = useState(false)
   const [page,         setPage]         = useState(1)
+  const [categories,   setCategories]   = useState(CATEGORIES_DEFAULT)
+
+  // Cargar categorías dinámicamente desde Supabase
+  useEffect(() => {
+    supabase
+      .from('products')
+      .select('category')
+      .eq('active', true)
+      .then(({ data }) => {
+        if (!data || data.length === 0) return
+        const unique = Array.from(new Set(data.map(p => p.category as string).filter(Boolean))).sort()
+        const dynamic = [
+          { label: 'Todas', value: 'Todas' },
+          ...unique.map(c => ({
+            label: c.charAt(0).toUpperCase() + c.slice(1).toLowerCase().replace(/_/g, ' '),
+            value: c,
+          })),
+        ]
+        setCategories(dynamic)
+      })
+  }, [])
 
   // Sincronizar cuando cambien los parámetros de la URL
   useEffect(() => {
@@ -215,7 +237,7 @@ export default function Tienda() {
                 Categorías
               </p>
               <div className="space-y-1">
-                {CATEGORIES.map(cat => (
+                {categories.map(cat => (
                   <button
                     key={cat.value}
                     onClick={() => handleCategory(cat.value)}
