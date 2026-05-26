@@ -49,19 +49,41 @@ function requirePin(req, res, next) {
 async function decrementStock(orderItems) {
   if (!orderItems?.length) return
   for (const item of orderItems) {
-    if (!item.product_id) continue
-    const { data: product } = await supabase
-      .from('products')
-      .select('stock')
-      .eq('id', item.product_id)
-      .single()
-    if (product != null) {
-      const newStock = Math.max(0, (product.stock || 0) - (item.quantity || 1))
-      await supabase
+    // 1. Intentar buscar por product_id
+    let productId = item.product_id || null
+    let product   = null
+
+    if (productId) {
+      const { data } = await supabase
         .from('products')
-        .update({ stock: newStock })
-        .eq('id', item.product_id)
+        .select('id, stock')
+        .eq('id', productId)
+        .single()
+      product = data
     }
+
+    // 2. Si no se encontró por ID, buscar por nombre (fallback para productos del home)
+    if (!product && item.name) {
+      const { data } = await supabase
+        .from('products')
+        .select('id, stock')
+        .ilike('name', item.name.trim())
+        .maybeSingle()
+      if (data) { product = data; productId = data.id }
+    }
+
+    if (!product || productId == null) {
+      console.warn(`⚠️  decrementStock: producto no encontrado — id=${item.product_id} name="${item.name}"`)
+      continue
+    }
+
+    const newStock = Math.max(0, (product.stock || 0) - (item.quantity || 1))
+    await supabase
+      .from('products')
+      .update({ stock: newStock })
+      .eq('id', productId)
+
+    console.log(`📦 Stock actualizado: "${item.name}" → ${product.stock} → ${newStock}`)
   }
 }
 
