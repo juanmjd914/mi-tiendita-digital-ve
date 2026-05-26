@@ -25,6 +25,7 @@ import RecuperarPassword  from './pages/cuenta/RecuperarPassword'
 import NuevaPassword      from './pages/cuenta/NuevaPassword'
 import PoliticaPrivacidad from './pages/PoliticaPrivacidad'
 import Admin              from './pages/Admin'
+import NotFound           from './pages/NotFound'
 import { supabase }    from './lib/supabase'
 import { useAuthStore } from './store/authStore'
 
@@ -50,18 +51,6 @@ function PageLayout({ children }: { children: React.ReactNode }) {
       {children}
       <Footer />
     </div>
-  )
-}
-
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <PageLayout>
-      <div className="flex flex-col items-center justify-center py-32 px-4 text-center">
-        <p className="text-brand-violet text-xs tracking-widest uppercase mb-3" style={{ fontFamily: 'Space Grotesk' }}>Próximamente</p>
-        <h1 className="text-white font-bold text-4xl sm:text-6xl mb-4" style={{ fontFamily: 'Space Grotesk' }}>{title}</h1>
-        <p className="text-white/40 text-sm">Esta sección estará disponible muy pronto.</p>
-      </div>
-    </PageLayout>
   )
 }
 
@@ -124,7 +113,7 @@ export default function App() {
         <Route path="/politica-de-privacidad"    element={<PageLayout><PoliticaPrivacidad /></PageLayout>} />
         <Route path="/admin"                     element={<Admin />} />
         <Route path="/ADMIN"                     element={<Navigate to="/admin" replace />} />
-        <Route path="*"               element={<ComingSoon title="Página no encontrada" />} />
+        <Route path="*"               element={<PageLayout><NotFound /></PageLayout>} />
       </Routes>
     </BrowserRouter>
   )

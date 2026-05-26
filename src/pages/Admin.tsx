@@ -23,6 +23,7 @@ interface Order {
   total: number; customer_email: string; customer_name: string|null
   customer_phone: string|null; customer_address: string|null
   created_at: string; flow_token: string|null; order_items: OrderItem[]
+  coupon_code: string|null; discount_amount: number|null
 }
 
 interface Product {
@@ -180,6 +181,28 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
                   </div>
                 ))}
               </div>
+
+              {/* Resumen de precio con cupón */}
+              {(order.coupon_code || (order.discount_amount && order.discount_amount > 0)) && (
+                <div className="mt-2 pt-2 border-t border-white/5 space-y-1">
+                  {order.coupon_code && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-1.5 text-white/40">
+                        <Tag size={10} className="text-brand-violet"/> Cupón
+                        <span className="font-mono font-bold text-brand-violet/80">{order.coupon_code}</span>
+                      </span>
+                      {order.discount_amount && order.discount_amount > 0 && (
+                        <span className="text-green-400 font-semibold">−${fmt(order.discount_amount)}</span>
+                      )}
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-white/50">Total final</span>
+                    <span className="text-white">${fmt(order.total)}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Acciones según estado */}
               {(order.status === 'pending_transfer' || order.status === 'pending') && (
                 <div className="mt-3 pt-3 border-t border-white/5 space-y-2">

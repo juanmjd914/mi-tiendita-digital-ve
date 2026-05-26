@@ -1,30 +1,31 @@
 import { motion } from 'motion/react'
 import { ArrowRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const CATEGORIES = [
   {
-    name: 'Computación',
-    sub: 'Laptops · PCs · Periféricos',
-    img: 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/computacion1.webp',
+    name:  'Computación',
+    sub:   'Laptops · PCs · Periféricos',
+    img:   'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/computacion1.webp',
     color: '#06b6d4',
-    span: '',
-    big: false,
+    span:  '',
+    cat:   'COMPUTACION',
   },
   {
-    name: 'Accesorios',
-    sub: 'Cables · Soportes · Más',
-    img: 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/tecnologia.webp',
+    name:  'Accesorios',
+    sub:   'Cables · Soportes · Más',
+    img:   'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/tecnologia.webp',
     color: '#ffc222',
-    span: '',
-    big: false,
+    span:  '',
+    cat:   'ACCESORIOS',
   },
   {
-    name: 'Audio, Video y Hogar',
-    sub: 'Headsets · Cámaras · Smart Home',
-    img: 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/audio%20video%20y%20hogar.webp',
+    name:  'Audio, Video y Hogar',
+    sub:   'Headsets · Cámaras · Smart Home',
+    img:   'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/audio%20video%20y%20hogar.webp',
     color: '#f27d26',
-    span: 'col-span-2',
-    big: false,
+    span:  'col-span-2',
+    cat:   'AUDIO Y VIDEO',
   },
 ]
 
@@ -57,6 +58,12 @@ export default function CategoriesGrid() {
               whileHover={{ scale: 1.02 }}
               className={`group relative overflow-hidden rounded-2xl cursor-pointer ${cat.span}`}
             >
+              <Link
+                to={`/tienda?cat=${encodeURIComponent(cat.cat)}`}
+                className="absolute inset-0 z-10"
+                aria-label={`Ver categoría ${cat.name}`}
+              />
+
               {/* Image */}
               <img
                 src={cat.img}
@@ -64,7 +71,7 @@ export default function CategoriesGrid() {
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
 
-              {/* Dark base layer — ensures even white-bg images look dark */}
+              {/* Dark base layer */}
               <div className="absolute inset-0 bg-black/50" />
 
               {/* Color tint overlay */}
@@ -73,7 +80,7 @@ export default function CategoriesGrid() {
                 style={{ background: `linear-gradient(135deg, ${cat.color}99 0%, transparent 60%)` }}
               />
 
-              {/* Strong bottom gradient for text legibility */}
+              {/* Strong bottom gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
               {/* Top vignette */}
@@ -86,13 +93,13 @@ export default function CategoriesGrid() {
               />
 
               {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 z-20 pointer-events-none">
                 <p className="text-white/50 text-[10px] sm:text-xs tracking-widest uppercase mb-1" style={{ fontFamily: 'Space Grotesk' }}>
                   {cat.sub}
                 </p>
                 <div className="flex items-end justify-between">
                   <h3
-                    className={`text-white font-bold leading-tight ${cat.big ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg'}`}
+                    className="text-white font-bold leading-tight text-base sm:text-lg"
                     style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                   >
                     {cat.name}
@@ -114,6 +121,23 @@ export default function CategoriesGrid() {
             </motion.div>
           ))}
         </div>
+
+        {/* Ver todos link */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="text-center mt-8"
+        >
+          <Link
+            to="/tienda"
+            className="inline-flex items-center gap-2 text-white/40 hover:text-brand-cyan text-sm font-semibold transition-colors"
+            style={{ fontFamily: 'Space Grotesk' }}
+          >
+            Ver todos los productos <ArrowRight size={14} />
+          </Link>
+        </motion.div>
       </div>
     </section>
   )
