@@ -106,6 +106,7 @@ export default function Tienda() {
   const [searchParams] = useSearchParams()
   const [search,       setSearch]       = useState(() => searchParams.get('search') || '')
   const [category,     setCategory]     = useState(() => searchParams.get('cat') || 'Todas')
+  const [badgeFilter,  setBadgeFilter]  = useState(() => searchParams.get('badge') || '')
   const [sort,         setSort]         = useState<SortOption>('default')
   const [modalProduct, setModalProduct] = useState<Product | null>(null)
   const [showFilters,  setShowFilters]  = useState(false)
@@ -136,18 +137,22 @@ export default function Tienda() {
   useEffect(() => {
     const cat   = searchParams.get('cat')
     const query = searchParams.get('search')
+    const badge = searchParams.get('badge')
     setCategory(cat   || 'Todas')
     setSearch(query   || '')
+    setBadgeFilter(badge || '')
     setPage(1)
   }, [searchParams])
 
   // Resetear página al cambiar filtros
-  function handleSearch(v: string) { setSearch(v);   setPage(1) }
-  function handleCategory(v: string) { setCategory(v); setPage(1) }
-  function handleSort(v: SortOption) { setSort(v);    setPage(1) }
+  function handleSearch(v: string)   { setSearch(v);      setPage(1) }
+  function handleCategory(v: string) { setCategory(v);    setPage(1); setBadgeFilter('') }
+  function handleSort(v: SortOption) { setSort(v);        setPage(1) }
+  function clearBadge()              { setBadgeFilter(''); setPage(1) }
 
   const { products, loading, total } = useProducts({
     category: category === 'Todas' ? undefined : category,
+    badge:    badgeFilter || undefined,
     search:   search || undefined,
     page,
     pageSize: PAGE_SIZE,
@@ -188,6 +193,20 @@ export default function Tienda() {
             <p className="text-white/20 text-xs mt-1">
               Página {page} de {totalPages}
             </p>
+          )}
+          {/* Chip de filtro activo por badge */}
+          {badgeFilter && (
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <span className="text-white/30 text-xs" style={{ fontFamily: 'Space Grotesk' }}>Filtro activo:</span>
+              <button
+                onClick={clearBadge}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all"
+                style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.35)', color: '#a78bfa', fontFamily: 'Space Grotesk' }}
+              >
+                ⚡ Ofertas
+                <X size={11} />
+              </button>
+            </div>
           )}
         </motion.div>
 
@@ -271,7 +290,7 @@ export default function Tienda() {
                 </p>
                 <p className="text-white/25 text-sm mt-1">Intenta con otro término o categoría</p>
                 <button
-                  onClick={() => { handleSearch(''); handleCategory('Todas') }}
+                  onClick={() => { handleSearch(''); handleCategory('Todas'); clearBadge() }}
                   className="mt-4 text-brand-violet text-sm hover:underline"
                 >
                   Limpiar filtros

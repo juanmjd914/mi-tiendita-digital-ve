@@ -105,7 +105,7 @@ export default function OffersSection() {
 
         {/* CTA */}
         <div className="text-center">
-          <Link to="/tienda?cat=OFERTA">
+          <Link to="/tienda?badge=OFERTA,HOT">
             <motion.button
               whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(124,58,237,0.5)' }}
               whileTap={{ scale: 0.96 }}

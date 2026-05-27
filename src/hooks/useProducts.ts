@@ -5,6 +5,7 @@ export type SortOption = 'default' | 'price_asc' | 'price_desc' | 'rating'
 
 interface UseProductsOptions {
   category?: string
+  badge?:    string       // filtro por badge (ej: 'OFERTA,HOT')
   search?:   string
   limit?:    number       // para secciones de home (sin paginación)
   page?:     number       // 1-based, para Tienda
@@ -67,6 +68,7 @@ const FALLBACK_PRODUCTS: Product[] = [
 
 export function useProducts({
   category,
+  badge,
   search,
   limit,
   page     = 1,
@@ -99,6 +101,11 @@ export function useProducts({
           .order(orderCol, { ascending })
 
         if (category) query = query.ilike('category', `%${category}%`)
+        if (badge) {
+          const badges = badge.split(',').map(b => b.trim()).filter(Boolean)
+          if (badges.length === 1) query = query.ilike('badge', `%${badges[0]}%`)
+          else                     query = query.in('badge', badges)
+        }
         if (search)   query = query.ilike('name',     `%${search}%`)
 
         if (limit) {
@@ -119,6 +126,10 @@ export function useProducts({
           console.warn('Supabase no disponible, usando datos de fallback')
           let fb = [...FALLBACK_PRODUCTS]
           if (category) fb = fb.filter(p => p.category === category)
+          if (badge) {
+            const badges = badge.split(',').map(b => b.trim())
+            fb = fb.filter(p => p.badge && badges.includes(p.badge))
+          }
           if (search)   fb = fb.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
           if (limit)    fb = fb.slice(0, limit)
           else {
@@ -143,7 +154,7 @@ export function useProducts({
 
     fetchProducts()
     return () => { cancelled = true }
-  }, [category, search, limit, page, pageSize, sort])
+  }, [category, badge, search, limit, page, pageSize, sort])
 
   return { products, loading, error, total }
 }
