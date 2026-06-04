@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express    from 'express'
 import cors       from 'cors'
 import path       from 'path'
+import fs         from 'fs'
 import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
 import supabase   from './supabase.js'
@@ -33,7 +34,8 @@ app.use(express.json({ limit: '10mb' }))        // 10mb para imágenes en base64
 app.use(express.urlencoded({ extended: true })) // requerido para webhooks de Flow
 
 if (isProd) {
-  app.use(express.static(path.join(__dirname, '..', 'dist')))
+  // index:false → el catch-all sirve index.html con meta tags inyectados por ruta
+  app.use(express.static(path.join(__dirname, '..', 'dist'), { index: false }))
 }
 
 // ── Admin PIN middleware ──────────────────────────────────────────
@@ -733,10 +735,72 @@ app.get('/api/salud', (_req, res) => {
   res.json({ ok: true, env: process.env.NODE_ENV, ts: new Date().toISOString() })
 })
 
-// ── SPA fallback (Express 5) ─────────────────────────────────────
+// ── SPA fallback + inyección de meta tags por ruta (Express 5) ───
+// Los crawlers sociales (WhatsApp, Facebook, X, LinkedIn) NO ejecutan JS,
+// así que aquí reescribimos title/description/Open Graph/canonical según la
+// ruta solicitada, antes de servir el HTML. El cliente (useSEO) los mantiene.
+const ORIGIN    = 'https://mitienditadigitalve.com'
+const SITE_NAME = 'Mi Tiendita Digital Ve'
+const INDEX_HTML = path.join(__dirname, '..', 'dist', 'index.html')
+
+const ROUTE_META = {
+  '/': {
+    title: 'Mi Tiendita Digital Ve — Tecnología y Gaming en Rancagua',
+    description: 'Tu tienda de tecnología y gaming en Rancagua, Chile. Gabinetes gamer, accesorios, computación, audio y video con garantía local y despacho a todo Chile.',
+  },
+  '/tienda': {
+    title: `Tienda — ${SITE_NAME}`,
+    description: 'Catálogo completo de Mi Tiendita Digital Ve — gabinetes gamer, accesorios, computación y más en Rancagua, Chile.',
+  },
+  '/nosotros': {
+    title: `Nosotros — ${SITE_NAME}`,
+    description: 'Conoce a Mi Tiendita Digital Ve, tu tienda de tecnología y gaming en Rancagua, Chile.',
+  },
+  '/soporte': {
+    title: `Soporte — ${SITE_NAME}`,
+    description: 'Centro de ayuda y soporte de Mi Tiendita Digital Ve. Resuelve tus dudas sobre productos, envíos y pagos.',
+  },
+  '/politica-de-privacidad': {
+    title: `Política de Privacidad — ${SITE_NAME}`,
+    description: 'Política de privacidad de Mi Tiendita Digital Ve: cómo tratamos tus datos personales.',
+  },
+}
+
+// Plantilla cacheada (se relee al reiniciar el proceso, p.ej. tras un deploy)
+let htmlTemplate = null
+function getTemplate() {
+  if (htmlTemplate === null) htmlTemplate = fs.readFileSync(INDEX_HTML, 'utf8')
+  return htmlTemplate
+}
+
+// Escapa comillas dobles para no romper los atributos content="..."
+const esc = (s) => String(s).replace(/"/g, '&quot;')
+
+function renderWithMeta(reqPath) {
+  const meta = ROUTE_META[reqPath] || ROUTE_META['/']
+  const url  = ORIGIN + (reqPath === '/' ? '/' : reqPath)
+  const t    = esc(meta.title)
+  const d    = esc(meta.description)
+
+  return getTemplate()
+    .replace(/<title>[\s\S]*?<\/title>/i,                                   `<title>${t}</title>`)
+    .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/i,            `$1${d}$2`)
+    .replace(/(<meta\s+property="og:title"\s+content=")[^"]*(")/i,          `$1${t}$2`)
+    .replace(/(<meta\s+property="og:description"\s+content=")[^"]*(")/i,    `$1${d}$2`)
+    .replace(/(<meta\s+property="og:url"\s+content=")[^"]*(")/i,            `$1${url}$2`)
+    .replace(/(<meta\s+name="twitter:title"\s+content=")[^"]*(")/i,         `$1${t}$2`)
+    .replace(/(<meta\s+name="twitter:description"\s+content=")[^"]*(")/i,   `$1${d}$2`)
+    .replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i,                 `$1${url}$2`)
+}
+
 if (isProd) {
-  app.get('/{*path}', (_req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
+  app.get('/{*path}', (req, res) => {
+    try {
+      res.set('Content-Type', 'text/html; charset=utf-8').send(renderWithMeta(req.path))
+    } catch (err) {
+      console.error('Render meta error:', err.message)
+      res.sendFile(INDEX_HTML)
+    }
   })
 }
 

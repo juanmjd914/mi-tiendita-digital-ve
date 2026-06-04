@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-
 import { useSEO } from '../hooks/useSEO'
 import { useProducts, type SortOption } from '../hooks/useProducts'
 import ProductModal from '../components/ProductModal'
+import ProductsJsonLd from '../components/ProductsJsonLd'
 import { supabase } from '../lib/supabase'
 import type { Product } from '../lib/supabase'
 
@@ -169,6 +170,9 @@ export default function Tienda() {
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4" style={{ background: '#0a0a0f' }}>
+      {/* Datos estructurados Product (Schema.org) de los productos visibles */}
+      <ProductsJsonLd products={products} />
+
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
