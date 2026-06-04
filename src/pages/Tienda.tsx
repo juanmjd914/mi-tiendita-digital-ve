@@ -354,6 +354,8 @@ function ProductTile({
         <img
           src={imgSrc}
           alt={product.name}
+          loading="lazy"
+          decoding="async"
           className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${product.stock === 0 ? 'opacity-40 grayscale' : ''}`}
           onError={e => {
             e.currentTarget.src = 'https://mitienditadigitalve.com/wp-content/uploads/2021/12/Gabinete-MX410T-6.webp'
