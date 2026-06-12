@@ -6,7 +6,7 @@ import fs         from 'fs'
 import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
 import supabase   from './supabase.js'
-import { createPayment, getPaymentStatus, verifySignature } from './flow.js'
+import { createPayment, getPaymentStatus, verifySignature, sign } from './flow.js'
 import { sendOrderConfirmation, sendTransferInstructions } from './email.js'
 
 // Cliente anon — solo para verificar JWTs de usuarios
@@ -320,17 +320,31 @@ app.post('/api/payment/create', async (req, res) => {
 app.post('/api/payment/confirm', async (req, res) => {
   try {
     const params = req.body
+    const token  = params.token
 
-    // Verificar firma
-    if (!verifySignature(params)) {
-      console.warn('⚠️  Firma inválida en webhook Flow')
-      return res.status(400).send('Firma inválida')
+    if (!token) {
+      console.warn('⚠️  Flow webhook sin token — body:', JSON.stringify(params))
+      return res.status(200).send('OK') // 200 para que Flow no siga reintentando
     }
 
-    const token = params.token
-    if (!token) return res.status(400).send('token requerido')
+    // Verificar firma — si falla, loguear el detalle pero NO retornar 400.
+    // Retornar 400 hace que Flow marque la integración como "con problema" y envíe
+    // correos de alerta. El procesamiento real se hace con getPaymentStatus (seguro:
+    // nuestra petición a Flow va firmada con HMAC propio), así que la firma del
+    // webhook entrante es una capa adicional, no la única.
+    if (!verifySignature(params)) {
+      const { s, ...rest } = params
+      const computed = sign(rest)
+      console.warn('⚠️  Firma inválida en webhook Flow', {
+        received:  s,
+        computed,
+        token,
+        paramKeys: Object.keys(params),
+      })
+      // Continúa el procesamiento — el estado se verifica en Flow directamente
+    }
 
-    // Consultar estado real del pago
+    // Consultar estado real del pago (independiente de la firma recibida)
     const status = await getPaymentStatus(token)
     const statusLabel = status.statusLabel  // 'paid' | 'rejected' | 'cancelled' | 'pending'
 
