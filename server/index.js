@@ -749,6 +749,16 @@ app.get('/api/salud', (_req, res) => {
   res.json({ ok: true, env: process.env.NODE_ENV, ts: new Date().toISOString() })
 })
 
+// POST /pago/resultado — Flow redirige al urlReturn via form POST en algunos flujos.
+// Convierte el POST en un redirect GET para que React (useSearchParams) lea el token.
+app.post('/pago/resultado', (req, res) => {
+  const token = req.body?.token || req.query?.token
+  if (token) {
+    return res.redirect(302, `/pago/resultado?token=${encodeURIComponent(String(token))}`)
+  }
+  res.redirect(302, '/pago/resultado')
+})
+
 // ── SPA fallback + inyección de meta tags por ruta (Express 5) ───
 // Los crawlers sociales (WhatsApp, Facebook, X, LinkedIn) NO ejecutan JS,
 // así que aquí reescribimos title/description/Open Graph/canonical según la
