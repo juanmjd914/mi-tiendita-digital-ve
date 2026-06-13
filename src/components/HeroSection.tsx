@@ -49,69 +49,75 @@ export default function HeroSection() {
         />
       </motion.div>
 
-      {/* Gradiente sutil solo en la parte inferior para legibilidad del texto */}
-      <div className="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/40 to-transparent pointer-events-none" />
+      {/* Gradiente lateral izquierdo — da legibilidad al texto sin tapar el video */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: 'linear-gradient(to right, rgba(10,10,15,0.82) 0%, rgba(10,10,15,0.55) 45%, transparent 75%)' }}
+      />
+      {/* Gradiente inferior sutil */}
+      <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none" />
 
-      {/* Contenido del Hero */}
-      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-        {/* Badge animado */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0 }}
-          className="inline-flex items-center gap-2 mb-6"
-        >
-          <div className="flex items-center gap-2 px-4 py-2 glass-violet rounded-full border border-brand-violet/40">
-            <Zap size={14} className="text-brand-yellow" />
-            <span className="text-white/90 text-xs sm:text-sm font-semibold tracking-widest uppercase" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              Tecnología · Gaming · Rancagua, Chile
-            </span>
-          </div>
-        </motion.div>
-
-        {/* Título H1 */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-none mb-6 text-white"
-          style={{ fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '-0.02em' }}
-        >
-          Tu Tienda de{' '}
-          <span className="gradient-text">Tecnología</span>
-          <br />
-          en Rancagua
-        </motion.h1>
-
-        {/* Subtítulo */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-white/70 text-base sm:text-lg lg:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
-          style={{ fontFamily: 'Inter, sans-serif' }}
-        >
-          Accesorios, computación y tecnología con garantía local.
-          <br className="hidden sm:block" /> Las mejores marcas al mejor precio en Rancagua, Chile.
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.45 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-        >
-          <motion.a
-            href="#tienda"
-            whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(124,58,237,0.6)' }}
-            whileTap={{ scale: 0.96 }}
-            className="flex items-center gap-2 px-8 py-4 bg-brand-violet text-white font-bold text-sm tracking-wide rounded-full transition-all"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+      {/* Contenido del Hero — anclado a la izquierda */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center">
+        <div className="max-w-xl">
+          {/* Badge animado */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0 }}
+            className="inline-flex items-center gap-2 mb-4"
           >
-            Visitar Tienda <ArrowRight size={16} />
-          </motion.a>
-        </motion.div>
+            <div className="flex items-center gap-2 px-3 py-1.5 glass-violet rounded-full border border-brand-violet/40">
+              <Zap size={11} className="text-brand-yellow" />
+              <span className="text-white/90 text-xs font-semibold tracking-widest uppercase" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                Tecnología · Gaming · Rancagua, Chile
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Título H1 */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-4 text-white"
+            style={{ fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '-0.02em' }}
+          >
+            Tu Tienda de{' '}
+            <span className="gradient-text">Tecnología</span>
+            <br />
+            en Rancagua
+          </motion.h1>
+
+          {/* Subtítulo */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-white/70 text-sm sm:text-base mb-8 leading-relaxed"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          >
+            Accesorios, computación y tecnología con garantía local.
+            <br className="hidden sm:block" /> Las mejores marcas al mejor precio en Rancagua, Chile.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="flex flex-col sm:flex-row items-start gap-3"
+          >
+            <motion.a
+              href="#tienda"
+              whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(124,58,237,0.6)' }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 px-6 py-3 bg-brand-violet text-white font-bold text-xs tracking-wide rounded-full transition-all"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              Visitar Tienda <ArrowRight size={14} />
+            </motion.a>
+          </motion.div>
+        </div>
       </div>
 
       {/* Scroll indicator */}
