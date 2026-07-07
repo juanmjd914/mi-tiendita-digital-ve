@@ -13,6 +13,8 @@ export const supabase = createClient(
 )
 
 // ── Tipos alineados con la tabla `products` de Supabase ──────────
+export interface ProductSpec { label: string; value: string }
+
 export interface Product {
   id:             number
   name:           string
@@ -26,6 +28,14 @@ export interface Product {
   stock:          number
   active:         boolean
   created_at:     string
+  // Campos ricos (migración 002)
+  brand?:               string | null
+  sku?:                 string | null
+  warranty?:            string | null
+  weight_grams?:        number | null
+  low_stock_threshold?: number | null
+  specs?:               ProductSpec[] | null
+  gallery?:             string[] | null
 }
 
 export interface Order {

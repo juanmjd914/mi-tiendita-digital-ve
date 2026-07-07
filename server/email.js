@@ -376,6 +376,46 @@ export async function sendTransferInstructions({ order, items }) {
   }
 }
 
+// ── Enviar notificación de pedido enviado ─────────────────────────
+/**
+ * Avisa al cliente que su pedido fue despachado, con el código de seguimiento.
+ * @param {{ order: Object, items: Array }} opts
+ * @returns {Promise<void>}
+ */
+export async function sendShippedNotification({ order }) {
+  try {
+    const tracking = order.tracking_code
+      ? `<p style="margin:12px 0 0;color:#c0c0d0;font-size:14px;">Código de seguimiento: <strong style="color:#06b6d4;">${order.tracking_code}</strong></p>`
+      : ''
+    const html = `
+      <div style="background:#0a0a0f;padding:40px 20px;font-family:'Helvetica Neue',Arial,sans-serif;">
+        <div style="max-width:560px;margin:0 auto;background:#0f0f1a;border:1px solid #1e1e3a;border-radius:16px;padding:32px 28px;text-align:center;">
+          <div style="display:inline-block;background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);border-radius:50px;padding:8px 20px;margin-bottom:16px;">
+            <span style="color:#06b6d4;font-size:13px;font-weight:700;letter-spacing:0.06em;">🚚 PEDIDO EN CAMINO</span>
+          </div>
+          <h2 style="margin:0;color:#fff;font-size:24px;font-weight:800;">¡Tu pedido va en camino!</h2>
+          <p style="margin:10px 0 0;color:#8080a0;font-size:15px;">
+            Hola${order.customer_name ? ` <strong style="color:#c0c0d0;">${order.customer_name}</strong>` : ''},
+            despachamos tu pedido <strong style="color:#c0c0d0;">#${order.id}</strong>.
+          </p>
+          ${tracking}
+          <a href="https://wa.me/56946216579?text=Hola%2C%20consulto%20por%20mi%20pedido%20%23${order.id}"
+             style="display:inline-block;margin-top:24px;background:#25d366;color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:12px 26px;border-radius:12px;">💬 Consultar por WhatsApp</a>
+          <p style="margin:24px 0 0;color:#404060;font-size:12px;">© Mi Tiendita Digital Ve 2026 · Rancagua, Chile</p>
+        </div>
+      </div>`
+    const { error } = await resend.emails.send({
+      from: FROM, to: [order.customer_email],
+      subject: `🚚 Tu pedido #${order.id} va en camino — Mi Tiendita Digital Ve`,
+      html,
+    })
+    if (error) { console.error('❌ Resend error (shipped):', error); return }
+    console.log(`📧 Email envío notificado → ${order.customer_email}`)
+  } catch (err) {
+    console.error('❌ sendShippedNotification error:', err.message)
+  }
+}
+
 // ── Enviar confirmación de pedido ──────────────────────────────────
 /**
  * @param {{ order: Object, items: Array }} opts

@@ -163,11 +163,35 @@ export default function ProductModal({ product, onClose }: Props) {
                       )}
                     </div>
 
+                    {/* Marca */}
+                    {p.brand && (
+                      <p className="text-white/40 text-xs mb-2" style={{ fontFamily: 'Inter' }}>
+                        Marca: <span className="text-white/70 font-semibold">{p.brand}</span>
+                      </p>
+                    )}
+
                     {/* Descripción */}
                     {p.description && (
                       <p className="text-white/55 text-sm leading-relaxed" style={{ fontFamily: 'Inter' }}>
                         {p.description}
                       </p>
+                    )}
+
+                    {/* Especificaciones técnicas */}
+                    {p.specs && p.specs.length > 0 && (
+                      <div className="mt-4 border-t border-white/5 pt-4">
+                        <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+                          Especificaciones
+                        </p>
+                        <div className="space-y-1.5">
+                          {p.specs.map((s, i) => (
+                            <div key={i} className="flex items-start justify-between gap-3 text-xs">
+                              <span className="text-white/40" style={{ fontFamily: 'Inter' }}>{s.label}</span>
+                              <span className="text-white/75 text-right font-medium" style={{ fontFamily: 'Inter' }}>{s.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
 
@@ -175,7 +199,7 @@ export default function ProductModal({ product, onClose }: Props) {
                   <div className="space-y-2 border-t border-white/5 pt-4">
                     <div className="flex items-center gap-2 text-white/40 text-xs">
                       <Shield size={13} className="text-brand-violet flex-shrink-0" />
-                      Garantía de funcionamiento incluida
+                      {p.warranty ? `Garantía: ${p.warranty}` : 'Garantía de funcionamiento incluida'}
                     </div>
                     <div className="flex items-center gap-2 text-white/40 text-xs">
                       <Package size={13} className="text-brand-cyan flex-shrink-0" />

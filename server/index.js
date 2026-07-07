@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import express    from 'express'
 import cors       from 'cors'
+import helmet     from 'helmet'
+import rateLimit  from 'express-rate-limit'
 import path       from 'path'
 import fs         from 'fs'
 import { fileURLToPath } from 'url'
@@ -8,6 +10,9 @@ import { createClient } from '@supabase/supabase-js'
 import supabase   from './supabase.js'
 import { createPayment, getPaymentStatus, verifySignature, sign } from './flow.js'
 import { sendOrderConfirmation, sendTransferInstructions } from './email.js'
+import { login, requireAuth, logout, adminUserCount } from './adminAuth.js'
+import { decrementStock, restoreStock } from './stock.js'
+import { computeCouponDiscount, redeemCoupon, refundCoupon, getValidCoupon, computeDiscount } from './coupons.js'
 
 // Cliente anon — solo para verificar JWTs de usuarios
 const authClient = createClient(
@@ -25,6 +30,18 @@ const PORT      = Number(process.env.PORT) || 3001
 
 const app = express()
 
+// Passenger/Hostinger corre detrás de un proxy → necesario para que el rate limit
+// lea la IP real del cliente (X-Forwarded-For) en vez de la del proxy.
+app.set('trust proxy', 1)
+
+// Cabeceras de seguridad. crossOriginResourcePolicy relajado para permitir que las
+// imágenes de Supabase Storage se sirvan en la tienda.
+app.use(helmet({
+  contentSecurityPolicy: false, // el SPA carga assets propios; evitamos romper Vite
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}))
+
 app.use(cors({
   origin: isProd
     ? ['https://mitienditadigitalve.com', 'https://www.mitienditadigitalve.com']
@@ -33,98 +50,72 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }))        // 10mb para imágenes en base64
 app.use(express.urlencoded({ extended: true })) // requerido para webhooks de Flow
 
+// ── Rate limiting ─────────────────────────────────────────────────
+// Límite general para toda la API (evita abuso/spam).
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 300,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes. Intenta de nuevo en unos minutos.' },
+})
+// Límite estricto para el login admin (frena fuerza bruta de contraseñas).
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Demasiados intentos de inicio de sesión. Espera 15 minutos.' },
+})
+// Límite para crear pedidos/pagos (evita spam de órdenes).
+const orderLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 40,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Demasiados intentos. Espera unos minutos.' },
+})
+// El webhook de Flow NO se limita (es servidor-a-servidor); todo lo demás bajo /api sí.
+app.use('/api/payment/confirm', (req, _res, next) => next())
+app.use('/api', apiLimiter)
+
 if (isProd) {
   // index:false → el catch-all sirve index.html con meta tags inyectados por ruta
   app.use(express.static(path.join(__dirname, '..', 'dist'), { index: false }))
 }
 
-// ── Admin PIN middleware ──────────────────────────────────────────
-function requirePin(req, res, next) {
-  const auth = req.headers['x-admin-pin'] || req.query.pin
-  if (!auth || auth !== process.env.ADMIN_PIN) {
-    return res.status(401).json({ error: 'PIN incorrecto' })
-  }
-  next()
-}
+// ── Admin auth ────────────────────────────────────────────────────
+// POST /api/admin/login — usuario+contraseña → token de sesión
+app.post('/api/admin/login', loginLimiter, (req, res) => {
+  const { username, password } = req.body || {}
+  const token = login(username, password)
+  if (!token) return res.status(401).json({ error: 'Usuario o contraseña incorrectos' })
+  res.json({ token, user: String(username).trim() })
+})
 
-// ── Helper: descuenta stock tras pago confirmado ──────────────────
-async function decrementStock(orderItems) {
-  if (!orderItems?.length) {
-    console.warn('⚠️  decrementStock: orderItems vacío o nulo')
-    return
-  }
-  console.log(`📦 decrementStock: procesando ${orderItems.length} ítem(s)`)
+// POST /api/admin/logout — invalida el token de sesión
+app.post('/api/admin/logout', (req, res) => {
+  const token = req.headers['x-admin-token']
+  if (token) logout(token)
+  res.json({ ok: true })
+})
 
-  for (const item of orderItems) {
-    let product   = null
-    let productId = null
+// GET /api/admin/me — valida que el token siga vivo (para el frontend al recargar)
+app.get('/api/admin/me', requireAuth, (req, res) => {
+  res.json({ ok: true, user: req.adminUser })
+})
 
-    // 1. Buscar por nombre PRIMERO (más confiable — IDs del home pueden no coincidir)
-    if (item.name) {
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, stock')
-        .ilike('name', item.name.trim())
-        .maybeSingle()
-      if (error) console.warn(`⚠️  Búsqueda por nombre falló: ${error.message}`)
-      if (data)  { product = data; productId = data.id }
-    }
+// ── Idempotencia de inventario ────────────────────────────────────
+// Descuenta stock y canjea el cupón UNA SOLA VEZ por orden, sin importar
+// cuántas veces llegue el webhook o se recargue la página de resultado.
+// Usa la bandera orders.stock_decremented (si la columna existe tras la migración).
+async function confirmOrderInventory(order, { wasPending } = {}) {
+  const alreadyDone = order?.stock_decremented === true
+  // Antes de aplicar la migración, la columna no existe (undefined) → usamos
+  // wasPending como respaldo para no descontar dos veces.
+  if (alreadyDone) return
+  if (order?.stock_decremented === undefined && wasPending === false) return
 
-    // 2. Fallback: buscar por product_id si no encontró por nombre
-    if (!product && item.product_id) {
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, stock')
-        .eq('id', item.product_id)
-        .maybeSingle()
-      if (error) console.warn(`⚠️  Búsqueda por id falló: ${error.message}`)
-      if (data)  { product = data; productId = data.id }
-    }
+  await decrementStock(order.order_items || [])
+  if (order.coupon_code) await redeemCoupon(order.coupon_code)
 
-    if (!product) {
-      console.warn(`⚠️  decrementStock: producto no encontrado — id=${item.product_id} name="${item.name}"`)
-      continue
-    }
-
-    const newStock = Math.max(0, (product.stock ?? 0) - (item.quantity || 1))
-    const { error: updateErr } = await supabase
-      .from('products')
-      .update({ stock: newStock })
-      .eq('id', productId)
-
-    if (updateErr) {
-      console.error(`❌ No se pudo actualizar stock de "${item.name}": ${updateErr.message}`)
-    } else {
-      console.log(`📦 Stock OK: "${item.name}" ${product.stock} → ${newStock}`)
-    }
-  }
-}
-
-// ── Helper: restaura stock al cancelar un pedido ─────────────────
-async function restoreStock(orderItems) {
-  if (!orderItems?.length) return
-  for (const item of orderItems) {
-    let product   = null
-    let productId = null
-
-    if (item.name) {
-      const { data } = await supabase
-        .from('products').select('id, stock')
-        .ilike('name', item.name.trim()).maybeSingle()
-      if (data) { product = data; productId = data.id }
-    }
-    if (!product && item.product_id) {
-      const { data } = await supabase
-        .from('products').select('id, stock')
-        .eq('id', item.product_id).maybeSingle()
-      if (data) { product = data; productId = data.id }
-    }
-    if (!product) continue
-
-    const newStock = (product.stock ?? 0) + (item.quantity || 1)
-    const { error } = await supabase.from('products').update({ stock: newStock }).eq('id', productId)
-    if (!error) console.log(`📦 Stock restaurado: "${item.name}" ${product.stock} → ${newStock}`)
-  }
+  // Marca la orden como procesada (si la columna existe). Si no existe, el update
+  // ignora el campo desconocido y quedamos protegidos por wasPending hasta la migración.
+  await supabase.from('orders').update({ stock_decremented: true }).eq('id', order.id)
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -136,40 +127,29 @@ app.post('/api/coupons/validate', async (req, res) => {
   const { code, total } = req.body
   if (!code) return res.status(400).json({ error: 'Código requerido' })
 
-  const { data: coupon } = await supabase
-    .from('coupons').select('*').ilike('code', code.trim()).eq('active', true).maybeSingle()
+  const { coupon, error } = await getValidCoupon(code, total)
+  if (error) return res.status(400).json({ error })
 
-  if (!coupon) return res.status(404).json({ error: 'Cupón no válido o inactivo' })
-  if (coupon.expires_at && new Date(coupon.expires_at) < new Date())
-    return res.status(400).json({ error: 'El cupón ha expirado' })
-  if (coupon.max_uses !== null && coupon.uses >= coupon.max_uses)
-    return res.status(400).json({ error: 'El cupón ha alcanzado su límite de usos' })
-  if (total && Number(total) < Number(coupon.min_order))
-    return res.status(400).json({ error: `Monto mínimo para este cupón: $${Number(coupon.min_order).toLocaleString('es-CL')}` })
-
-  const base   = Number(total) || 0
-  const val    = Number(coupon.discount_value)
-  const discountAmount = coupon.discount_type === 'percentage'
-    ? Math.round(base * val / 100)
-    : Math.min(val, base)
+  const val = Number(coupon.discount_value)
+  const { discountAmount, finalTotal } = computeDiscount(coupon, Number(total) || 0)
 
   res.json({
     valid: true, code: coupon.code.toUpperCase(),
     description: coupon.description,
     discountType: coupon.discount_type, discountValue: val,
-    discountAmount, newTotal: Math.max(0, base - discountAmount),
+    discountAmount, newTotal: finalTotal,
   })
 })
 
 // GET /api/admin/coupons
-app.get('/api/admin/coupons', requirePin, async (req, res) => {
+app.get('/api/admin/coupons', requireAuth, async (req, res) => {
   const { data, error } = await supabase.from('coupons').select('*').order('created_at', { ascending: false })
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
 })
 
 // POST /api/admin/coupons — crear cupón
-app.post('/api/admin/coupons', requirePin, async (req, res) => {
+app.post('/api/admin/coupons', requireAuth, async (req, res) => {
   const { code, description, discount_type, discount_value, min_order, max_uses, expires_at } = req.body
   if (!code?.trim() || !discount_type || !discount_value)
     return res.status(400).json({ error: 'Código, tipo y valor son requeridos' })
@@ -187,31 +167,12 @@ app.post('/api/admin/coupons', requirePin, async (req, res) => {
 })
 
 // PUT /api/admin/coupons/:id — actualizar / toggle
-app.put('/api/admin/coupons/:id', requirePin, async (req, res) => {
+app.put('/api/admin/coupons/:id', requireAuth, async (req, res) => {
   const { data, error } = await supabase
     .from('coupons').update(req.body).eq('id', req.params.id).select().single()
   if (error) return res.status(400).json({ error: error.message })
   res.json(data)
 })
-
-// ── Helper interno: aplica cupón y retorna descuento + total final ───────────
-async function applyCoupon(code, subtotal) {
-  if (!code) return { discountAmount: 0, finalTotal: subtotal, couponData: null }
-  const { data: coupon } = await supabase
-    .from('coupons').select('*').ilike('code', code.trim()).eq('active', true).maybeSingle()
-  if (!coupon) return { discountAmount: 0, finalTotal: subtotal, couponData: null }
-
-  const val    = Number(coupon.discount_value)
-  const discount = coupon.discount_type === 'percentage'
-    ? Math.round(subtotal * val / 100)
-    : Math.min(val, subtotal)
-  const finalTotal = Math.max(0, subtotal - discount)
-
-  // Incrementar contador de usos
-  await supabase.from('coupons').update({ uses: (coupon.uses || 0) + 1 }).eq('id', coupon.id)
-
-  return { discountAmount: discount, finalTotal, couponData: coupon }
-}
 
 // ═══════════════════════════════════════════════════════════════
 //  PRODUCTOS
@@ -261,57 +222,75 @@ app.get('/api/products/:id', async (req, res) => {
 //  PAGOS — FLOW CHILE
 // ═══════════════════════════════════════════════════════════════
 
+/**
+ * Valida el carrito contra la BASE DE DATOS (no confía en el precio/nombre que
+ * manda el navegador). Devuelve los ítems con precio y nombre reales, o lanza un
+ * Error legible si algo no cuadra (producto inexistente, inactivo o sin stock).
+ * Esto evita manipulación de precios desde el frontend.
+ */
+async function buildValidatedItems(items) {
+  if (!Array.isArray(items) || items.length === 0) throw new Error('Carrito vacío')
+
+  const validated = []
+  for (const item of items) {
+    const qty = Math.max(1, Math.floor(Number(item.quantity) || 1))
+    const { data: product } = await supabase
+      .from('products').select('id, name, price, stock, active').eq('id', item.id).maybeSingle()
+
+    if (!product || product.active === false) {
+      throw new Error(`El producto "${item.name || item.id}" ya no está disponible`)
+    }
+    if ((product.stock ?? 999) < qty) {
+      throw new Error(`Sin stock suficiente para "${product.name}". Disponible: ${product.stock ?? 0}`)
+    }
+    validated.push({ product_id: product.id, name: product.name, price: product.price, quantity: qty })
+  }
+  const subtotal = validated.reduce((s, i) => s + i.price * i.quantity, 0)
+  return { validated, subtotal }
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ''))
+}
+
 // POST /api/payment/create — inicia el pago con Flow
-app.post('/api/payment/create', async (req, res) => {
+app.post('/api/payment/create', orderLimiter, async (req, res) => {
   try {
     const { items, email, customerName, customerPhone, customerAddress, couponCode } = req.body
+    if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
 
-    if (!items?.length) return res.status(400).json({ error: 'Carrito vacío' })
-    if (!email)         return res.status(400).json({ error: 'Email requerido' })
-
-    // Verificar stock disponible para cada ítem
-    for (const item of items) {
-      const { data: product } = await supabase
-        .from('products').select('stock').eq('id', item.id).single()
-      if (product && (product.stock ?? 999) < (item.quantity || 1)) {
-        return res.status(400).json({
-          error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock ?? 0}`
-        })
-      }
-    }
-
-    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
-    const { discountAmount, finalTotal } = await applyCoupon(couponCode, subtotal)
-    const subject  = items.length === 1 ? items[0].name.slice(0, 80) : `Mi Tiendita Digital Ve — ${items.length} productos`
+    // Precios y stock validados contra la base (no se confía en el frontend)
+    const { validated, subtotal } = await buildValidatedItems(items)
+    const { discountAmount, finalTotal, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
+    const subject = validated.length === 1 ? validated[0].name.slice(0, 80) : `Mi Tiendita Digital Ve — ${validated.length} productos`
 
     // Crear orden
     const { data: order, error: orderErr } = await supabase
       .from('orders').insert({
         status:           'pending',
         total:            finalTotal,
-        customer_email:   email,
+        customer_email:   String(email).trim(),
         customer_name:    customerName    || null,
         customer_phone:   customerPhone   || null,
         customer_address: customerAddress || null,
-        coupon_code:      couponCode      || null,
+        coupon_code:      appliedCoupon,
         discount_amount:  discountAmount,
       }).select().single()
 
     if (orderErr) throw orderErr
 
-    const orderItems = items.map(i => ({
-      order_id: order.id, product_id: i.id,
-      name: i.name, price: i.price, quantity: i.quantity,
-    }))
+    const orderItems = validated.map(i => ({ order_id: order.id, ...i }))
     await supabase.from('order_items').insert(orderItems)
 
-    const payment = await createPayment({ orderId: order.id, subject, amount: finalTotal, email })
+    const payment = await createPayment({ orderId: order.id, subject, amount: finalTotal, email: String(email).trim() })
     await supabase.from('orders').update({ flow_token: payment.token }).eq('id', order.id)
 
     res.json({ redirectUrl: payment.redirectUrl, orderId: order.id })
   } catch (err) {
     console.error('/api/payment/create error:', err.message)
-    res.status(500).json({ error: err.message })
+    // Errores de validación (stock/producto) son 400; el resto 500
+    const isValidation = /stock|disponible|Carrito|Email/i.test(err.message)
+    res.status(isValidation ? 400 : 500).json({ error: err.message })
   }
 })
 
@@ -348,36 +327,25 @@ app.post('/api/payment/confirm', async (req, res) => {
     const status = await getPaymentStatus(token)
     const statusLabel = status.statusLabel  // 'paid' | 'rejected' | 'cancelled' | 'pending'
 
-    // Verificar estado previo para evitar doble descuento de stock
+    // Estado previo (respaldo de idempotencia si la columna stock_decremented no existe aún)
     const { data: existingOrder } = await supabase
-      .from('orders')
-      .select('status')
-      .eq('flow_token', token)
-      .single()
+      .from('orders').select('status').eq('flow_token', token).single()
     const wasPending = existingOrder?.status === 'pending'
 
     // Actualizar orden
     const { data: updatedOrder, error } = await supabase
       .from('orders')
-      .update({
-        status:     statusLabel,
-        flow_order: status.flowOrder || null,
-      })
+      .update({ status: statusLabel, flow_order: status.flowOrder || null })
       .eq('flow_token', token)
       .select('*, order_items(*)')
       .single()
 
     if (error) console.error('Supabase update error:', error.message)
 
-    // Enviar email y descontar stock solo si el pago fue exitoso y estaba pendiente
+    // Solo si el pago fue exitoso: confirmar inventario (idempotente) + email
     if (statusLabel === 'paid' && updatedOrder) {
-      sendOrderConfirmation({
-        order: updatedOrder,
-        items: updatedOrder.order_items || [],
-      })
-      if (wasPending) {
-        await decrementStock(updatedOrder.order_items || [])
-      }
+      await confirmOrderInventory(updatedOrder, { wasPending })
+      sendOrderConfirmation({ order: updatedOrder, items: updatedOrder.order_items || [] })
     }
 
     res.status(200).send('OK')
@@ -392,7 +360,7 @@ app.get('/api/payment/status/:token', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('orders')
-      .select('id, status, total, customer_email, customer_name, created_at, order_items(*)')
+      .select('id, status, total, customer_email, customer_name, coupon_code, stock_decremented, created_at, order_items(*)')
       .eq('flow_token', req.params.token)
       .single()
 
@@ -406,22 +374,21 @@ app.get('/api/payment/status/:token', async (req, res) => {
         const newStatus  = flowStatus.statusLabel // 'paid' | 'rejected' | 'cancelled' | 'pending'
 
         if (newStatus !== 'pending') {
-          // Actualizar en Supabase
           await supabase
             .from('orders')
             .update({ status: newStatus, flow_order: flowStatus.flowOrder || null })
             .eq('flow_token', req.params.token)
 
+          const wasPending = data.status === 'pending'
           data.status = newStatus
 
-          // Enviar email y descontar stock (orden estaba en pending, es la primera vez)
+          // Confirmar inventario (idempotente) + email si el pago se acreditó
           if (newStatus === 'paid') {
+            await confirmOrderInventory(data, { wasPending })
             sendOrderConfirmation({ order: data, items: data.order_items || [] })
-            await decrementStock(data.order_items || [])
           }
         }
       } catch (flowErr) {
-        // No es fatal — devolvemos el status de Supabase
         console.warn('⚠️  Flow status check failed:', flowErr.message)
       }
     }
@@ -433,55 +400,42 @@ app.get('/api/payment/status/:token', async (req, res) => {
 })
 
 // POST /api/payment/transfer — crea pedido pendiente de transferencia bancaria
-app.post('/api/payment/transfer', async (req, res) => {
+app.post('/api/payment/transfer', orderLimiter, async (req, res) => {
   try {
     const { items, email, customerName, customerPhone, customerAddress, couponCode } = req.body
+    if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
 
-    if (!items?.length) return res.status(400).json({ error: 'Carrito vacío' })
-    if (!email)         return res.status(400).json({ error: 'Email requerido' })
-
-    // Verificar stock
-    for (const item of items) {
-      const { data: product } = await supabase
-        .from('products').select('stock').eq('id', item.id).single()
-      if (product && (product.stock ?? 999) < (item.quantity || 1)) {
-        return res.status(400).json({
-          error: `Sin stock suficiente para "${item.name}". Stock disponible: ${product.stock ?? 0}`
-        })
-      }
-    }
-
-    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
-    const { discountAmount, finalTotal } = await applyCoupon(couponCode, subtotal)
+    // Precios y stock validados contra la base (no se confía en el frontend)
+    const { validated, subtotal } = await buildValidatedItems(items)
+    const { discountAmount, finalTotal, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
 
     const { data: order, error: orderErr } = await supabase
       .from('orders').insert({
         status:           'pending_transfer',
         total:            finalTotal,
-        customer_email:   email,
+        customer_email:   String(email).trim(),
         customer_name:    customerName    || null,
         customer_phone:   customerPhone   || null,
         customer_address: customerAddress || null,
-        coupon_code:      couponCode      || null,
+        coupon_code:      appliedCoupon,
         discount_amount:  discountAmount,
       }).select().single()
 
     if (orderErr) throw orderErr
 
-    const orderItems = items.map(i => ({
-      order_id: order.id, product_id: i.id,
-      name: i.name, price: i.price, quantity: i.quantity,
-    }))
+    const orderItems = validated.map(i => ({ order_id: order.id, ...i }))
     await supabase.from('order_items').insert(orderItems)
 
-    await decrementStock(orderItems)
+    // La transferencia RESERVA el stock al crear el pedido (idempotente).
+    await confirmOrderInventory({ ...order, order_items: orderItems }, { wasPending: true })
 
     try { await sendTransferInstructions({ order, items: orderItems }) } catch (_) { /* ignore */ }
 
     res.json({ orderId: order.id, total: finalTotal })
   } catch (err) {
     console.error('/api/payment/transfer error:', err.message)
-    res.status(500).json({ error: err.message })
+    const isValidation = /stock|disponible|Carrito|Email/i.test(err.message)
+    res.status(isValidation ? 400 : 500).json({ error: err.message })
   }
 })
 
@@ -536,12 +490,28 @@ app.post('/api/newsletter', async (req, res) => {
   }
 })
 
+// GET /api/newsletter/unsubscribe?token=... — baja pública (link en los emails)
+app.get('/api/newsletter/unsubscribe', async (req, res) => {
+  const token = req.query.token
+  if (!token) return res.status(400).send('Token requerido')
+  try {
+    await supabase.from('newsletter_subscribers').update({ active: false }).eq('unsubscribe_token', token)
+    res.set('Content-Type', 'text/html; charset=utf-8').send(
+      '<div style="font-family:system-ui;text-align:center;padding:60px 20px;background:#0a0a0f;color:#fff;min-height:100vh">' +
+      '<h1 style="color:#81d742">Listo ✅</h1><p>Te diste de baja del boletín de Mi Tiendita Digital Ve.</p>' +
+      '<a href="https://mitienditadigitalve.com" style="color:#06b6d4">Volver a la tienda</a></div>'
+    )
+  } catch (err) {
+    res.status(500).send('Error al procesar la baja')
+  }
+})
+
 // ═══════════════════════════════════════════════════════════════
 //  ADMIN
 // ═══════════════════════════════════════════════════════════════
 
 // GET /api/admin/newsletter — lista de suscriptores
-app.get('/api/admin/newsletter', requirePin, async (_req, res) => {
+app.get('/api/admin/newsletter', requireAuth, async (_req, res) => {
   try {
     const { data, error } = await supabase
       .from('newsletter_subscribers')
@@ -554,7 +524,7 @@ app.get('/api/admin/newsletter', requirePin, async (_req, res) => {
   }
 })
 
-app.get('/api/admin/stats', requirePin, async (_req, res) => {
+app.get('/api/admin/stats', requireAuth, async (_req, res) => {
   try {
     const [{ count: totalOrders }, { data: revenue }, { count: subscribers }] =
       await Promise.all([
@@ -570,7 +540,7 @@ app.get('/api/admin/stats', requirePin, async (_req, res) => {
   }
 })
 
-app.get('/api/admin/orders', requirePin, async (req, res) => {
+app.get('/api/admin/orders', requireAuth, async (req, res) => {
   try {
     const { status, limit = 50 } = req.query
     let query = supabase
@@ -592,7 +562,7 @@ app.get('/api/admin/orders', requirePin, async (req, res) => {
 // ── Admin: Productos ─────────────────────────────────────────────
 
 // GET /api/admin/products — listar todos (con filtros opcionales)
-app.get('/api/admin/products', requirePin, async (req, res) => {
+app.get('/api/admin/products', requireAuth, async (req, res) => {
   try {
     const { search, category, active } = req.query
     let query = supabase.from('products').select('*').order('id', { ascending: true })
@@ -607,32 +577,72 @@ app.get('/api/admin/products', requirePin, async (req, res) => {
   }
 })
 
+// Whitelist + saneo de campos de producto (nunca se confía en req.body crudo).
+// Incluye los campos ricos nuevos (brand, sku, warranty, specs, gallery, etc.).
+function sanitizeProduct(body, { partial = false } = {}) {
+  const out = {}
+  const str  = (v) => (v == null ? null : String(v).trim() || null)
+  const int  = (v) => (v === '' || v == null ? null : Math.trunc(Number(v)))
+  const num  = (v) => (v === '' || v == null ? null : Number(v))
+
+  if ('name'          in body) out.name          = str(body.name)
+  if ('price'         in body) out.price         = int(body.price)
+  if ('original_price'in body) out.original_price= int(body.original_price)
+  if ('category'      in body) out.category      = str(body.category)
+  if ('description'   in body) out.description   = str(body.description)
+  if ('badge'         in body) out.badge         = str(body.badge)
+  if ('img_url'       in body) out.img_url       = str(body.img_url)
+  if ('rating'        in body) out.rating        = num(body.rating)
+  if ('stock'         in body) out.stock         = Math.max(0, int(body.stock) ?? 0)
+  if ('active'        in body) out.active        = Boolean(body.active)
+  // Campos ricos (existen tras la migración 002; si no, Supabase los ignora en error → validamos abajo)
+  if ('brand'         in body) out.brand         = str(body.brand)
+  if ('sku'           in body) out.sku           = str(body.sku)
+  if ('warranty'      in body) out.warranty      = str(body.warranty)
+  if ('weight_grams'  in body) out.weight_grams  = int(body.weight_grams)
+  if ('low_stock_threshold' in body) out.low_stock_threshold = int(body.low_stock_threshold)
+  // specs: array de { label, value }  ·  gallery: array de URLs
+  if ('specs'   in body) out.specs   = Array.isArray(body.specs)   ? body.specs.slice(0, 40)   : null
+  if ('gallery' in body) out.gallery = Array.isArray(body.gallery) ? body.gallery.slice(0, 12) : null
+
+  if (!partial) {
+    if (!out.name)  throw new Error('El nombre es requerido')
+    if (out.price == null || out.price < 0) throw new Error('El precio es inválido')
+    if (!out.category) throw new Error('La categoría es requerida')
+  }
+  return out
+}
+
 // POST /api/admin/products — crear producto
-app.post('/api/admin/products', requirePin, async (req, res) => {
+app.post('/api/admin/products', requireAuth, async (req, res) => {
   try {
+    const payload = sanitizeProduct(req.body || {})
     const { data, error } = await supabase
-      .from('products').insert(req.body).select().single()
+      .from('products').insert(payload).select().single()
     if (error) throw error
     res.json(data)
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    const isValidation = /requerid|inválido/i.test(err.message)
+    res.status(isValidation ? 400 : 500).json({ error: err.message })
   }
 })
 
 // PUT /api/admin/products/:id — actualizar producto
-app.put('/api/admin/products/:id', requirePin, async (req, res) => {
+app.put('/api/admin/products/:id', requireAuth, async (req, res) => {
   try {
+    const payload = sanitizeProduct(req.body || {}, { partial: true })
     const { data, error } = await supabase
-      .from('products').update(req.body).eq('id', req.params.id).select().single()
+      .from('products').update(payload).eq('id', req.params.id).select().single()
     if (error) throw error
     res.json(data)
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    const isValidation = /requerid|inválido/i.test(err.message)
+    res.status(isValidation ? 400 : 500).json({ error: err.message })
   }
 })
 
 // DELETE /api/admin/products/:id — desactivar (soft delete)
-app.delete('/api/admin/products/:id', requirePin, async (req, res) => {
+app.delete('/api/admin/products/:id', requireAuth, async (req, res) => {
   try {
     const { error } = await supabase
       .from('products').update({ active: false }).eq('id', req.params.id)
@@ -644,7 +654,7 @@ app.delete('/api/admin/products/:id', requirePin, async (req, res) => {
 })
 
 // POST /api/admin/orders/:id/confirm-transfer — confirma pago por transferencia
-app.post('/api/admin/orders/:id/confirm-transfer', requirePin, async (req, res) => {
+app.post('/api/admin/orders/:id/confirm-transfer', requireAuth, async (req, res) => {
   try {
     const orderId = req.params.id
 
@@ -682,7 +692,7 @@ app.post('/api/admin/orders/:id/confirm-transfer', requirePin, async (req, res) 
 })
 
 // POST /api/admin/upload-image — sube imagen a Supabase Storage y devuelve URL pública
-app.post('/api/admin/upload-image', requirePin, async (req, res) => {
+app.post('/api/admin/upload-image', requireAuth, async (req, res) => {
   try {
     const { data: base64Data, name, type } = req.body
     if (!base64Data || !name) return res.status(400).json({ error: 'Datos requeridos' })
@@ -713,7 +723,7 @@ app.post('/api/admin/upload-image', requirePin, async (req, res) => {
 })
 
 // POST /api/admin/orders/:id/cancel — cancela un pedido pendiente y restaura stock
-app.post('/api/admin/orders/:id/cancel', requirePin, async (req, res) => {
+app.post('/api/admin/orders/:id/cancel', requireAuth, async (req, res) => {
   try {
     const orderId = req.params.id
 
@@ -732,9 +742,14 @@ app.post('/api/admin/orders/:id/cancel', requirePin, async (req, res) => {
       .from('orders').update({ status: 'cancelled' }).eq('id', orderId)
     if (updateErr) throw updateErr
 
-    // Solo restaura stock si ya se había descontado (transferencias)
-    if (order.status === 'pending_transfer') {
+    // Restaura inventario solo si ya se había descontado. Usa la bandera si existe;
+    // si no (pre-migración), cae al criterio anterior (las transferencias reservan stock).
+    const wasDecremented = order.stock_decremented === true ||
+      (order.stock_decremented === undefined && order.status === 'pending_transfer')
+    if (wasDecremented) {
       await restoreStock(order.order_items || [])
+      if (order.coupon_code) await refundCoupon(order.coupon_code)
+      await supabase.from('orders').update({ stock_decremented: false }).eq('id', orderId)
     }
 
     res.json({ ok: true })
@@ -744,9 +759,51 @@ app.post('/api/admin/orders/:id/cancel', requirePin, async (req, res) => {
   }
 })
 
+// GET /api/admin/low-stock — productos activos en o bajo su umbral de alerta
+app.get('/api/admin/low-stock', requireAuth, async (_req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('products').select('id, name, stock, low_stock_threshold, img_url')
+      .eq('active', true).order('stock', { ascending: true })
+    if (error) throw error
+    const low = (data || []).filter(p => (p.stock ?? 0) <= (p.low_stock_threshold ?? 3))
+    res.json(low)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/admin/orders/:id/fulfillment — actualiza estado de preparación/envío
+app.post('/api/admin/orders/:id/fulfillment', requireAuth, async (req, res) => {
+  try {
+    const VALID = ['pending', 'preparing', 'shipped', 'delivered']
+    const status = String(req.body?.fulfillment_status || '')
+    if (!VALID.includes(status)) return res.status(400).json({ error: 'Estado de envío inválido' })
+
+    const updates = { fulfillment_status: status }
+    if ('tracking_code' in req.body) updates.tracking_code = String(req.body.tracking_code || '').trim() || null
+    if (status === 'shipped') updates.shipped_at = new Date().toISOString()
+
+    const { data: order, error } = await supabase
+      .from('orders').update(updates).eq('id', req.params.id)
+      .select('*, order_items(*)').single()
+    if (error) throw error
+
+    // Avisar al cliente cuando el pedido se marca como enviado
+    if (status === 'shipped' && order?.customer_email) {
+      import('./email.js').then(m => m.sendShippedNotification?.({ order, items: order.order_items || [] })).catch(() => {})
+    }
+
+    res.json({ ok: true, order })
+  } catch (err) {
+    console.error('/api/admin/orders/:id/fulfillment error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // ── Health ────────────────────────────────────────────────────────
 app.get('/api/salud', (_req, res) => {
-  res.json({ ok: true, env: process.env.NODE_ENV, ts: new Date().toISOString() })
+  res.json({ ok: true, env: process.env.NODE_ENV, adminUsers: adminUserCount(), ts: new Date().toISOString() })
 })
 
 // POST /pago/resultado — Flow redirige al urlReturn via form POST en algunos flujos.

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-const ADMIN_PIN_KEY = 'mtdv_admin_pin'
+const ADMIN_PIN_KEY = 'mtdv_admin_token' // guarda el token de sesión admin
 
 const CATEGORIES = ['ACCESORIOS', 'COMPUTACION', 'AUDIO Y VIDEO', 'HOGAR', 'GABINETES GAMER']
 const BADGES     = ['', 'OFERTA', 'HOT', 'NUEVO', 'EXCLUSIVO', '🏆 #1', '🏆 #2', '🏆 #3', '🏆 #4', '🏆 #5']
@@ -26,10 +26,16 @@ interface Order {
   coupon_code: string|null; discount_amount: number|null
 }
 
+interface ProductSpec { label: string; value: string }
+
 interface Product {
   id: number; name: string; price: number; original_price: number|null
   category: string; badge: string|null; rating: number; stock: number
   active: boolean; description: string|null; img_url: string|null; created_at: string
+  // Campos ricos (migración 002)
+  brand?: string|null; sku?: string|null; warranty?: string|null
+  weight_grams?: number|null; low_stock_threshold?: number|null
+  specs?: ProductSpec[]|null; gallery?: string[]|null
 }
 
 type OrderFilter = 'all'|'paid'|'pending'|'pending_transfer'|'rejected'
@@ -97,7 +103,7 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
     try {
       const res = await fetch(`${API}/api/admin/orders/${order.id}/confirm-transfer`, {
         method: 'POST',
-        headers: { 'x-admin-pin': pin },
+        headers: { 'x-admin-token': pin },
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Error al confirmar')
@@ -114,7 +120,7 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
     try {
       const res = await fetch(`${API}/api/admin/orders/${order.id}/cancel`, {
         method: 'POST',
-        headers: { 'x-admin-pin': pin },
+        headers: { 'x-admin-token': pin },
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Error al cancelar')
@@ -274,6 +280,8 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
 const EMPTY: Partial<Product> = {
   name:'', price:0, original_price:null, category:'ACCESORIOS',
   badge:null, stock:0, rating:5, active:true, description:'', img_url:'',
+  brand:'', sku:'', warranty:'', weight_grams:null, low_stock_threshold:3,
+  specs:[], gallery:[],
 }
 
 function ProductForm({
@@ -290,6 +298,7 @@ function ProductForm({
   const [error,     setError]     = useState('')
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -305,7 +314,7 @@ function ProductForm({
       })
       const res  = await fetch(`${API}/api/admin/upload-image`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-pin': pin },
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': pin },
         body: JSON.stringify({ data: base64, name: file.name, type: file.type }),
       })
       const data = await res.json()
@@ -321,6 +330,44 @@ function ProductForm({
 
   function set(key: keyof Product, val: unknown) {
     setForm(f => ({ ...f, [key]: val }))
+  }
+
+  // ── Especificaciones (lista clave-valor) ──
+  const specs = form.specs ?? []
+  function addSpec()    { set('specs', [...specs, { label:'', value:'' }]) }
+  function removeSpec(i: number) { set('specs', specs.filter((_, idx) => idx !== i)) }
+  function updateSpec(i: number, field: 'label'|'value', val: string) {
+    set('specs', specs.map((s, idx) => idx === i ? { ...s, [field]: val } : s))
+  }
+
+  // ── Galería de imágenes ──
+  const gallery = form.gallery ?? []
+  function removeGalleryImg(i: number) { set('gallery', gallery.filter((_, idx) => idx !== i)) }
+  async function handleGalleryUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true); setError('')
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload  = () => resolve((reader.result as string).split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const res  = await fetch(`${API}/api/admin/upload-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': pin },
+        body: JSON.stringify({ data: base64, name: file.name, type: file.type }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al subir')
+      set('gallery', [...gallery, data.url])
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al subir imagen')
+    } finally {
+      setUploading(false)
+      if (galleryRef.current) galleryRef.current.value = ''
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -342,13 +389,21 @@ function ProductForm({
       active:         form.active ?? true,
       description:    form.description?.trim() || null,
       img_url:        form.img_url?.trim() || null,
+      brand:          form.brand?.trim() || null,
+      sku:            form.sku?.trim() || null,
+      warranty:       form.warranty?.trim() || null,
+      weight_grams:   form.weight_grams ? Number(form.weight_grams) : null,
+      low_stock_threshold: form.low_stock_threshold != null ? Number(form.low_stock_threshold) : 3,
+      // Limpia specs vacíos y galería vacía antes de enviar
+      specs:   (form.specs   ?? []).filter(s => s.label?.trim() && s.value?.trim()),
+      gallery: (form.gallery ?? []).filter(u => u?.trim()),
     }
 
     const url    = isNew ? `${API}/api/admin/products` : `${API}/api/admin/products/${form.id}`
     const method = isNew ? 'POST' : 'PUT'
 
     try {
-      const res  = await fetch(url, { method, headers: { 'Content-Type':'application/json', 'x-admin-pin': pin }, body: JSON.stringify(body) })
+      const res  = await fetch(url, { method, headers: { 'Content-Type':'application/json', 'x-admin-token': pin }, body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Error al guardar')
       onSave(data)
@@ -486,6 +541,104 @@ function ProductForm({
             )}
           </div>
 
+          {/* Galería de imágenes adicionales */}
+          <div>
+            <label className="text-white/50 text-xs mb-1.5 flex items-center gap-1.5" style={{ fontFamily:'Space Grotesk' }}>
+              <Layers size={11}/> Galería (fotos adicionales)
+            </label>
+            <input ref={galleryRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleGalleryUpload} className="hidden" />
+            <div className="flex flex-wrap gap-2 mb-2">
+              {gallery.map((url, i) => (
+                <div key={i} className="relative w-16 h-16">
+                  <img src={url} alt={`galería ${i+1}`} className="w-16 h-16 object-cover rounded-xl border border-white/10"
+                    onError={e => { e.currentTarget.style.display = 'none' }} />
+                  <button type="button" onClick={() => removeGalleryImg(i)}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center">
+                    <X size={11}/>
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={() => galleryRef.current?.click()} disabled={uploading}
+                className="w-16 h-16 rounded-xl border border-dashed border-white/15 flex items-center justify-center text-white/40 hover:text-brand-violet hover:border-brand-violet/40 transition-all disabled:opacity-50">
+                <Plus size={18}/>
+              </button>
+            </div>
+          </div>
+
+          {/* Marca / SKU */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-white/50 text-xs mb-1.5 block" style={{ fontFamily:'Space Grotesk' }}>Marca</label>
+              <input value={form.brand ?? ''} onChange={e => set('brand', e.target.value)}
+                placeholder="Ej: Cougar, Philco"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                style={{ fontFamily:'Inter' }} />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1.5 block" style={{ fontFamily:'Space Grotesk' }}>SKU / Código</label>
+              <input value={form.sku ?? ''} onChange={e => set('sku', e.target.value)}
+                placeholder="Ej: MX410-T"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                style={{ fontFamily:'Inter' }} />
+            </div>
+          </div>
+
+          {/* Garantía / Peso / Umbral stock bajo */}
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-white/50 text-xs mb-1.5 block" style={{ fontFamily:'Space Grotesk' }}>Garantía</label>
+              <input value={form.warranty ?? ''} onChange={e => set('warranty', e.target.value)}
+                placeholder="Ej: 6 meses"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                style={{ fontFamily:'Inter' }} />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1.5 block" style={{ fontFamily:'Space Grotesk' }}>Peso (g)</label>
+              <input type="number" min="0" value={form.weight_grams ?? ''} onChange={e => set('weight_grams', e.target.value || null)}
+                placeholder="Envío"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                style={{ fontFamily:'Inter' }} />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1.5 block" style={{ fontFamily:'Space Grotesk' }}>Alerta stock</label>
+              <input type="number" min="0" value={form.low_stock_threshold ?? ''} onChange={e => set('low_stock_threshold', e.target.value)}
+                placeholder="3"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                style={{ fontFamily:'Inter' }} />
+            </div>
+          </div>
+
+          {/* Especificaciones técnicas (clave-valor) */}
+          <div>
+            <label className="text-white/50 text-xs mb-1.5 flex items-center gap-1.5" style={{ fontFamily:'Space Grotesk' }}>
+              <Tag size={11}/> Especificaciones técnicas
+            </label>
+            <div className="space-y-2">
+              {specs.map((s, i) => (
+                <div key={i} className="flex gap-2">
+                  <input value={s.label} onChange={e => updateSpec(i, 'label', e.target.value)}
+                    placeholder="Característica (ej: Conexión)"
+                    className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 text-xs focus:outline-none focus:border-brand-violet/50 transition-colors"
+                    style={{ fontFamily:'Inter' }} />
+                  <input value={s.value} onChange={e => updateSpec(i, 'value', e.target.value)}
+                    placeholder="Valor (ej: USB-C)"
+                    className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 text-xs focus:outline-none focus:border-brand-violet/50 transition-colors"
+                    style={{ fontFamily:'Inter' }} />
+                  <button type="button" onClick={() => removeSpec(i)}
+                    className="w-8 shrink-0 rounded-xl border border-white/10 text-white/40 hover:text-red-400 hover:border-red-400/30 flex items-center justify-center transition-all">
+                    <X size={13}/>
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={addSpec}
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed border-white/15 text-white/40 hover:text-brand-violet hover:border-brand-violet/40 text-xs font-semibold transition-all"
+                style={{ fontFamily:'Space Grotesk' }}>
+                <Plus size={13}/> Agregar especificación
+              </button>
+            </div>
+          </div>
+
           {/* Activo toggle */}
           <div className="flex items-center justify-between py-2 px-4 rounded-xl border border-white/8" style={{ background:'rgba(255,255,255,0.02)' }}>
             <div>
@@ -541,7 +694,7 @@ function ProductRow({ product, pin, onEdit, onToggle }: {
     setToggling(true)
     const res = await fetch(`${API}/api/admin/products/${product.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type':'application/json', 'x-admin-pin': pin },
+      headers: { 'Content-Type':'application/json', 'x-admin-token': pin },
       body: JSON.stringify({ active: !product.active }),
     })
     if (res.ok) onToggle(product.id, !product.active)
@@ -630,7 +783,7 @@ function ProductosTab({ pin }: { pin: string }) {
       const params = new URLSearchParams()
       if (search)    params.set('search', search)
       if (catFilter) params.set('category', catFilter)
-      const res = await fetch(`${API}/api/admin/products?${params}`, { headers: { 'x-admin-pin': pin } })
+      const res = await fetch(`${API}/api/admin/products?${params}`, { headers: { 'x-admin-token': pin } })
       if (res.ok) setProducts(await res.json())
     } finally {
       setLoading(false)
@@ -678,6 +831,26 @@ function ProductosTab({ pin }: { pin: string }) {
           <Plus size={15}/> Nuevo Producto
         </motion.button>
       </div>
+
+      {/* Alerta de stock bajo */}
+      {(() => {
+        const low = products.filter(p => p.active && (p.stock ?? 0) <= (p.low_stock_threshold ?? 3))
+        if (low.length === 0) return null
+        return (
+          <div className="mb-4 rounded-xl p-3 flex items-start gap-2.5"
+            style={{ background:'rgba(255,181,71,0.08)', border:'1px solid rgba(255,181,71,0.25)' }}>
+            <AlertCircle size={16} className="text-amber-400 mt-0.5 shrink-0"/>
+            <div className="min-w-0">
+              <p className="text-amber-300 text-xs font-bold" style={{ fontFamily:'Space Grotesk' }}>
+                {low.length} producto{low.length>1?'s':''} con stock bajo
+              </p>
+              <p className="text-amber-200/60 text-xs mt-0.5" style={{ fontFamily:'Inter' }}>
+                {low.slice(0,6).map(p => `${p.name} (${p.stock ?? 0})`).join(' · ')}{low.length>6 ? '…' : ''}
+              </p>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
@@ -759,7 +932,7 @@ function NewsletterTab({ pin }: { pin: string }) {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`${API}/api/admin/newsletter`, { headers: { 'x-admin-pin': pin } })
+        const res = await fetch(`${API}/api/admin/newsletter`, { headers: { 'x-admin-token': pin } })
         if (res.ok) setSubscribers(await res.json())
       } finally { setLoading(false) }
     }
@@ -892,7 +1065,7 @@ function PedidosTab({ pin }: { pin: string }) {
 
   const knownIdsRef   = useRef<Set<string>>(new Set())
   const initialLoad   = useRef(true)
-  const headers = { 'x-admin-pin': pin }
+  const headers = { 'x-admin-token': pin }
 
   const loadStats = useCallback(async () => {
     setLoadingStats(true)
@@ -1080,7 +1253,7 @@ function CuponesTab({ pin }: { pin: string }) {
     async function load() {
       setLoading(true)
       try {
-        const res = await fetch(`${API}/api/admin/coupons`, { headers: { 'x-admin-pin': pin } })
+        const res = await fetch(`${API}/api/admin/coupons`, { headers: { 'x-admin-token': pin } })
         if (res.ok) setCoupons(await res.json())
       } finally { setLoading(false) }
     }
@@ -1090,7 +1263,7 @@ function CuponesTab({ pin }: { pin: string }) {
   async function handleToggle(coupon: Coupon) {
     const res = await fetch(`${API}/api/admin/coupons/${coupon.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'x-admin-pin': pin },
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': pin },
       body: JSON.stringify({ active: !coupon.active }),
     })
     if (res.ok) {
@@ -1120,7 +1293,7 @@ function CuponesTab({ pin }: { pin: string }) {
       }
       const res = await fetch(`${API}/api/admin/coupons`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-pin': pin },
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': pin },
         body: JSON.stringify(body),
       })
       const data = await res.json()
@@ -1424,20 +1597,26 @@ function Dashboard({ pin, onLogout }: { pin: string; onLogout: () => void }) {
 }
 
 // ── Login Screen ───────────────────────────────────────────────────────────
-function LoginScreen({ onLogin }: { onLogin: (pin: string) => void }) {
-  const [pin,     setPin]     = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState('')
+function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading,  setLoading]  = useState(false)
+  const [error,    setError]    = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!pin) return
+    if (!username || !password) return
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${API}/api/admin/stats`, { headers: { 'x-admin-pin': pin } })
-      if (res.ok) { onLogin(pin) }
-      else { setError('PIN incorrecto'); setPin('') }
+      const res  = await fetch(`${API}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.token) { onLogin(data.token) }
+      else { setError(data.error || 'Usuario o contraseña incorrectos'); setPassword('') }
     } catch {
       setError('No se pudo conectar al servidor')
     } finally { setLoading(false) }
@@ -1456,22 +1635,29 @@ function LoginScreen({ onLogin }: { onLogin: (pin: string) => void }) {
             <Lock size={28} className="text-brand-violet"/>
           </div>
           <h1 className="text-white font-bold text-2xl" style={{ fontFamily:'Space Grotesk' }}>Panel de Admin</h1>
-          <p className="text-white/40 text-sm mt-1" style={{ fontFamily:'Inter' }}>Ingresa el PIN para continuar</p>
+          <p className="text-white/40 text-sm mt-1" style={{ fontFamily:'Inter' }}>Ingresa tus credenciales</p>
         </div>
         <div className="rounded-3xl p-8 border" style={{ background:'rgba(255,255,255,0.03)', backdropFilter:'blur(20px)', borderColor:'rgba(129,215,66,0.15)' }}>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-white/50 text-xs block mb-2" style={{ fontFamily:'Space Grotesk' }}>PIN de administrador</label>
-              <input type="password" value={pin} onChange={e => { setPin(e.target.value); setError('') }}
-                placeholder="••••••••••" autoFocus
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 text-sm tracking-widest focus:outline-none focus:border-brand-violet/50 transition-colors text-center"
-                style={{ fontFamily:'Space Grotesk', letterSpacing:'0.2em' }}/>
+              <label className="text-white/50 text-xs block mb-2" style={{ fontFamily:'Space Grotesk' }}>Usuario</label>
+              <input type="text" value={username} onChange={e => { setUsername(e.target.value); setError('') }}
+                placeholder="usuario" autoFocus autoComplete="username"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                style={{ fontFamily:'Space Grotesk' }}/>
+            </div>
+            <div>
+              <label className="text-white/50 text-xs block mb-2" style={{ fontFamily:'Space Grotesk' }}>Contraseña</label>
+              <input type="password" value={password} onChange={e => { setPassword(e.target.value); setError('') }}
+                placeholder="••••••••" autoComplete="current-password"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors"
+                style={{ fontFamily:'Space Grotesk' }}/>
             </div>
             {error && (
               <motion.p initial={{ opacity:0, y:-4 }} animate={{ opacity:1, y:0 }}
                 className="text-red-400 text-xs text-center bg-red-400/10 border border-red-400/20 rounded-xl py-2">{error}</motion.p>
             )}
-            <motion.button type="submit" disabled={loading||!pin}
+            <motion.button type="submit" disabled={loading||!username||!password}
               whileHover={!loading ? { scale:1.02 } : {}} whileTap={!loading ? { scale:0.98 } : {}}
               className="w-full py-3.5 rounded-xl font-bold text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               style={{ fontFamily:'Space Grotesk', background:'linear-gradient(135deg,#81d742,#06b6d4)' }}>
@@ -1486,16 +1672,29 @@ function LoginScreen({ onLogin }: { onLogin: (pin: string) => void }) {
 
 // ── Root ───────────────────────────────────────────────────────────────────
 export default function Admin() {
-  const [pin, setPin] = useState<string|null>(() => sessionStorage.getItem(ADMIN_PIN_KEY))
+  // `token` es el token de sesión de /api/admin/login. Se guarda en sessionStorage
+  // y se pasa (como prop `pin`) a los tabs, que lo mandan en el header x-admin-token.
+  const [token, setToken] = useState<string|null>(() => sessionStorage.getItem(ADMIN_PIN_KEY))
 
-  function handleLogin(p: string)  { sessionStorage.setItem(ADMIN_PIN_KEY, p); setPin(p) }
-  function handleLogout()          { sessionStorage.removeItem(ADMIN_PIN_KEY); setPin(null) }
+  // Al montar, valida que el token siga vivo; si expiró, vuelve al login.
+  useEffect(() => {
+    if (!token) return
+    fetch(`${API}/api/admin/me`, { headers: { 'x-admin-token': token } })
+      .then(r => { if (!r.ok) { sessionStorage.removeItem(ADMIN_PIN_KEY); setToken(null) } })
+      .catch(() => {})
+  }, [token])
+
+  function handleLogin(t: string)  { sessionStorage.setItem(ADMIN_PIN_KEY, t); setToken(t) }
+  function handleLogout() {
+    fetch(`${API}/api/admin/logout`, { method:'POST', headers: { 'x-admin-token': token || '' } }).catch(() => {})
+    sessionStorage.removeItem(ADMIN_PIN_KEY); setToken(null)
+  }
 
   return (
     <AnimatePresence mode="wait">
-      {pin ? (
+      {token ? (
         <motion.div key="dashboard" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} transition={{ duration:0.3 }}>
-          <Dashboard pin={pin} onLogout={handleLogout}/>
+          <Dashboard pin={token} onLogout={handleLogout}/>
         </motion.div>
       ) : (
         <motion.div key="login" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} transition={{ duration:0.3 }}>
