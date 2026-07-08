@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Mail, CheckCircle, ArrowRight, Loader2 } from 'lucide-react'
 
@@ -9,6 +9,13 @@ export default function Newsletter() {
   const [subscribed, setSubscribed] = useState(false)
   const [loading,    setLoading]    = useState(false)
   const [error,      setError]      = useState<string | null>(null)
+
+  // El mensaje de "¡Gracias!" se muestra 10s y luego vuelve el formulario.
+  useEffect(() => {
+    if (!subscribed) return
+    const t = setTimeout(() => { setSubscribed(false); setEmail('') }, 10000)
+    return () => clearTimeout(t)
+  }, [subscribed])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
