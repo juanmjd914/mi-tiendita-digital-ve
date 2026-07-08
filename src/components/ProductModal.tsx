@@ -82,12 +82,14 @@ export default function ProductModal({ product, onClose }: Props) {
               className="relative w-full max-w-2xl bg-[#0f0f1a] border border-white/10 rounded-3xl overflow-hidden pointer-events-auto shadow-2xl"
               style={{ maxHeight: '90vh', overflowY: 'auto' }}
             >
-              {/* Cerrar */}
+              {/* Cerrar — z-30 y tamaño de toque cómodo para que quede SIEMPRE sobre la imagen flotante en móvil */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/60 hover:text-white transition-all"
+                aria-label="Cerrar"
+                className="absolute top-3 right-3 z-30 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white/80 hover:text-white transition-all"
+                style={{ zIndex: 30, backdropFilter: 'blur(6px)' }}
               >
-                <X size={18} />
+                <X size={20} />
               </button>
 
               <div className="grid grid-cols-1 sm:grid-cols-2">
