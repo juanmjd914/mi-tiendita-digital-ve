@@ -88,12 +88,18 @@ export default function ProductCard({ product, delay = 0 }: Props) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay }}
-        whileHover={{ y: -4, boxShadow: '0 0 25px rgba(129,215,66,0.12)' }}
+        whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(124,58,237,0.18)' }}
         onClick={() => setModalOpen(true)}
-        className="group relative bg-[#0f0f1a] border border-white/5 hover:border-brand-violet/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col"
+        className="group relative border border-white/10 hover:border-brand-violet/40 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
+          backdropFilter: 'blur(18px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(18px) saturate(160%)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 24px rgba(0,0,0,0.3)',
+        }}
       >
         {/* Imagen */}
-        <div className="relative aspect-square overflow-hidden bg-[#080810]">
+        <div className="relative aspect-square overflow-hidden bg-[#080810]/60">
           <img
             src={imgSrc}
             alt={product.name}

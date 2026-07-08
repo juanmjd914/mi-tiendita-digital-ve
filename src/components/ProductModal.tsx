@@ -92,19 +92,29 @@ export default function ProductModal({ product, onClose }: Props) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2">
                 {/* Imagen */}
-                <div className="relative bg-[#080810] flex items-center justify-center" style={{ minHeight: '280px' }}>
-                  <img
+                <div className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: '300px', background: 'radial-gradient(circle at 50% 40%, #14142a, #080810 75%)' }}>
+                  {/* Halo suave detrás del producto */}
+                  <div className="absolute w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.25), transparent 70%)', filter: 'blur(20px)' }} />
+                  {/* Sombra que "respira" bajo el producto */}
+                  <motion.div
+                    className="absolute rounded-[50%] pointer-events-none"
+                    style={{ bottom: '34px', width: '55%', height: '18px', background: 'rgba(0,0,0,0.45)', filter: 'blur(10px)' }}
+                    animate={{ scaleX: [1, 0.82, 1], opacity: [0.45, 0.28, 0.45] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                  {/* Producto flotante */}
+                  <motion.img
                     src={imgSrc}
                     alt={p.name}
-                    className="w-full h-full object-cover"
-                    style={{ maxHeight: '320px' }}
+                    className="relative z-10 object-contain p-6"
+                    style={{ maxHeight: '300px', width: '100%', filter: 'drop-shadow(0 14px 22px rgba(0,0,0,0.45))' }}
+                    animate={{ y: [0, -14, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                     onError={(e) => {
                       const t = e.currentTarget
                       t.src = 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=600&q=80'
                     }}
                   />
-                  {/* Overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f1a]/40 to-transparent" />
 
                   {discount && (
                     <div className="absolute top-4 left-4 bg-[#81d742] text-white text-xs font-black px-2.5 py-1 rounded-full">
