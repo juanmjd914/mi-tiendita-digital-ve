@@ -13,6 +13,7 @@ import { sendOrderConfirmation, sendTransferInstructions } from './email.js'
 import { login, requireAuth, logout, adminUserCount } from './adminAuth.js'
 import { decrementStock, restoreStock } from './stock.js'
 import { computeCouponDiscount, redeemCoupon, refundCoupon, getValidCoupon, computeDiscount } from './coupons.js'
+import { getSettings, updateSettings, getBankDetails } from './settings.js'
 
 // Cliente anon — solo para verificar JWTs de usuarios
 const authClient = createClient(
@@ -175,6 +176,57 @@ app.put('/api/admin/coupons/:id', requireAuth, async (req, res) => {
 })
 
 // ═══════════════════════════════════════════════════════════════
+//  CONFIGURACIÓN DE LA TIENDA
+// ═══════════════════════════════════════════════════════════════
+
+// GET /api/store-config — SOLO datos NO sensibles para el checkout del cliente.
+// ⚠️ Nunca incluye datos bancarios (esos van solo tras crear el pedido).
+app.get('/api/store-config', async (_req, res) => {
+  try {
+    const s = await getSettings()
+    res.json({
+      deliveryCostRancagua: s.delivery_cost_rancagua ?? 0,
+      shippingFlatRegions:  s.shipping_flat_regions ?? 0,
+      pickupEnabled:        s.pickup_enabled !== false,
+      codEnabled:           s.cod_enabled !== false,
+      localCity:            s.local_city || 'Rancagua',
+      storeAddress:         s.store_address || '',
+      contactWhatsapp:      s.contact_whatsapp || '',
+    })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// GET /api/admin/settings — configuración completa (incluye bancarios) — solo admin
+app.get('/api/admin/settings', requireAuth, async (_req, res) => {
+  try { res.json(await getSettings()) }
+  catch (err) { res.status(500).json({ error: err.message }) }
+})
+
+// PUT /api/admin/settings — actualizar configuración — solo admin
+app.put('/api/admin/settings', requireAuth, async (req, res) => {
+  try { res.json(await updateSettings(req.body || {})) }
+  catch (err) { res.status(500).json({ error: err.message }) }
+})
+
+// GET /api/order/:id/bank-details — datos bancarios SOLO para un pedido de
+// transferencia real ya creado (para la pantalla de éxito). No se listan públicamente.
+app.get('/api/order/:id/bank-details', async (req, res) => {
+  try {
+    const { data: order } = await supabase
+      .from('orders').select('id, status, total').eq('id', req.params.id).maybeSingle()
+    if (!order || order.status !== 'pending_transfer') {
+      return res.status(404).json({ error: 'Pedido no encontrado' })
+    }
+    const bank = await getBankDetails()
+    res.json({ bank, total: order.total, orderId: order.id })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ═══════════════════════════════════════════════════════════════
 //  PRODUCTOS
 // ═══════════════════════════════════════════════════════════════
 
@@ -253,21 +305,46 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ''))
 }
 
+/**
+ * Calcula el costo de envío según método de entrega y ciudad, usando la config.
+ * - Retiro en local (pickup): $0.
+ * - Delivery en la ciudad local (Rancagua): delivery_cost_rancagua.
+ * - Delivery a regiones: shipping_flat_regions.
+ * Devuelve { shippingCost, deliveryMethod, isLocal }.
+ */
+async function computeShipping(deliveryMethod, city) {
+  const s = await getSettings()
+  const method = deliveryMethod === 'pickup' ? 'pickup' : 'delivery'
+  const localCity = String(s.local_city || 'Rancagua').trim().toLowerCase()
+  const isLocal = String(city || '').trim().toLowerCase().includes(localCity)
+
+  let shippingCost = 0
+  if (method === 'delivery') {
+    shippingCost = isLocal ? (s.delivery_cost_rancagua ?? 0) : (s.shipping_flat_regions ?? 0)
+  }
+  return { shippingCost: Math.max(0, Number(shippingCost) || 0), deliveryMethod: method, isLocal }
+}
+
 // POST /api/payment/create — inicia el pago con Flow
 app.post('/api/payment/create', orderLimiter, async (req, res) => {
   try {
-    const { items, email, customerName, customerPhone, customerAddress, couponCode } = req.body
+    const { items, email, customerName, customerPhone, customerAddress, couponCode, deliveryMethod, customerCity } = req.body
     if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
 
     // Precios y stock validados contra la base (no se confía en el frontend)
     const { validated, subtotal } = await buildValidatedItems(items)
-    const { discountAmount, finalTotal, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
+    const { discountAmount, finalTotal: afterCoupon, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
+    const { shippingCost, deliveryMethod: method } = await computeShipping(deliveryMethod, customerCity)
+    const finalTotal = afterCoupon + shippingCost
     const subject = validated.length === 1 ? validated[0].name.slice(0, 80) : `Mi Tiendita Digital Ve — ${validated.length} productos`
 
     // Crear orden
     const { data: order, error: orderErr } = await supabase
       .from('orders').insert({
         status:           'pending',
+        payment_method:   'flow',
+        delivery_method:  method,
+        shipping_cost:    shippingCost,
         total:            finalTotal,
         customer_email:   String(email).trim(),
         customer_name:    customerName    || null,
@@ -402,16 +479,21 @@ app.get('/api/payment/status/:token', async (req, res) => {
 // POST /api/payment/transfer — crea pedido pendiente de transferencia bancaria
 app.post('/api/payment/transfer', orderLimiter, async (req, res) => {
   try {
-    const { items, email, customerName, customerPhone, customerAddress, couponCode } = req.body
+    const { items, email, customerName, customerPhone, customerAddress, couponCode, deliveryMethod, customerCity } = req.body
     if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
 
     // Precios y stock validados contra la base (no se confía en el frontend)
     const { validated, subtotal } = await buildValidatedItems(items)
-    const { discountAmount, finalTotal, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
+    const { discountAmount, finalTotal: afterCoupon, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
+    const { shippingCost, deliveryMethod: method } = await computeShipping(deliveryMethod, customerCity)
+    const finalTotal = afterCoupon + shippingCost
 
     const { data: order, error: orderErr } = await supabase
       .from('orders').insert({
         status:           'pending_transfer',
+        payment_method:   'transfer',
+        delivery_method:  method,
+        shipping_cost:    shippingCost,
         total:            finalTotal,
         customer_email:   String(email).trim(),
         customer_name:    customerName    || null,
@@ -435,6 +517,58 @@ app.post('/api/payment/transfer', orderLimiter, async (req, res) => {
   } catch (err) {
     console.error('/api/payment/transfer error:', err.message)
     const isValidation = /stock|disponible|Carrito|Email/i.test(err.message)
+    res.status(isValidation ? 400 : 500).json({ error: err.message })
+  }
+})
+
+// POST /api/payment/cod — Pago contra entrega (solo zona local / Rancagua).
+// No hay pago online: se crea el pedido, se reserva el stock y se cobra al entregar.
+app.post('/api/payment/cod', orderLimiter, async (req, res) => {
+  try {
+    const { items, email, customerName, customerPhone, customerAddress, couponCode, deliveryMethod, customerCity } = req.body
+    if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
+
+    const settings = await getSettings()
+    if (settings.cod_enabled === false) return res.status(400).json({ error: 'El pago contra entrega no está disponible' })
+
+    // COD solo aplica en la ciudad local (Rancagua)
+    const localCity = String(settings.local_city || 'Rancagua').trim().toLowerCase()
+    if (!String(customerCity || '').trim().toLowerCase().includes(localCity)) {
+      return res.status(400).json({ error: `El pago contra entrega solo está disponible en ${settings.local_city || 'Rancagua'}` })
+    }
+
+    const { validated, subtotal } = await buildValidatedItems(items)
+    const { discountAmount, finalTotal: afterCoupon, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
+    const { shippingCost, deliveryMethod: method } = await computeShipping(deliveryMethod, customerCity)
+    const finalTotal = afterCoupon + shippingCost
+
+    const { data: order, error: orderErr } = await supabase
+      .from('orders').insert({
+        status:           'pending_cod',
+        payment_method:   'cod',
+        delivery_method:  method,
+        shipping_cost:    shippingCost,
+        total:            finalTotal,
+        customer_email:   String(email).trim(),
+        customer_name:    customerName    || null,
+        customer_phone:   customerPhone   || null,
+        customer_address: customerAddress || null,
+        coupon_code:      appliedCoupon,
+        discount_amount:  discountAmount,
+      }).select().single()
+
+    if (orderErr) throw orderErr
+
+    const orderItems = validated.map(i => ({ order_id: order.id, ...i }))
+    await supabase.from('order_items').insert(orderItems)
+
+    // Reserva el stock al crear el pedido (idempotente), igual que la transferencia.
+    await confirmOrderInventory({ ...order, order_items: orderItems }, { wasPending: true })
+
+    res.json({ orderId: order.id, total: finalTotal, shippingCost })
+  } catch (err) {
+    console.error('/api/payment/cod error:', err.message)
+    const isValidation = /stock|disponible|Carrito|Email|Rancagua|entrega/i.test(err.message)
     res.status(isValidation ? 400 : 500).json({ error: err.message })
   }
 })
@@ -666,8 +800,8 @@ app.post('/api/admin/orders/:id/confirm-transfer', requireAuth, async (req, res)
       .single()
 
     if (fetchErr || !order) return res.status(404).json({ error: 'Orden no encontrada' })
-    if (order.status !== 'pending_transfer') {
-      return res.status(400).json({ error: 'La orden no está pendiente de transferencia' })
+    if (!['pending_transfer', 'pending_cod'].includes(order.status)) {
+      return res.status(400).json({ error: 'La orden no está pendiente de pago' })
     }
 
     // Marcar como pagada
@@ -680,7 +814,7 @@ app.post('/api/admin/orders/:id/confirm-transfer', requireAuth, async (req, res)
 
     if (updateErr) throw updateErr
 
-    // Nota: el stock ya fue descontado al crear la orden de transferencia
+    // Nota: el stock ya fue reservado al crear la orden (transferencia o contra entrega)
     // Solo enviamos el email de confirmación de pago recibido
     sendOrderConfirmation({ order: updated, items: updated.order_items || [] })
 
@@ -734,7 +868,7 @@ app.post('/api/admin/orders/:id/cancel', requireAuth, async (req, res) => {
       .single()
 
     if (fetchErr || !order) return res.status(404).json({ error: 'Orden no encontrada' })
-    if (!['pending_transfer', 'pending'].includes(order.status)) {
+    if (!['pending_transfer', 'pending_cod', 'pending'].includes(order.status)) {
       return res.status(400).json({ error: 'Solo se pueden cancelar pedidos pendientes' })
     }
 
@@ -755,6 +889,81 @@ app.post('/api/admin/orders/:id/cancel', requireAuth, async (req, res) => {
     res.json({ ok: true })
   } catch (err) {
     console.error('/api/admin/orders/:id/cancel error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// GET /api/admin/orders/:id — detalle completo de un pedido
+app.get('/api/admin/orders/:id', requireAuth, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('orders').select('*, order_items(*)').eq('id', req.params.id).single()
+    if (error || !data) return res.status(404).json({ error: 'Orden no encontrada' })
+    res.json(data)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// PUT /api/admin/orders/:id/notes — guardar notas internas del admin
+app.put('/api/admin/orders/:id/notes', requireAuth, async (req, res) => {
+  try {
+    const admin_notes = req.body?.admin_notes != null ? String(req.body.admin_notes) : null
+    const { data, error } = await supabase
+      .from('orders').update({ admin_notes }).eq('id', req.params.id).select().single()
+    if (error) throw error
+    res.json({ ok: true, order: data })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/admin/orders/:id/resend-email — reenvía el email al cliente
+app.post('/api/admin/orders/:id/resend-email', requireAuth, async (req, res) => {
+  try {
+    const { data: order, error } = await supabase
+      .from('orders').select('*, order_items(*)').eq('id', req.params.id).single()
+    if (error || !order) return res.status(404).json({ error: 'Orden no encontrada' })
+
+    const items = order.order_items || []
+    if (order.status === 'pending_transfer')      await sendTransferInstructions({ order, items })
+    else if (order.status === 'paid')             sendOrderConfirmation({ order, items })
+    else return res.status(400).json({ error: 'Este pedido no tiene un email para reenviar' })
+
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('/api/admin/orders/:id/resend-email error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/admin/products/:id/adjust-stock — ajuste manual de stock (con historial)
+app.post('/api/admin/products/:id/adjust-stock', requireAuth, async (req, res) => {
+  try {
+    const productId = Number(req.params.id)
+    const mode  = req.body?.mode === 'set' ? 'set' : 'delta' // 'set' = fijar valor; 'delta' = sumar/restar
+    const value = Math.trunc(Number(req.body?.value) || 0)
+    const reason = String(req.body?.reason || 'ajuste manual').slice(0, 120)
+
+    const { data: prod, error: readErr } = await supabase
+      .from('products').select('stock').eq('id', productId).maybeSingle()
+    if (readErr || !prod) return res.status(404).json({ error: 'Producto no encontrado' })
+
+    const current = prod.stock ?? 0
+    const newStock = mode === 'set' ? Math.max(0, value) : Math.max(0, current + value)
+    const delta = newStock - current
+
+    const { error: upErr } = await supabase.from('products').update({ stock: newStock }).eq('id', productId)
+    if (upErr) throw upErr
+
+    // Registrar en el historial (si la tabla existe tras la migración 003)
+    supabase.from('stock_adjustments').insert({
+      product_id: productId, delta, new_stock: newStock, reason, admin_user: req.adminUser,
+    }).then(() => {}, () => {})
+
+    res.json({ ok: true, stock: newStock, delta })
+  } catch (err) {
+    console.error('/api/admin/products/:id/adjust-stock error:', err.message)
     res.status(500).json({ error: err.message })
   }
 })
@@ -797,6 +1006,87 @@ app.post('/api/admin/orders/:id/fulfillment', requireAuth, async (req, res) => {
     res.json({ ok: true, order })
   } catch (err) {
     console.error('/api/admin/orders/:id/fulfillment error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ═══════════════════════════════════════════════════════════════
+//  CLIENTES (derivados de los pedidos)
+// ═══════════════════════════════════════════════════════════════
+
+// GET /api/admin/customers — lista de clientes con su historial agregado
+app.get('/api/admin/customers', requireAuth, async (_req, res) => {
+  try {
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('customer_email, customer_name, customer_phone, customer_address, total, status, created_at')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+
+    const map = new Map()
+    for (const o of orders || []) {
+      const key = (o.customer_email || '').toLowerCase()
+      if (!key) continue
+      if (!map.has(key)) {
+        map.set(key, {
+          email: o.customer_email, name: o.customer_name, phone: o.customer_phone,
+          address: o.customer_address, orders: 0, paidOrders: 0, totalSpent: 0,
+          lastOrderAt: o.created_at,
+        })
+      }
+      const c = map.get(key)
+      c.orders += 1
+      if (o.status === 'paid') { c.paidOrders += 1; c.totalSpent += o.total || 0 }
+      if (!c.name && o.customer_name) c.name = o.customer_name
+      if (!c.phone && o.customer_phone) c.phone = o.customer_phone
+    }
+    const customers = [...map.values()].sort((a, b) => b.totalSpent - a.totalSpent)
+    res.json(customers)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ═══════════════════════════════════════════════════════════════
+//  REPORTES
+// ═══════════════════════════════════════════════════════════════
+
+// GET /api/admin/reports?from=YYYY-MM-DD&to=YYYY-MM-DD — métricas de ventas
+app.get('/api/admin/reports', requireAuth, async (req, res) => {
+  try {
+    const { from, to } = req.query
+    let q = supabase.from('orders').select('total, status, created_at, order_items(name, quantity, price)')
+    if (from) q = q.gte('created_at', `${from}T00:00:00`)
+    if (to)   q = q.lte('created_at', `${to}T23:59:59`)
+    const { data: orders, error } = await q
+    if (error) throw error
+
+    const paid = (orders || []).filter(o => o.status === 'paid')
+    const totalRevenue = paid.reduce((s, o) => s + (o.total || 0), 0)
+    const paidCount = paid.length
+    const avgTicket = paidCount ? Math.round(totalRevenue / paidCount) : 0
+
+    // Ventas por día
+    const byDay = {}
+    for (const o of paid) {
+      const day = String(o.created_at).slice(0, 10)
+      byDay[day] = (byDay[day] || 0) + (o.total || 0)
+    }
+    const salesByDay = Object.entries(byDay).map(([day, total]) => ({ day, total })).sort((a, b) => a.day.localeCompare(b.day))
+
+    // Productos más vendidos (por unidades, solo pedidos pagados)
+    const prodMap = {}
+    for (const o of paid) {
+      for (const it of o.order_items || []) {
+        if (!prodMap[it.name]) prodMap[it.name] = { name: it.name, units: 0, revenue: 0 }
+        prodMap[it.name].units   += it.quantity || 0
+        prodMap[it.name].revenue += (it.price || 0) * (it.quantity || 0)
+      }
+    }
+    const topProducts = Object.values(prodMap).sort((a, b) => b.units - a.units).slice(0, 10)
+
+    res.json({ totalRevenue, paidCount, avgTicket, salesByDay, topProducts })
+  } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })

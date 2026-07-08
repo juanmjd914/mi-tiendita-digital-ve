@@ -3,6 +3,7 @@
  * Docs: https://resend.com/docs
  */
 import { Resend } from 'resend'
+import { getBankDetails } from './settings.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM   = process.env.RESEND_FROM
@@ -177,7 +178,9 @@ function buildConfirmationHTML({ order, items }) {
 }
 
 // ── Template HTML: Instrucciones de transferencia ─────────────────
-function buildTransferHTML({ order, items }) {
+function buildTransferHTML({ order, items, bank }) {
+  const b = bank || {}
+  const wa = b.contact_whatsapp || '56946216579'
   const itemsRows = items.map(item => `
     <tr>
       <td style="padding:10px 0;border-bottom:1px solid #1e1e2e;color:#c0c0d0;font-size:14px;">
@@ -273,11 +276,11 @@ function buildTransferHTML({ order, items }) {
                 style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.2);border-radius:12px;padding:0;overflow:hidden;">
                 <tbody>
                   ${[
-                    ['Banco',          'Banco Falabella'],
-                    ['Tipo de cuenta', 'Cuenta Corriente'],
-                    ['Número',         '1-982-273710-0'],
-                    ['Titular',        'Juan Carlos Mejias'],
-                    ['RUT',            '27.012.143-8'],
+                    ['Banco',          b.bank_name           || 'Banco Falabella'],
+                    ['Tipo de cuenta', b.bank_account_type   || 'Cuenta Corriente'],
+                    ['Número',         b.bank_account_number || '1-982-273710-0'],
+                    ['Titular',        b.bank_holder         || 'Juan Carlos Mejias'],
+                    ['RUT',            b.bank_rut            || '27.012.143-8'],
                   ].map(([k,v], i) => `
                   <tr style="border-bottom:1px solid rgba(6,182,212,0.1);">
                     <td style="padding:12px 20px;color:#7090a0;font-size:13px;font-weight:600;width:45%;">${k}</td>
@@ -315,7 +318,7 @@ function buildTransferHTML({ order, items }) {
                     <p style="margin:0;color:#ffc222;font-size:13px;font-weight:600;">⚡ Pasos para confirmar tu pedido</p>
                     <ol style="margin:10px 0 0;padding-left:18px;color:#7070a0;font-size:13px;line-height:1.8;">
                       <li>Realiza la transferencia por <strong style="color:#e0d080;">${clp(order.total)}</strong> a los datos indicados arriba.</li>
-                      <li>Envía el comprobante por WhatsApp al <strong style="color:#e0d080;">+56 9 4621 6579</strong> indicando el N° de orden <strong style="color:#e0d080;">#${order.id}</strong>.</li>
+                      <li>Envía el comprobante por WhatsApp indicando el N° de orden <strong style="color:#e0d080;">#${order.id}</strong>.</li>
                       <li>Una vez verificado el pago, confirmaremos tu pedido y coordinaremos la entrega.</li>
                     </ol>
                   </td>
@@ -327,7 +330,7 @@ function buildTransferHTML({ order, items }) {
           <!-- CTA WhatsApp -->
           <tr>
             <td style="background:#0f0f1a;padding:0 40px 36px;text-align:center;border-left:1px solid #1e1e3a;border-right:1px solid #1e1e3a;">
-              <a href="https://wa.me/56946216579?text=Hola%2C%20quiero%20enviar%20el%20comprobante%20de%20transferencia%20del%20pedido%20%23${order.id}"
+              <a href="https://wa.me/${wa}?text=Hola%2C%20quiero%20enviar%20el%20comprobante%20de%20transferencia%20del%20pedido%20%23${order.id}"
                  style="display:inline-block;background:#25d366;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 28px;border-radius:12px;letter-spacing:0.02em;">
                 💬 Enviar Comprobante por WhatsApp
               </a>
@@ -363,11 +366,12 @@ function buildTransferHTML({ order, items }) {
  */
 export async function sendTransferInstructions({ order, items }) {
   try {
+    const bank = await getBankDetails()
     const { data, error } = await resend.emails.send({
       from:    FROM,
       to:      [order.customer_email],
       subject: `🏦 Instrucciones de pago — Pedido #${order.id} — Mi Tiendita Digital Ve`,
-      html:    buildTransferHTML({ order, items }),
+      html:    buildTransferHTML({ order, items, bank }),
     })
     if (error) { console.error('❌ Resend error:', error); return }
     console.log(`📧 Email transferencia enviado → ${order.customer_email} (id: ${data?.id})`)

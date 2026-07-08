@@ -5,7 +5,8 @@ import {
   ChevronDown, ChevronUp, LogOut, Package, Clock, CheckCircle2,
   XCircle, AlertCircle, Search, Filter, Plus, Edit2, Eye, EyeOff,
   Save, X, Image as ImageIcon, Tag, DollarSign, Layers, Copy, Loader2,
-  Upload, Bell,
+  Upload, Bell, Settings, Truck, Users, MapPin, CreditCard,
+  Minus, Banknote,
 } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
@@ -18,12 +19,16 @@ const BADGES     = ['', 'OFERTA', 'HOT', 'NUEVO', 'EXCLUSIVO', '🏆 #1', '🏆 
 interface Stats { paidOrders: number; totalRevenue: number; subscribers: number }
 
 interface OrderItem { id: number; product_id: number; name: string; price: number; quantity: number }
+type OrderStatus = 'paid'|'pending'|'pending_transfer'|'pending_cod'|'rejected'|'cancelled'
 interface Order {
-  id: string; status: 'paid'|'pending'|'pending_transfer'|'rejected'|'cancelled'
+  id: string; status: OrderStatus
   total: number; customer_email: string; customer_name: string|null
   customer_phone: string|null; customer_address: string|null
   created_at: string; flow_token: string|null; order_items: OrderItem[]
   coupon_code: string|null; discount_amount: number|null
+  // FASE 5
+  shipping_cost?: number|null; delivery_method?: string|null; payment_method?: string|null
+  fulfillment_status?: string|null; tracking_code?: string|null; admin_notes?: string|null
 }
 
 interface ProductSpec { label: string; value: string }
@@ -38,7 +43,7 @@ interface Product {
   specs?: ProductSpec[]|null; gallery?: string[]|null
 }
 
-type OrderFilter = 'all'|'paid'|'pending'|'pending_transfer'|'rejected'
+type OrderFilter = 'all'|'paid'|'pending'|'pending_transfer'|'pending_cod'|'rejected'
 
 interface Subscriber {
   id: number
@@ -72,6 +77,7 @@ function StatusBadge({ status }: { status: Order['status'] }) {
     paid:             { label:'Pagado',        color:'#81d742', bg:'rgba(129,215,66,0.12)', icon: CheckCircle2 },
     pending:          { label:'Pendiente',     color:'#ffc222', bg:'rgba(255,194,34,0.12)', icon: Clock },
     pending_transfer: { label:'Transferencia', color:'#06b6d4', bg:'rgba(6,182,212,0.12)',  icon: AlertCircle },
+    pending_cod:      { label:'Contra entrega',color:'#a78bfa', bg:'rgba(167,139,250,0.12)',icon: Banknote },
     rejected:         { label:'Rechazado',     color:'#ef4444', bg:'rgba(239,68,68,0.12)',  icon: XCircle },
     cancelled:        { label:'Cancelado',     color:'#6b7280', bg:'rgba(107,114,128,0.12)',icon: AlertCircle },
   }
@@ -96,6 +102,57 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
   const [confirmErr,    setConfirmErr]    = useState('')
   const [cancelling,    setCancelling]    = useState(false)
   const [cancelConfirm, setCancelConfirm] = useState(false)
+  // Fulfillment / notas / reenvío
+  const [fulfill,   setFulfill]   = useState(order.fulfillment_status || 'pending')
+  const [tracking,  setTracking]  = useState(order.tracking_code || '')
+  const [savingFul, setSavingFul] = useState(false)
+  const [fulSaved,  setFulSaved]  = useState(false)
+  const [notes,     setNotes]     = useState(order.admin_notes || '')
+  const [savingNote,setSavingNote]= useState(false)
+  const [noteSaved, setNoteSaved] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resent,    setResent]    = useState(false)
+
+  async function saveFulfillment() {
+    setSavingFul(true); setFulSaved(false)
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${order.id}/fulfillment`, {
+        method:'POST', headers:{ 'Content-Type':'application/json', 'x-admin-token':pin },
+        body: JSON.stringify({ fulfillment_status: fulfill, tracking_code: tracking }),
+      })
+      if (res.ok) { setFulSaved(true); setTimeout(()=>setFulSaved(false), 2000) }
+    } finally { setSavingFul(false) }
+  }
+  async function saveNotes() {
+    setSavingNote(true); setNoteSaved(false)
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${order.id}/notes`, {
+        method:'PUT', headers:{ 'Content-Type':'application/json', 'x-admin-token':pin },
+        body: JSON.stringify({ admin_notes: notes }),
+      })
+      if (res.ok) { setNoteSaved(true); setTimeout(()=>setNoteSaved(false), 2000) }
+    } finally { setSavingNote(false) }
+  }
+  async function resendEmail() {
+    setResending(true); setResent(false)
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${order.id}/resend-email`, {
+        method:'POST', headers:{ 'x-admin-token':pin },
+      })
+      if (res.ok) { setResent(true); setTimeout(()=>setResent(false), 2500) }
+    } finally { setResending(false) }
+  }
+
+  const FUL_STEPS: { value:string; label:string }[] = [
+    { value:'pending',    label:'Pendiente' },
+    { value:'preparing',  label:'Preparando' },
+    { value:'shipped',    label:'Enviado' },
+    { value:'delivered',  label:'Entregado' },
+  ]
+  const payLabel = order.payment_method === 'cod' ? 'Contra entrega'
+    : order.payment_method === 'transfer' ? 'Transferencia'
+    : order.payment_method === 'flow' ? 'Flow (tarjeta)' : '—'
+  const delivLabel = order.delivery_method === 'pickup' ? 'Retiro en local' : 'Delivery'
 
   async function handleConfirmTransfer() {
     setConfirming(true)
@@ -175,6 +232,14 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
                     <span className="text-white/60">{order.customer_address}</span>
                   </div>
                 )}
+                <div className="flex flex-wrap gap-2 pt-2 mt-1 border-t border-white/5">
+                  <span className="text-[10px] px-2 py-1 rounded-md bg-white/5 text-white/50 flex items-center gap-1">
+                    <Truck size={10}/> {delivLabel}
+                  </span>
+                  <span className="text-[10px] px-2 py-1 rounded-md bg-white/5 text-white/50 flex items-center gap-1">
+                    <CreditCard size={10}/> {payLabel}
+                  </span>
+                </div>
               </div>
               {/* Ítems */}
               <p className="text-white/30 text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ fontFamily:'Space Grotesk' }}>Productos</p>
@@ -188,8 +253,8 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
                 ))}
               </div>
 
-              {/* Resumen de precio con cupón */}
-              {(order.coupon_code || (order.discount_amount && order.discount_amount > 0)) && (
+              {/* Resumen de precio con cupón y envío */}
+              {(order.coupon_code || (order.discount_amount && order.discount_amount > 0) || (order.shipping_cost && order.shipping_cost > 0)) && (
                 <div className="mt-2 pt-2 border-t border-white/5 space-y-1">
                   {order.coupon_code && (
                     <div className="flex items-center justify-between text-xs">
@@ -202,6 +267,12 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
                       )}
                     </div>
                   )}
+                  {order.shipping_cost != null && order.shipping_cost > 0 && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-1.5 text-white/40"><Truck size={10} className="text-brand-cyan"/> Envío</span>
+                      <span className="text-white/60">${fmt(order.shipping_cost)}</span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-white/50">Total final</span>
                     <span className="text-white">${fmt(order.total)}</span>
@@ -209,15 +280,71 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
                 </div>
               )}
 
+              {/* Control de envío (fulfillment) — para pedidos pagados */}
+              {order.status === 'paid' && (
+                <div className="mt-3 pt-3 border-t border-white/5">
+                  <p className="text-white/30 text-[10px] font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{ fontFamily:'Space Grotesk' }}>
+                    <Truck size={11}/> Estado del envío
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {FUL_STEPS.map(s => (
+                      <button key={s.value} onClick={()=>setFulfill(s.value)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all"
+                        style={{
+                          fontFamily:'Space Grotesk',
+                          background: fulfill===s.value ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.04)',
+                          border: fulfill===s.value ? '1px solid rgba(6,182,212,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                          color: fulfill===s.value ? '#06b6d4' : 'rgba(255,255,255,0.45)',
+                        }}>
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                  {order.delivery_method !== 'pickup' && (
+                    <input value={tracking} onChange={e=>setTracking(e.target.value)} placeholder="Código de seguimiento (opcional)"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-white/20 text-xs mb-2 focus:outline-none focus:border-brand-cyan/50"/>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <button onClick={saveFulfillment} disabled={savingFul}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
+                      style={{ fontFamily:'Space Grotesk', background:'rgba(6,182,212,0.2)', border:'1px solid rgba(6,182,212,0.35)' }}>
+                      {savingFul ? <Loader2 size={12} className="animate-spin"/> : <Save size={12}/>} Guardar envío
+                    </button>
+                    {fulSaved && <span className="text-brand-cyan text-[11px] flex items-center gap-1"><CheckCircle2 size={12}/> Guardado {fulfill==='shipped' && '· email enviado'}</span>}
+                  </div>
+                </div>
+              )}
+
+              {/* Notas internas + reenviar email */}
+              <div className="mt-3 pt-3 border-t border-white/5">
+                <p className="text-white/30 text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ fontFamily:'Space Grotesk' }}>Notas internas</p>
+                <textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={2} placeholder="Notas privadas del pedido…"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-white/20 text-xs resize-none focus:outline-none focus:border-brand-violet/50"/>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <button onClick={saveNotes} disabled={savingNote}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white/70 border border-white/10 hover:bg-white/5 disabled:opacity-50">
+                    {savingNote ? <Loader2 size={12} className="animate-spin"/> : <Save size={12}/>} Guardar nota
+                  </button>
+                  {noteSaved && <span className="text-brand-violet text-[11px]">✓</span>}
+                  {(order.status === 'paid' || order.status === 'pending_transfer') && (
+                    <button onClick={resendEmail} disabled={resending}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white/70 border border-white/10 hover:bg-white/5 disabled:opacity-50">
+                      {resending ? <Loader2 size={12} className="animate-spin"/> : <Mail size={12}/>} Reenviar email
+                    </button>
+                  )}
+                  {resent && <span className="text-brand-cyan text-[11px]">✓ enviado</span>}
+                </div>
+              </div>
+
               {/* Acciones según estado */}
-              {(order.status === 'pending_transfer' || order.status === 'pending') && (
+              {(order.status === 'pending_transfer' || order.status === 'pending_cod' || order.status === 'pending') && (
                 <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
                   {confirmErr && (
                     <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">{confirmErr}</p>
                   )}
 
-                  {/* Confirmar transferencia */}
-                  {order.status === 'pending_transfer' && (
+                  {/* Confirmar pago (transferencia o contra entrega) */}
+                  {(order.status === 'pending_transfer' || order.status === 'pending_cod') && (
                     <>
                       <motion.button
                         onClick={handleConfirmTransfer}
@@ -229,7 +356,7 @@ function OrderRow({ order, pin, onConfirmTransfer, onCancelOrder }: {
                         {confirming ? (
                           <><Loader2 size={13} className="animate-spin"/> Confirmando...</>
                         ) : (
-                          <><CheckCircle2 size={13}/> ✅ Confirmar Pago por Transferencia</>
+                          <><CheckCircle2 size={13}/> {order.status === 'pending_cod' ? '✅ Confirmar Pago Recibido' : '✅ Confirmar Pago por Transferencia'}</>
                         )}
                       </motion.button>
                       <p className="text-white/25 text-[10px]" style={{ fontFamily:'Inter' }}>
@@ -1127,6 +1254,7 @@ function PedidosTab({ pin }: { pin: string }) {
     { label:'Todos',          value:'all',              color:'#ffffff' },
     { label:'Pagados',        value:'paid',             color:'#81d742' },
     { label:'Transferencias', value:'pending_transfer', color:'#06b6d4' },
+    { label:'Contra entrega', value:'pending_cod',      color:'#a78bfa' },
     { label:'Pendientes',     value:'pending',          color:'#ffc222' },
     { label:'Rechazados',     value:'rejected',         color:'#ef4444' },
   ]
@@ -1521,14 +1649,375 @@ function CuponesTab({ pin }: { pin: string }) {
 }
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
+const money = (n: number) => `$${Number(n || 0).toLocaleString('es-CL')}`
+
+// ── AjustesTab (Configuración de la tienda) ─────────────────────────────────
+interface StoreSettings {
+  bank_name:string; bank_account_type:string; bank_account_number:string; bank_holder:string; bank_rut:string
+  delivery_cost_rancagua:number; shipping_flat_regions:number; pickup_enabled:boolean; cod_enabled:boolean
+  local_city:string; store_address:string; contact_email:string; contact_whatsapp:string
+}
+function AjustesTab({ pin }: { pin: string }) {
+  const [form, setForm] = useState<StoreSettings|null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetch(`${API}/api/admin/settings`, { headers:{ 'x-admin-token':pin } })
+      .then(r => r.json()).then(d => setForm(d)).catch(()=>setError('No se pudo cargar')).finally(()=>setLoading(false))
+  }, [pin])
+
+  function set<K extends keyof StoreSettings>(k:K, v:StoreSettings[K]) { setForm(f => f ? { ...f, [k]:v } : f) }
+
+  async function save() {
+    if (!form) return
+    setSaving(true); setError(''); setSaved(false)
+    try {
+      const res = await fetch(`${API}/api/admin/settings`, {
+        method:'PUT', headers:{ 'Content-Type':'application/json', 'x-admin-token':pin }, body:JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error((await res.json()).error || 'Error al guardar')
+      setSaved(true); setTimeout(()=>setSaved(false), 2500)
+    } catch (e:unknown) { setError(e instanceof Error ? e.message : 'Error') }
+    finally { setSaving(false) }
+  }
+
+  if (loading || !form) return <div className="text-white/40 text-sm py-10 text-center">Cargando…</div>
+
+  const card = 'rounded-2xl p-5 border border-white/8'
+  const cardBg = { background:'rgba(255,255,255,0.02)' }
+  const inp = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50 transition-colors'
+  const lbl = 'text-white/50 text-xs mb-1.5 block'
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center gap-2">
+        <Settings size={18} className="text-brand-violet"/>
+        <h2 className="text-white font-bold text-lg" style={{ fontFamily:'Space Grotesk' }}>Ajustes de la tienda</h2>
+      </div>
+
+      {/* Datos bancarios */}
+      <div className={card} style={cardBg}>
+        <div className="flex items-center gap-2 mb-4">
+          <Banknote size={15} className="text-brand-cyan"/>
+          <h3 className="text-white/90 font-semibold text-sm" style={{ fontFamily:'Space Grotesk' }}>Datos bancarios (transferencia)</h3>
+        </div>
+        <p className="text-white/30 text-xs mb-4" style={{ fontFamily:'Inter' }}>Solo se muestran al cliente después de que hace el pedido por transferencia — nunca públicamente.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div><label className={lbl}>Banco</label><input className={inp} value={form.bank_name} onChange={e=>set('bank_name',e.target.value)}/></div>
+          <div><label className={lbl}>Tipo de cuenta</label><input className={inp} value={form.bank_account_type} onChange={e=>set('bank_account_type',e.target.value)}/></div>
+          <div><label className={lbl}>N° de cuenta</label><input className={inp} value={form.bank_account_number} onChange={e=>set('bank_account_number',e.target.value)}/></div>
+          <div><label className={lbl}>Titular</label><input className={inp} value={form.bank_holder} onChange={e=>set('bank_holder',e.target.value)}/></div>
+          <div><label className={lbl}>RUT</label><input className={inp} value={form.bank_rut} onChange={e=>set('bank_rut',e.target.value)}/></div>
+        </div>
+      </div>
+
+      {/* Envío y entrega */}
+      <div className={card} style={cardBg}>
+        <div className="flex items-center gap-2 mb-4">
+          <Truck size={15} className="text-brand-cyan"/>
+          <h3 className="text-white/90 font-semibold text-sm" style={{ fontFamily:'Space Grotesk' }}>Envío y entrega</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div><label className={lbl}>Ciudad local (retiro / contra entrega)</label><input className={inp} value={form.local_city} onChange={e=>set('local_city',e.target.value)}/></div>
+          <div><label className={lbl}>Dirección del local</label><input className={inp} value={form.store_address} onChange={e=>set('store_address',e.target.value)}/></div>
+          <div><label className={lbl}>Costo delivery en {form.local_city || 'la ciudad local'} ($)</label><input type="number" min="0" className={inp} value={form.delivery_cost_rancagua ?? 0} onChange={e=>set('delivery_cost_rancagua',Number(e.target.value))}/></div>
+          <div><label className={lbl}>Tarifa plana a regiones ($)</label><input type="number" min="0" className={inp} value={form.shipping_flat_regions ?? 0} onChange={e=>set('shipping_flat_regions',Number(e.target.value))}/></div>
+        </div>
+        <div className="flex flex-wrap gap-4 mt-4">
+          <label className="flex items-center gap-2 text-white/70 text-sm cursor-pointer">
+            <input type="checkbox" checked={form.pickup_enabled} onChange={e=>set('pickup_enabled',e.target.checked)} className="accent-brand-violet w-4 h-4"/>
+            Permitir retiro en el local (gratis)
+          </label>
+          <label className="flex items-center gap-2 text-white/70 text-sm cursor-pointer">
+            <input type="checkbox" checked={form.cod_enabled} onChange={e=>set('cod_enabled',e.target.checked)} className="accent-brand-violet w-4 h-4"/>
+            Permitir pago contra entrega
+          </label>
+        </div>
+      </div>
+
+      {/* Contacto */}
+      <div className={card} style={cardBg}>
+        <div className="flex items-center gap-2 mb-4">
+          <MapPin size={15} className="text-brand-cyan"/>
+          <h3 className="text-white/90 font-semibold text-sm" style={{ fontFamily:'Space Grotesk' }}>Contacto</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div><label className={lbl}>Email de soporte</label><input className={inp} value={form.contact_email} onChange={e=>set('contact_email',e.target.value)}/></div>
+          <div><label className={lbl}>WhatsApp (solo dígitos)</label><input className={inp} value={form.contact_whatsapp} onChange={e=>set('contact_whatsapp',e.target.value)} placeholder="56946216579"/></div>
+        </div>
+      </div>
+
+      {error && <p className="text-red-400 text-xs">{error}</p>}
+      <div className="flex items-center gap-3">
+        <button onClick={save} disabled={saving}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-sm disabled:opacity-50"
+          style={{ fontFamily:'Space Grotesk', background:'linear-gradient(135deg,#81d742,#06b6d4)' }}>
+          {saving ? <><Loader2 size={14} className="animate-spin"/> Guardando…</> : <><Save size={14}/> Guardar cambios</>}
+        </button>
+        {saved && <span className="text-brand-violet text-sm flex items-center gap-1"><CheckCircle2 size={14}/> Guardado</span>}
+      </div>
+    </div>
+  )
+}
+
+// ── InventarioTab ───────────────────────────────────────────────────────────
+function InventarioTab({ pin }: { pin: string }) {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`${API}/api/admin/products`, { headers:{ 'x-admin-token':pin } })
+      if (res.ok) setProducts(await res.json())
+    } finally { setLoading(false) }
+  }, [pin])
+  useEffect(() => { load() }, [load])
+
+  async function adjust(id:number, mode:'set'|'delta', value:number, reason:string) {
+    const res = await fetch(`${API}/api/admin/products/${id}/adjust-stock`, {
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-admin-token':pin }, body:JSON.stringify({ mode, value, reason }),
+    })
+    if (res.ok) { const d = await res.json(); setProducts(prev => prev.map(p => p.id===id ? { ...p, stock:d.stock } : p)) }
+  }
+
+  const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+  const low = products.filter(p => p.active && (p.stock ?? 0) <= (p.low_stock_threshold ?? 3))
+
+  return (
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <Layers size={18} className="text-brand-violet"/>
+        <h2 className="text-white font-bold text-lg" style={{ fontFamily:'Space Grotesk' }}>Inventario</h2>
+        <span className="text-white/30 text-xs ml-1">{products.length} productos</span>
+      </div>
+
+      {low.length > 0 && (
+        <div className="mb-4 rounded-xl p-3 flex items-start gap-2.5" style={{ background:'rgba(255,181,71,0.08)', border:'1px solid rgba(255,181,71,0.25)' }}>
+          <AlertCircle size={16} className="text-amber-400 mt-0.5 shrink-0"/>
+          <p className="text-amber-200/80 text-xs" style={{ fontFamily:'Inter' }}>
+            <strong className="text-amber-300">{low.length} con stock bajo:</strong> {low.slice(0,8).map(p=>`${p.name} (${p.stock??0})`).join(' · ')}{low.length>8?'…':''}
+          </p>
+        </div>
+      )}
+
+      <div className="relative mb-4 max-w-sm">
+        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"/>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar producto…"
+          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50"/>
+      </div>
+
+      {loading ? <div className="text-white/40 text-sm py-10 text-center">Cargando…</div> : (
+        <div className="space-y-2">
+          {filtered.map(p => <InventarioRow key={p.id} product={p} onAdjust={adjust}/>)}
+        </div>
+      )}
+    </>
+  )
+}
+
+function InventarioRow({ product, onAdjust }: { product:Product; onAdjust:(id:number,mode:'set'|'delta',value:number,reason:string)=>void }) {
+  const [val, setVal] = useState('')
+  const isLow = product.active && (product.stock ?? 0) <= (product.low_stock_threshold ?? 3)
+  return (
+    <div className="flex items-center gap-3 rounded-xl p-3 border border-white/6" style={{ background:'rgba(255,255,255,0.02)' }}>
+      <img src={product.img_url || ''} alt="" className="w-11 h-11 rounded-lg object-cover bg-white/5 shrink-0" onError={e=>{e.currentTarget.style.visibility='hidden'}}/>
+      <div className="min-w-0 flex-1">
+        <p className="text-white/90 text-sm font-medium truncate" style={{ fontFamily:'Inter' }}>{product.name}</p>
+        <p className="text-white/30 text-xs">{product.category}{!product.active && ' · oculto'}</p>
+      </div>
+      <div className="text-center shrink-0 px-2">
+        <p className="text-[10px] text-white/30 uppercase">Stock</p>
+        <p className="text-lg font-bold" style={{ color: isLow ? '#ffb547' : '#81d742', fontFamily:'Space Grotesk' }}>{product.stock ?? 0}</p>
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <button onClick={()=>onAdjust(product.id,'delta',-1,'ajuste rápido')} className="w-7 h-7 rounded-lg border border-white/10 text-white/50 hover:text-red-400 flex items-center justify-center"><Minus size={13}/></button>
+        <button onClick={()=>onAdjust(product.id,'delta',1,'ajuste rápido')} className="w-7 h-7 rounded-lg border border-white/10 text-white/50 hover:text-brand-violet flex items-center justify-center"><Plus size={13}/></button>
+        <input value={val} onChange={e=>setVal(e.target.value)} placeholder="fijar" type="number" min="0"
+          className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-xs text-center focus:outline-none focus:border-brand-violet/50"/>
+        <button onClick={()=>{ if(val!==''){ onAdjust(product.id,'set',Number(val),'ajuste manual'); setVal('') } }}
+          className="px-2 h-7 rounded-lg border border-brand-violet/30 text-brand-violet text-xs hover:bg-brand-violet/10">OK</button>
+      </div>
+    </div>
+  )
+}
+
+// ── ClientesTab ─────────────────────────────────────────────────────────────
+interface Customer { email:string; name:string|null; phone:string|null; address:string|null; orders:number; paidOrders:number; totalSpent:number; lastOrderAt:string }
+function ClientesTab({ pin }: { pin: string }) {
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    fetch(`${API}/api/admin/customers`, { headers:{ 'x-admin-token':pin } })
+      .then(r=>r.json()).then(d=>setCustomers(Array.isArray(d)?d:[])).finally(()=>setLoading(false))
+  }, [pin])
+
+  const filtered = customers.filter(c =>
+    (c.name||'').toLowerCase().includes(search.toLowerCase()) || (c.email||'').toLowerCase().includes(search.toLowerCase()))
+
+  return (
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <Users size={18} className="text-brand-violet"/>
+        <h2 className="text-white font-bold text-lg" style={{ fontFamily:'Space Grotesk' }}>Clientes</h2>
+        <span className="text-white/30 text-xs ml-1">{customers.length}</span>
+      </div>
+      <div className="relative mb-4 max-w-sm">
+        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"/>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar por nombre o email…"
+          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-white/20 text-sm focus:outline-none focus:border-brand-violet/50"/>
+      </div>
+      {loading ? <div className="text-white/40 text-sm py-10 text-center">Cargando…</div> : filtered.length===0 ? (
+        <div className="text-white/30 text-sm py-10 text-center">Aún no hay clientes.</div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-white/8">
+          <table className="w-full text-sm" style={{ fontFamily:'Inter' }}>
+            <thead>
+              <tr className="text-white/40 text-xs border-b border-white/8">
+                <th className="text-left px-4 py-3 font-medium">Cliente</th>
+                <th className="text-left px-4 py-3 font-medium">Contacto</th>
+                <th className="text-center px-4 py-3 font-medium">Pedidos</th>
+                <th className="text-right px-4 py-3 font-medium">Total gastado</th>
+                <th className="text-right px-4 py-3 font-medium">Último</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(c => (
+                <tr key={c.email} className="border-b border-white/5 hover:bg-white/2">
+                  <td className="px-4 py-3">
+                    <p className="text-white/90 font-medium">{c.name || '—'}</p>
+                    <p className="text-white/30 text-xs">{c.email}</p>
+                  </td>
+                  <td className="px-4 py-3 text-white/50 text-xs">
+                    {c.phone ? <a href={`https://wa.me/${c.phone.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" className="text-brand-cyan hover:underline">{c.phone}</a> : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-center text-white/70">{c.paidOrders}<span className="text-white/30">/{c.orders}</span></td>
+                  <td className="px-4 py-3 text-right text-brand-violet font-semibold">{money(c.totalSpent)}</td>
+                  <td className="px-4 py-3 text-right text-white/40 text-xs">{new Date(c.lastOrderAt).toLocaleDateString('es-CL')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  )
+}
+
+// ── ReportesTab (Resumen / Dashboard) ───────────────────────────────────────
+interface ReportData { totalRevenue:number; paidCount:number; avgTicket:number; salesByDay:{day:string;total:number}[]; topProducts:{name:string;units:number;revenue:number}[] }
+function ReportesTab({ pin }: { pin: string }) {
+  const [data, setData] = useState<ReportData|null>(null)
+  const [loading, setLoading] = useState(true)
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (from) params.set('from', from)
+      if (to)   params.set('to', to)
+      const res = await fetch(`${API}/api/admin/reports?${params}`, { headers:{ 'x-admin-token':pin } })
+      if (res.ok) setData(await res.json())
+    } finally { setLoading(false) }
+  }, [pin, from, to])
+  useEffect(() => { load() }, [load])
+
+  const maxDay = data ? Math.max(1, ...data.salesByDay.map(d=>d.total)) : 1
+  const maxUnits = data ? Math.max(1, ...data.topProducts.map(p=>p.units)) : 1
+
+  return (
+    <>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-2">
+          <TrendingUp size={18} className="text-brand-violet"/>
+          <h2 className="text-white font-bold text-lg" style={{ fontFamily:'Space Grotesk' }}>Resumen de ventas</h2>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <input type="date" value={from} onChange={e=>setFrom(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white/70"/>
+          <span className="text-white/30">→</span>
+          <input type="date" value={to} onChange={e=>setTo(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white/70"/>
+          {(from||to) && <button onClick={()=>{setFrom('');setTo('')}} className="text-white/40 hover:text-white/70 px-2">Limpiar</button>}
+        </div>
+      </div>
+
+      {loading || !data ? <div className="text-white/40 text-sm py-10 text-center">Cargando…</div> : (
+        <>
+          {/* KPIs */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+            {[
+              { icon:DollarSign, label:'Ingresos (pagados)', value:money(data.totalRevenue), color:'#06b6d4' },
+              { icon:ShoppingBag, label:'Pedidos pagados', value:String(data.paidCount), color:'#81d742' },
+              { icon:CreditCard, label:'Ticket promedio', value:money(data.avgTicket), color:'#ffb547' },
+            ].map((k,i)=>(
+              <div key={i} className="rounded-2xl p-5 border border-white/8" style={{ background:'rgba(255,255,255,0.02)' }}>
+                <k.icon size={18} style={{ color:k.color }}/>
+                <p className="text-white/40 text-xs mt-3" style={{ fontFamily:'Inter' }}>{k.label}</p>
+                <p className="text-white font-bold text-2xl mt-1" style={{ fontFamily:'Space Grotesk', color:k.color }}>{k.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Ventas por día */}
+          <div className="rounded-2xl p-5 border border-white/8 mb-5" style={{ background:'rgba(255,255,255,0.02)' }}>
+            <h3 className="text-white/90 font-semibold text-sm mb-4" style={{ fontFamily:'Space Grotesk' }}>Ventas por día</h3>
+            {data.salesByDay.length===0 ? <p className="text-white/30 text-sm">Sin ventas en el periodo.</p> : (
+              <div className="flex items-end gap-1.5 h-40">
+                {data.salesByDay.map(d=>(
+                  <div key={d.day} className="flex-1 flex flex-col items-center gap-1 group">
+                    <div className="w-full rounded-t transition-all" title={`${d.day}: ${money(d.total)}`}
+                      style={{ height:`${(d.total/maxDay)*100}%`, minHeight:'4px', background:'linear-gradient(180deg,#06b6d4,#81d742)' }}/>
+                    <span className="text-white/25 text-[9px] rotate-0">{d.day.slice(5)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Más vendidos */}
+          <div className="rounded-2xl p-5 border border-white/8" style={{ background:'rgba(255,255,255,0.02)' }}>
+            <h3 className="text-white/90 font-semibold text-sm mb-4" style={{ fontFamily:'Space Grotesk' }}>Productos más vendidos</h3>
+            {data.topProducts.length===0 ? <p className="text-white/30 text-sm">Sin datos aún.</p> : (
+              <div className="space-y-2.5">
+                {data.topProducts.map((p,i)=>(
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-white/70 text-xs w-40 truncate shrink-0" style={{ fontFamily:'Inter' }}>{p.name}</span>
+                    <div className="flex-1 h-5 rounded-full bg-white/5 overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width:`${(p.units/maxUnits)*100}%`, background:'linear-gradient(90deg,#5b8cff,#22d3a6)' }}/>
+                    </div>
+                    <span className="text-white/50 text-xs w-16 text-right shrink-0">{p.units} u.</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </>
+  )
+}
+
+type AdminTab = 'reportes'|'pedidos'|'inventario'|'productos'|'clientes'|'cupones'|'newsletter'|'ajustes'
+
 function Dashboard({ pin, onLogout }: { pin: string; onLogout: () => void }) {
-  const [tab, setTab] = useState<'pedidos'|'productos'|'newsletter'|'cupones'>('pedidos')
+  const [tab, setTab] = useState<AdminTab>('reportes')
 
   const TABS = [
-    { id:'pedidos',     label:'📊 Pedidos',     },
-    { id:'productos',   label:'📦 Productos',   },
-    { id:'newsletter',  label:'📧 Newsletter',  },
-    { id:'cupones',     label:'🏷️ Cupones',     },
+    { id:'reportes',    label:'📈 Resumen',    },
+    { id:'pedidos',     label:'📊 Pedidos',    },
+    { id:'inventario',  label:'📋 Inventario', },
+    { id:'productos',   label:'📦 Productos',  },
+    { id:'clientes',    label:'👥 Clientes',   },
+    { id:'cupones',     label:'🏷️ Cupones',    },
+    { id:'newsletter',  label:'📧 Newsletter', },
+    { id:'ajustes',     label:'⚙️ Ajustes',    },
   ] as const
 
   return (
@@ -1555,10 +2044,11 @@ function Dashboard({ pin, onLogout }: { pin: string; onLogout: () => void }) {
         </div>
 
         {/* Tabs */}
-        <div className="max-w-7xl mx-auto flex gap-1 mt-4">
+        <div className="max-w-7xl mx-auto flex gap-1 mt-4 overflow-x-auto pb-1"
+          style={{ scrollbarWidth:'none' }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className="px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+              className="px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap shrink-0"
               style={{
                 fontFamily:'Space Grotesk',
                 background: tab===t.id ? 'rgba(129,215,66,0.12)' : 'transparent',
@@ -1573,23 +2063,16 @@ function Dashboard({ pin, onLogout }: { pin: string; onLogout: () => void }) {
 
       <div className="max-w-7xl mx-auto">
         <AnimatePresence mode="wait">
-          {tab === 'pedidos' ? (
-            <motion.div key="pedidos" initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:10 }} transition={{ duration:0.2 }}>
-              <PedidosTab pin={pin}/>
-            </motion.div>
-          ) : tab === 'productos' ? (
-            <motion.div key="productos" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} transition={{ duration:0.2 }}>
-              <ProductosTab pin={pin}/>
-            </motion.div>
-          ) : tab === 'cupones' ? (
-            <motion.div key="cupones" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} transition={{ duration:0.2 }}>
-              <CuponesTab pin={pin}/>
-            </motion.div>
-          ) : (
-            <motion.div key="newsletter" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }} transition={{ duration:0.2 }}>
-              <NewsletterTab pin={pin}/>
-            </motion.div>
-          )}
+          <motion.div key={tab} initial={{ opacity:0, x:8 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-8 }} transition={{ duration:0.2 }}>
+            {tab === 'reportes'   && <ReportesTab pin={pin}/>}
+            {tab === 'pedidos'    && <PedidosTab pin={pin}/>}
+            {tab === 'inventario' && <InventarioTab pin={pin}/>}
+            {tab === 'productos'  && <ProductosTab pin={pin}/>}
+            {tab === 'clientes'   && <ClientesTab pin={pin}/>}
+            {tab === 'cupones'    && <CuponesTab pin={pin}/>}
+            {tab === 'newsletter' && <NewsletterTab pin={pin}/>}
+            {tab === 'ajustes'    && <AjustesTab pin={pin}/>}
+          </motion.div>
         </AnimatePresence>
       </div>
     </div>
