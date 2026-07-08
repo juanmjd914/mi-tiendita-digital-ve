@@ -41,10 +41,20 @@ export default function CartDrawer() {
   const [city,           setCity]           = useState('')
   const [loading,        setLoading]        = useState(false)
   const [error,          setError]          = useState<string | null>(null)
-  const [transferOrder,  setTransferOrder]  = useState<{ id: string; total: number } | null>(null)
+  const [transferOrder,  setTransferOrder]  = useState<{ id: string; total: number; summary: string } | null>(null)
   const [bankDetails,    setBankDetails]    = useState<BankDetail[]>([])
   const [config,         setConfig]         = useState<StoreConfig | null>(null)
   const [copied,         setCopied]         = useState<string | null>(null)
+  const [countdown,      setCountdown]      = useState(0)
+
+  // En las pantallas de éxito: deja ~25s para copiar los datos y luego redirige al inicio.
+  useEffect(() => {
+    if (step !== 'transfer-success' && step !== 'cod-success') return
+    setCountdown(25)
+    const iv = setInterval(() => setCountdown(c => (c > 0 ? c - 1 : 0)), 1000)
+    const to = setTimeout(() => { window.location.href = '/' }, 25000)
+    return () => { clearInterval(iv); clearTimeout(to) }
+  }, [step])
   // Cupón
   const [couponInput,    setCouponInput]    = useState('')
   const [coupon,         setCoupon]         = useState<CouponState | null>(null)
@@ -69,13 +79,17 @@ export default function CartDrawer() {
   }, [])
 
   const localCity = config?.localCity || 'Rancagua'
-  const isLocal   = city.trim().toLowerCase().includes(localCity.toLowerCase())
+  const cityEntered = city.trim() !== ''
+  const isLocal   = cityEntered && city.trim().toLowerCase().includes(localCity.toLowerCase())
   // Si el retiro se deshabilita o no es zona local, forzar delivery
   const pickupAvailable = (config?.pickupEnabled ?? true) && isLocal
   const codAvailable    = (config?.codEnabled ?? true) && isLocal
   const effectiveDelivery: DeliveryMethod = deliveryMethod === 'pickup' && pickupAvailable ? 'pickup' : 'delivery'
 
+  // El envío solo se conoce (y se suma) cuando hay ciudad, o si es retiro en local ($0).
+  const shippingKnown = effectiveDelivery === 'pickup' || cityEntered
   const shippingCost = effectiveDelivery === 'pickup' ? 0
+    : !cityEntered ? 0
     : isLocal ? (config?.deliveryCostRancagua ?? 0)
     : (config?.shippingFlatRegions ?? 0)
 
@@ -153,6 +167,9 @@ export default function CartDrawer() {
     setLoading(true)
     setError(null)
 
+    // Resumen de productos para los mensajes de WhatsApp (nombre del artículo, no el N° de orden)
+    const orderSummary = items.map(({ product, quantity }) => `${product.name} ×${quantity}`).join(', ')
+
     const payload = {
       email,
       customerName:    name,
@@ -189,7 +206,7 @@ export default function CartDrawer() {
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Error al crear el pedido')
         clearCart()
-        setTransferOrder({ id: data.orderId, total: data.total })
+        setTransferOrder({ id: data.orderId, total: data.total, summary: orderSummary })
         setStep('cod-success')
 
       } else {
@@ -208,7 +225,7 @@ export default function CartDrawer() {
           const data = await res.json()
           if (!res.ok) throw new Error(data.error || 'Error al crear el pedido')
           clearCart()
-          setTransferOrder({ id: data.orderId, total: data.total })
+          setTransferOrder({ id: data.orderId, total: data.total, summary: orderSummary })
           await loadBankDetails(data.orderId)
           setStep('transfer-success')
         } catch (fetchErr: unknown) {
@@ -390,12 +407,10 @@ export default function CartDrawer() {
                         <span className="text-white font-semibold whitespace-nowrap">${(product.price * quantity).toLocaleString('es-CL')}</span>
                       </div>
                     ))}
-                    {(coupon || shippingCost > 0 || effectiveDelivery === 'pickup') && (
-                      <div className="flex justify-between text-xs text-white/40">
-                        <span>Subtotal</span>
-                        <span>${baseTotal.toLocaleString('es-CL')}</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between text-xs text-white/40">
+                      <span>Subtotal</span>
+                      <span>${baseTotal.toLocaleString('es-CL')}</span>
+                    </div>
                     {coupon && (
                       <div className="flex justify-between text-xs">
                         <span className="text-green-400">🎟 Cupón {coupon.code}</span>
@@ -403,8 +418,8 @@ export default function CartDrawer() {
                       </div>
                     )}
                     <div className="flex justify-between text-xs text-white/40">
-                      <span>{effectiveDelivery === 'pickup' ? 'Retiro en local' : `Envío${city ? '' : ' (según ciudad)'}`}</span>
-                      <span>{effectiveDelivery === 'pickup' ? 'Gratis' : (city ? `$${shippingCost.toLocaleString('es-CL')}` : '—')}</span>
+                      <span>{effectiveDelivery === 'pickup' ? 'Retiro en local' : `Envío${cityEntered ? '' : ' (según ciudad)'}`}</span>
+                      <span>{effectiveDelivery === 'pickup' ? 'Gratis' : (shippingKnown ? `$${shippingCost.toLocaleString('es-CL')}` : '—')}</span>
                     </div>
                     <div className="border-t border-white/5 pt-2 flex justify-between">
                       <span className="text-white/60 text-sm">Total</span>
@@ -749,6 +764,19 @@ export default function CartDrawer() {
                     <p className="text-white/40 text-xs uppercase tracking-widest mb-2" style={{ fontFamily: 'Space Grotesk' }}>
                       Datos para la transferencia
                     </p>
+                    {bankDetails.length === 0 && (
+                      <p className="text-white/40 text-xs mb-2">Te enviamos los datos de la transferencia a tu email 📧</p>
+                    )}
+                    {bankDetails.length > 0 && (
+                      <button
+                        onClick={() => copyToClipboard(bankDetails.map(b => `${b.label}: ${b.value}`).join('\n'), '__all__')}
+                        className="w-full flex items-center justify-center gap-2 mb-2 py-2.5 rounded-xl text-sm font-bold transition-all"
+                        style={{ fontFamily:'Space Grotesk', background:'rgba(6,182,212,0.15)', border:'1px solid rgba(6,182,212,0.35)', color:'#67e8f9' }}>
+                        {copied === '__all__'
+                          ? <><CheckCircle2 size={15}/> ¡Datos copiados!</>
+                          : <><Copy size={15}/> Copiar todos los datos</>}
+                      </button>
+                    )}
                     <div className="rounded-xl border overflow-hidden"
                       style={{ background: 'rgba(6,182,212,0.04)', borderColor: 'rgba(6,182,212,0.2)' }}>
                       {bankDetails.map(({ label, value }) => (
@@ -800,7 +828,7 @@ export default function CartDrawer() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
-                    href={`https://wa.me/${(config?.contactWhatsapp || '56946216579').replace(/\D/g,'')}?text=Hola%2C%20quiero%20enviar%20el%20comprobante%20de%20transferencia%20del%20pedido%20%23${transferOrder.id}`}
+                    href={`https://wa.me/${(config?.contactWhatsapp || '56946216579').replace(/\D/g,'')}?text=${encodeURIComponent(`Hola, quiero enviar el comprobante de transferencia de mi pedido: ${transferOrder.summary}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-white font-bold text-sm"
@@ -819,6 +847,9 @@ export default function CartDrawer() {
                   >
                     Cerrar
                   </motion.button>
+                  {countdown > 0 && (
+                    <p className="text-white/25 text-xs text-center">Te llevaremos al inicio en {countdown}s…</p>
+                  )}
                 </div>
               </div>
             )}
@@ -848,7 +879,7 @@ export default function CartDrawer() {
                       Prepararemos tu pedido y coordinaremos la entrega en {city || localCity}. Pagas <strong className="text-white/80">${transferOrder.total.toLocaleString('es-CL')}</strong> al momento de recibirlo. Te escribiremos por WhatsApp para coordinar.
                     </p>
                   </div>
-                  <a href={`https://wa.me/${(config?.contactWhatsapp || '56946216579').replace(/\D/g,'')}?text=Hola%2C%20consulto%20por%20mi%20pedido%20contra%20entrega%20%23${transferOrder.id}`}
+                  <a href={`https://wa.me/${(config?.contactWhatsapp || '56946216579').replace(/\D/g,'')}?text=${encodeURIComponent(`Hola, hice un pedido contra entrega: ${transferOrder.summary}`)}`}
                     target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-white font-bold text-sm"
                     style={{ fontFamily: 'Space Grotesk', background: '#25d366' }}>
@@ -859,6 +890,9 @@ export default function CartDrawer() {
                     style={{ fontFamily: 'Space Grotesk' }}>
                     Cerrar
                   </button>
+                  {countdown > 0 && (
+                    <p className="text-white/25 text-xs text-center">Te llevaremos al inicio en {countdown}s…</p>
+                  )}
                 </div>
               </div>
             )}
