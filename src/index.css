@@ -34,6 +34,13 @@
   * {
     box-sizing: border-box;
   }
+  /* Con un modal/carrito abierto, el navbar se oculta del todo — en móvil real,
+     el backdrop-filter apilado con varios elementos fixed tiene bugs de
+     composición que hacen que el navbar se pinte encima del modal aunque
+     tenga menor z-index. visibility:hidden elimina esa ambigüedad. */
+  body.overlay-open nav {
+    visibility: hidden;
+  }
 }
 
 /* ── Efecto Volcánico (usado en títulos hero) ───────────────── */

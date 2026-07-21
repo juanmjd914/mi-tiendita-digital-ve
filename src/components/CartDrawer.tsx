@@ -47,12 +47,16 @@ export default function CartDrawer() {
   const [copied,         setCopied]         = useState<string | null>(null)
   const [countdown,      setCountdown]      = useState(0)
 
-  // Bloquea el scroll de la página de fondo mientras el carrito está abierto
+  // Bloquea el scroll de la página de fondo y oculta el navbar mientras el carrito está abierto
   useEffect(() => {
     if (!isOpen) return
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prevOverflow }
+    document.body.classList.add('overlay-open')
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.body.classList.remove('overlay-open')
+    }
   }, [isOpen])
 
   // En las pantallas de éxito: deja ~25s para copiar los datos y luego redirige al inicio.

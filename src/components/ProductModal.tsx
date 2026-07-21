@@ -45,11 +45,20 @@ export default function ProductModal({ product, onClose }: Props) {
   // Bloquea el scroll de la página de fondo mientras el modal está abierto —
   // sin esto, en móvil la página detrás se mueve al hacer scroll dentro del
   // modal y se ve "fantasma" mezclada con el contenido del modal.
+  // También oculta el navbar por completo (no solo z-index): en móvil real,
+  // el backdrop-filter combinado con varios elementos fixed apilados tiene
+  // bugs de composición de capas en el navegador que hacen que el navbar se
+  // pinte por encima del modal pese a tener menor z-index. Ocultarlo del
+  // todo elimina la ambigüedad.
   useEffect(() => {
     if (!product) return
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prevOverflow }
+    document.body.classList.add('overlay-open')
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.body.classList.remove('overlay-open')
+    }
   }, [product])
 
   // Rotación automática de la galería — avanza sola cada AUTO_ROTATE_MS,
