@@ -147,7 +147,7 @@ export default function Tienda() {
 
   // Resetear página al cambiar filtros
   function handleSearch(v: string)   { setSearch(v);      setPage(1) }
-  function handleCategory(v: string) { setCategory(v);    setPage(1); setBadgeFilter('') }
+  function handleCategory(v: string) { setCategory(v);    setPage(1); setBadgeFilter(''); setShowFilters(false) }
   function handleSort(v: SortOption) { setSort(v);        setPage(1) }
   function clearBadge()              { setBadgeFilter(''); setPage(1) }
 
@@ -252,7 +252,7 @@ export default function Tienda() {
           </button>
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex flex-col sm:flex-row gap-6">
           {/* Sidebar categorías */}
           <aside className={`${showFilters ? 'block' : 'hidden'} sm:block w-full sm:w-48 flex-shrink-0`}>
             <div className="sticky top-24">
