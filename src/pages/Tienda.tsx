@@ -333,7 +333,7 @@ export default function Tienda() {
   )
 }
 
-// ── Tarjeta de producto ────────────────────────────────────────────────────
+// ── Tarjeta de producto — glassmorphism con halo flotante ──────────────────
 function ProductTile({
   product, delay, onOpen,
 }: { product: Product; delay: number; onOpen: () => void }) {
@@ -350,23 +350,55 @@ function ProductTile({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.35, delay }}
-      whileHover={{ y: -4, boxShadow: '0 0 20px rgba(129,215,66,0.1)' }}
+      whileHover={{ y: -6 }}
       onClick={onOpen}
-      className="group bg-[#0f0f1a] border border-white/5 hover:border-brand-violet/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300"
+      className="group relative rounded-3xl overflow-hidden cursor-pointer transition-colors duration-300"
+      style={{
+        background: 'linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015))',
+        backdropFilter: 'blur(20px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 30px rgba(0,0,0,0.35)',
+      }}
     >
-      <div className="relative aspect-square overflow-hidden bg-[#080810]">
-        <img
+      {/* Borde con glow al hover */}
+      <div
+        className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        style={{ boxShadow: '0 0 0 1px rgba(129,215,66,0.35), 0 0 28px rgba(129,215,66,0.18)' }}
+      />
+
+      {/* Zona de imagen — producto flotando sobre halo de luz */}
+      <div className="relative aspect-square overflow-hidden" style={{ background: 'radial-gradient(circle at 50% 30%, #14142a, #080810 78%)' }}>
+        {/* Halo de color detrás del producto (verde→cian, marca de la tienda) */}
+        <div
+          className="absolute left-1/2 bottom-[14%] -translate-x-1/2 rounded-full pointer-events-none transition-opacity duration-300 opacity-70 group-hover:opacity-100"
+          style={{
+            width: '78%', height: '55%',
+            background: 'radial-gradient(ellipse at center, rgba(129,215,66,0.35) 0%, rgba(6,182,212,0.22) 45%, transparent 72%)',
+            filter: 'blur(18px)',
+          }}
+        />
+        {/* Plataforma / sombra elíptica al pie */}
+        <div
+          className="absolute left-1/2 bottom-[10%] -translate-x-1/2 rounded-[50%] pointer-events-none"
+          style={{ width: '50%', height: '10px', background: 'rgba(129,215,66,0.45)', filter: 'blur(6px)' }}
+        />
+
+        <motion.img
           src={imgSrc}
           alt={product.name}
           loading="lazy"
           decoding="async"
-          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${product.stock === 0 ? 'opacity-40 grayscale' : ''}`}
+          className={`relative z-10 w-full h-full object-contain p-7 transition-transform duration-500 group-hover:scale-[1.06] ${product.stock === 0 ? 'opacity-40 grayscale' : ''}`}
+          style={{ filter: 'drop-shadow(0 16px 20px rgba(0,0,0,0.5))' }}
+          whileHover={{ y: -6 }}
           onError={e => {
             e.currentTarget.src = 'https://mitienditadigitalve.com/wp-content/uploads/2021/12/Gabinete-MX410T-6.webp'
           }}
         />
+
         {product.stock === 0 ? (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 z-20 flex items-center justify-center">
             <span className="bg-black/70 text-white/80 text-xs font-black px-3 py-1.5 rounded-full border border-white/20 tracking-widest uppercase" style={{ fontFamily: 'Space Grotesk' }}>
               Agotado
             </span>
@@ -374,36 +406,62 @@ function ProductTile({
         ) : (
           <>
             {discount && (
-              <div className="absolute top-2 right-2 bg-brand-violet text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
+              <div className="absolute top-3 right-3 z-20 bg-brand-violet text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg">
                 -{discount}%
               </div>
             )}
             {product.badge && (
-              <div className="absolute top-2 left-2 bg-white/10 text-white/70 text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/10">
+              <div
+                className="absolute top-3 left-3 z-20 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
                 {product.badge}
               </div>
             )}
           </>
         )}
       </div>
-      <div className="p-3 sm:p-4">
+
+      {/* Panel de vidrio con la info del producto */}
+      <div className="relative p-3 sm:p-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <p className="text-brand-cyan text-[10px] font-semibold tracking-wider uppercase mb-1" style={{ fontFamily: 'Space Grotesk' }}>
           {product.category}
         </p>
         <h3 className="text-white text-xs sm:text-sm font-semibold line-clamp-2 leading-snug mb-2" style={{ fontFamily: 'Space Grotesk' }}>
           {product.name}
         </h3>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-white font-black text-base" style={{ fontFamily: 'Space Grotesk' }}>
-            ${product.price.toLocaleString('es-CL')}
-          </span>
-          {product.original_price && (
-            <span className="text-white/30 text-xs line-through">
-              ${product.original_price.toLocaleString('es-CL')}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-white font-black text-base" style={{ fontFamily: 'Space Grotesk' }}>
+              ${product.price.toLocaleString('es-CL')}
             </span>
-          )}
+            {product.original_price && (
+              <span className="text-white/30 text-xs line-through">
+                ${product.original_price.toLocaleString('es-CL')}
+              </span>
+            )}
+          </div>
+
+          {/* CTA que aparece al hover, estilo botón de vidrio con glow */}
+          <span
+            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+            style={{
+              background: 'linear-gradient(135deg, rgba(129,215,66,0.9), rgba(6,182,212,0.9))',
+              boxShadow: '0 0 16px rgba(129,215,66,0.5)',
+            }}
+          >
+            <ChevronRightIcon />
+          </span>
         </div>
       </div>
     </motion.div>
+  )
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 6l6 6-6 6" />
+    </svg>
   )
 }

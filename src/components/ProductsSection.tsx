@@ -18,6 +18,11 @@ function toLegacy(p: Product) {
     rating:        p.rating,
     description:   p.description   ?? undefined,
     stock:         p.stock,
+    brand:         p.brand    ?? undefined,
+    sku:           p.sku      ?? undefined,
+    warranty:      p.warranty ?? undefined,
+    specs:         p.specs    ?? undefined,
+    gallery:       p.gallery  ?? undefined,
   }
 }
 

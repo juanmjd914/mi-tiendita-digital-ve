@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 import { ArrowRight, ChevronDown, Zap } from 'lucide-react'
+import heroMobileImg from '../assets/hero-mobile.png'
 
 const VIDEO_URL = 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/video%20hero%20mi%20tiendita%20digital%20ve.mp4'
 
@@ -34,7 +35,7 @@ export default function HeroSection() {
       onMouseLeave={handleMouseLeave}
       className="relative w-full h-screen min-h-[600px] overflow-hidden flex items-center justify-center"
     >
-      {/* Video de fondo — a todo color, sin overlay que mate el color */}
+      {/* Fondo del hero — video en escritorio, imagen fija en móvil */}
       <motion.div
         style={{ x: moveX, y: moveY, scale: 1.1 }}
         className="absolute inset-0 w-full h-full"
@@ -44,8 +45,13 @@ export default function HeroSection() {
           muted
           loop
           playsInline
-          className="h-full w-full object-cover"
+          className="hidden sm:block h-full w-full object-cover"
           src={VIDEO_URL}
+        />
+        <img
+          src={heroMobileImg}
+          alt="Mi Tiendita Digital Ve"
+          className="sm:hidden h-full w-full object-cover"
         />
       </motion.div>
 

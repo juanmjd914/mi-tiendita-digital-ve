@@ -1,4 +1,5 @@
-﻿import { motion, AnimatePresence } from 'motion/react'
+﻿import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { X, Star, ShoppingCart, Zap, Package, Shield, ChevronRight } from 'lucide-react'
 import { useCartStore } from '../store/cartStore'
 import type { Product } from '../lib/supabase'
@@ -16,6 +17,12 @@ const BADGE_COLORS: Record<string, { bg: string; text: string }> = {
 
 export default function ProductModal({ product, onClose }: Props) {
   const { addItem, openCart } = useCartStore()
+  const [activeIdx, setActiveIdx] = useState(0)
+
+  // Reinicia la imagen activa cada vez que se abre un producto distinto
+  useEffect(() => {
+    setActiveIdx(0)
+  }, [product?.id])
 
   if (!product) return null
 
@@ -28,8 +35,13 @@ export default function ProductModal({ product, onClose }: Props) {
 
   const badgeStyle = p.badge ? (BADGE_COLORS[p.badge] ?? { bg: '#ffffff15', text: '#ffffff80' }) : null
 
-  const imgSrc = p.img_url ||
-    'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=700&q=80'
+  const FALLBACK_IMG = 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=700&q=80'
+
+  // Imagen principal + galería, sin duplicados
+  const images = [p.img_url, ...(p.gallery ?? [])].filter(
+    (url, i, arr): url is string => !!url && arr.indexOf(url) === i
+  )
+  const imgSrc = images[activeIdx] || images[0] || FALLBACK_IMG
 
   function handleAddToCart() {
     addItem({
@@ -94,27 +106,32 @@ export default function ProductModal({ product, onClose }: Props) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2">
                 {/* Imagen */}
-                <div className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: '300px', background: 'radial-gradient(circle at 50% 40%, #14142a, #080810 75%)' }}>
+                <div className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: images.length > 1 ? '350px' : '300px', background: 'radial-gradient(circle at 50% 40%, #14142a, #080810 75%)' }}>
                   {/* Halo suave detrás del producto */}
                   <div className="absolute w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.25), transparent 70%)', filter: 'blur(20px)' }} />
                   {/* Sombra que "respira" bajo el producto */}
                   <motion.div
                     className="absolute rounded-[50%] pointer-events-none"
-                    style={{ bottom: '34px', width: '55%', height: '18px', background: 'rgba(0,0,0,0.45)', filter: 'blur(10px)' }}
+                    style={{ bottom: images.length > 1 ? '68px' : '34px', width: '55%', height: '18px', background: 'rgba(0,0,0,0.45)', filter: 'blur(10px)' }}
                     animate={{ scaleX: [1, 0.82, 1], opacity: [0.45, 0.28, 0.45] }}
                     transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                   />
                   {/* Producto flotante */}
                   <motion.img
+                    key={imgSrc}
                     src={imgSrc}
                     alt={p.name}
                     className="relative z-10 object-contain p-6"
-                    style={{ maxHeight: '300px', width: '100%', filter: 'drop-shadow(0 14px 22px rgba(0,0,0,0.45))' }}
-                    animate={{ y: [0, -14, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ maxHeight: images.length > 1 ? '260px' : '300px', width: '100%', filter: 'drop-shadow(0 14px 22px rgba(0,0,0,0.45))' }}
+                    initial={{ opacity: 0.4 }}
+                    animate={{ opacity: 1, y: [0, -14, 0] }}
+                    transition={{
+                      opacity: { duration: 0.25, ease: 'easeOut' },
+                      y:       { duration: 4, repeat: Infinity, ease: 'easeInOut' },
+                    }}
                     onError={(e) => {
                       const t = e.currentTarget
-                      t.src = 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=600&q=80'
+                      t.src = FALLBACK_IMG
                     }}
                   />
 
@@ -134,6 +151,35 @@ export default function ProductModal({ product, onClose }: Props) {
                       }}
                     >
                       {p.badge}
+                    </div>
+                  )}
+
+                  {/* Miniaturas de la galería — solo si hay más de una imagen */}
+                  {images.length > 1 && (
+                    <div className="absolute bottom-3 left-0 right-0 z-20 flex items-center justify-center gap-2 px-4">
+                      {images.map((url, i) => (
+                        <button
+                          key={url + i}
+                          type="button"
+                          onClick={() => setActiveIdx(i)}
+                          aria-label={`Ver imagen ${i + 1}`}
+                          className="rounded-lg overflow-hidden flex-shrink-0 transition-all"
+                          style={{
+                            width: 40,
+                            height: 40,
+                            border: i === activeIdx ? '2px solid #7c3aed' : '2px solid rgba(255,255,255,0.15)',
+                            opacity: i === activeIdx ? 1 : 0.6,
+                            background: '#0f0f1a',
+                          }}
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
+                          />
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -182,9 +228,9 @@ export default function ProductModal({ product, onClose }: Props) {
                       </p>
                     )}
 
-                    {/* Descripción */}
+                    {/* Descripción — respeta los saltos de línea guardados (ej. viñetas "·") */}
                     {p.description && (
-                      <p className="text-white/55 text-sm leading-relaxed" style={{ fontFamily: 'Inter' }}>
+                      <p className="text-white/55 text-sm leading-relaxed" style={{ fontFamily: 'Inter', whiteSpace: 'pre-line' }}>
                         {p.description}
                       </p>
                     )}
