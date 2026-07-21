@@ -129,8 +129,10 @@ async function run() {
     process.exit(1)
   }
 
-  // 2. Transformar
-  const rows = wcProducts.map(transformProduct).filter(r => r.name)
+  // 2. Transformar — se excluyen juegos digitales/PlayStation (no se venden en esta tienda)
+  const rows = wcProducts.map(transformProduct)
+    .filter(r => r.name)
+    .filter(r => !/JUEGO/i.test(r.category))
   console.log(`🔄 Filas preparadas para insertar: ${rows.length}\n`)
 
   // 3. Limpiar tabla existente (mantiene estructura e IDs fresh)

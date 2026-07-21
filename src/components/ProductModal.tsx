@@ -1,6 +1,6 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, Star, ShoppingCart, Zap, Package, Shield, ChevronRight } from 'lucide-react'
+import { X, Star, ShoppingCart, Zap, Package, Shield, ChevronRight, ChevronDown } from 'lucide-react'
 import { useCartStore } from '../store/cartStore'
 import type { Product } from '../lib/supabase'
 
@@ -10,19 +10,50 @@ interface Props {
 }
 
 const BADGE_COLORS: Record<string, { bg: string; text: string }> = {
-  OFERTA: { bg: '#81d74220', text: '#81d742' },
-  NUEVO:  { bg: '#06b6d420', text: '#06b6d4' },
-  HOT:    { bg: '#f27d2620', text: '#f27d26' },
+  OFERTA: { bg: '#81d742', text: '#ffffff' },
+  NUEVO:  { bg: '#06b6d4', text: '#ffffff' },
+  HOT:    { bg: '#f27d26', text: '#ffffff' },
 }
+
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=700&q=80'
+const AUTO_ROTATE_MS = 3500
 
 export default function ProductModal({ product, onClose }: Props) {
   const { addItem, openCart } = useCartStore()
   const [activeIdx, setActiveIdx] = useState(0)
+  const [specsOpen, setSpecsOpen] = useState(false)
+  const [showAllSpecs, setShowAllSpecs] = useState(false)
+  const [descExpanded, setDescExpanded] = useState(false)
+  const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pausedRef = useRef(false)
 
-  // Reinicia la imagen activa cada vez que se abre un producto distinto
+  // Imagen principal + galería, sin duplicados (se calcula aunque product sea null)
+  const images = product
+    ? [product.img_url, ...(product.gallery ?? [])].filter(
+        (url, i, arr): url is string => !!url && arr.indexOf(url) === i
+      )
+    : []
+
+  // Reinicia la imagen activa y el acordeón de specs cada vez que se abre un producto distinto
   useEffect(() => {
     setActiveIdx(0)
+    setSpecsOpen(false)
+    setShowAllSpecs(false)
+    setDescExpanded(false)
   }, [product?.id])
+
+  // Rotación automática de la galería — avanza sola cada AUTO_ROTATE_MS,
+  // salvo que el usuario tenga el mouse sobre la imagen (pausedRef) o solo haya 1 foto.
+  useEffect(() => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    if (images.length > 1) {
+      timerRef.current = setInterval(() => {
+        if (!pausedRef.current) setActiveIdx(i => (i + 1) % images.length)
+      }, AUTO_ROTATE_MS)
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images.length, product?.id])
 
   if (!product) return null
 
@@ -35,12 +66,6 @@ export default function ProductModal({ product, onClose }: Props) {
 
   const badgeStyle = p.badge ? (BADGE_COLORS[p.badge] ?? { bg: '#ffffff15', text: '#ffffff80' }) : null
 
-  const FALLBACK_IMG = 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=700&q=80'
-
-  // Imagen principal + galería, sin duplicados
-  const images = [p.img_url, ...(p.gallery ?? [])].filter(
-    (url, i, arr): url is string => !!url && arr.indexOf(url) === i
-  )
   const imgSrc = images[activeIdx] || images[0] || FALLBACK_IMG
 
   function handleAddToCart() {
@@ -105,48 +130,60 @@ export default function ProductModal({ product, onClose }: Props) {
               </button>
 
               <div className="grid grid-cols-1 sm:grid-cols-2">
-                {/* Imagen */}
-                <div className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: images.length > 1 ? '350px' : '300px', background: 'radial-gradient(circle at 50% 40%, #14142a, #080810 75%)' }}>
+                {/* Imagen + galería */}
+                <div className="flex flex-col">
+                <div
+                  className="relative flex items-center justify-center overflow-hidden"
+                  style={{ minHeight: '300px', background: 'radial-gradient(circle at 50% 40%, #14142a, #080810 75%)' }}
+                  onMouseEnter={() => { pausedRef.current = true }}
+                  onMouseLeave={() => { pausedRef.current = false }}
+                >
                   {/* Halo suave detrás del producto */}
                   <div className="absolute w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.25), transparent 70%)', filter: 'blur(20px)' }} />
                   {/* Sombra que "respira" bajo el producto */}
                   <motion.div
                     className="absolute rounded-[50%] pointer-events-none"
-                    style={{ bottom: images.length > 1 ? '68px' : '34px', width: '55%', height: '18px', background: 'rgba(0,0,0,0.45)', filter: 'blur(10px)' }}
+                    style={{ bottom: '34px', width: '55%', height: '18px', background: 'rgba(0,0,0,0.45)', filter: 'blur(10px)' }}
                     animate={{ scaleX: [1, 0.82, 1], opacity: [0.45, 0.28, 0.45] }}
                     transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                  {/* Producto flotante */}
-                  <motion.img
-                    key={imgSrc}
-                    src={imgSrc}
-                    alt={p.name}
-                    className="relative z-10 object-contain p-6"
-                    style={{ maxHeight: images.length > 1 ? '260px' : '300px', width: '100%', filter: 'drop-shadow(0 14px 22px rgba(0,0,0,0.45))' }}
-                    initial={{ opacity: 0.4 }}
-                    animate={{ opacity: 1, y: [0, -14, 0] }}
-                    transition={{
-                      opacity: { duration: 0.25, ease: 'easeOut' },
-                      y:       { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-                    }}
-                    onError={(e) => {
-                      const t = e.currentTarget
-                      t.src = FALLBACK_IMG
-                    }}
-                  />
+                  {/* Producto flotante — crossfade entre fotos de la galería */}
+                  <AnimatePresence mode="sync">
+                    <motion.img
+                      key={imgSrc}
+                      src={imgSrc}
+                      alt={p.name}
+                      className="absolute inset-0 z-10 w-full h-full object-contain p-6"
+                      style={{ filter: 'drop-shadow(0 14px 22px rgba(0,0,0,0.45))' }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1, y: [0, -14, 0] }}
+                      exit={{ opacity: 0, transition: { duration: 0.4, ease: 'easeInOut' } }}
+                      transition={{
+                        opacity: { duration: 0.5, ease: 'easeOut' },
+                        y:       { duration: 4, repeat: Infinity, ease: 'easeInOut' },
+                      }}
+                      onError={(e) => {
+                        const t = e.currentTarget
+                        t.src = FALLBACK_IMG
+                      }}
+                    />
+                  </AnimatePresence>
 
                   {discount && (
-                    <div className="absolute top-4 left-4 bg-[#81d742] text-white text-xs font-black px-2.5 py-1 rounded-full">
+                    <div
+                      className="absolute top-4 left-4 z-20 bg-[#81d742] text-white text-xs font-black px-2.5 py-1 rounded-full"
+                      style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.4)' }}
+                    >
                       -{discount}%
                     </div>
                   )}
                   {p.badge && badgeStyle && (
                     <div
-                      className="absolute top-4 left-4 text-xs font-bold px-2.5 py-1 rounded-full"
+                      className="absolute top-4 left-4 z-20 text-xs font-bold px-2.5 py-1 rounded-full"
                       style={{
                         background: badgeStyle.bg,
                         color: badgeStyle.text,
-                        border: `1px solid ${badgeStyle.text}40`,
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.4)',
                         marginLeft: discount ? '52px' : 0,
                       }}
                     >
@@ -154,34 +191,39 @@ export default function ProductModal({ product, onClose }: Props) {
                     </div>
                   )}
 
-                  {/* Miniaturas de la galería — solo si hay más de una imagen */}
-                  {images.length > 1 && (
-                    <div className="absolute bottom-3 left-0 right-0 z-20 flex items-center justify-center gap-2 px-4">
-                      {images.map((url, i) => (
-                        <button
-                          key={url + i}
-                          type="button"
-                          onClick={() => setActiveIdx(i)}
-                          aria-label={`Ver imagen ${i + 1}`}
-                          className="rounded-lg overflow-hidden flex-shrink-0 transition-all"
-                          style={{
-                            width: 40,
-                            height: 40,
-                            border: i === activeIdx ? '2px solid #7c3aed' : '2px solid rgba(255,255,255,0.15)',
-                            opacity: i === activeIdx ? 1 : 0.6,
-                            background: '#0f0f1a',
-                          }}
-                        >
-                          <img
-                            src={url}
-                            alt=""
-                            className="w-full h-full object-cover"
-                            onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                </div>
+
+                {/* Miniaturas de la galería — franja propia debajo de la imagen, sin superponerse */}
+                {images.length > 1 && (
+                  <div
+                    className="flex items-center justify-center gap-2 py-3 px-4 flex-wrap"
+                    style={{ background: '#0c0c16', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    {images.map((url, i) => (
+                      <button
+                        key={url + i}
+                        type="button"
+                        onClick={() => setActiveIdx(i)}
+                        aria-label={`Ver imagen ${i + 1}`}
+                        className="rounded-lg overflow-hidden flex-shrink-0 transition-all"
+                        style={{
+                          width: 44,
+                          height: 44,
+                          border: i === activeIdx ? '2px solid #7c3aed' : '2px solid rgba(255,255,255,0.15)',
+                          opacity: i === activeIdx ? 1 : 0.6,
+                          background: '#0f0f1a',
+                        }}
+                      >
+                        <img
+                          src={url}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
                 </div>
 
                 {/* Info */}
@@ -228,27 +270,93 @@ export default function ProductModal({ product, onClose }: Props) {
                       </p>
                     )}
 
-                    {/* Descripción — respeta los saltos de línea guardados (ej. viñetas "·") */}
+                    {/* Descripción — trunca a 3 líneas con "Ver más" para no apilar la tarjeta */}
                     {p.description && (
-                      <p className="text-white/55 text-sm leading-relaxed" style={{ fontFamily: 'Inter', whiteSpace: 'pre-line' }}>
-                        {p.description}
-                      </p>
+                      <div className="mb-1">
+                        <p
+                          className="text-white/55 text-sm leading-relaxed"
+                          style={
+                            descExpanded
+                              ? { fontFamily: 'Inter', whiteSpace: 'pre-line' }
+                              : {
+                                  fontFamily: 'Inter',
+                                  whiteSpace: 'pre-line',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden',
+                                }
+                          }
+                        >
+                          {p.description}
+                        </p>
+                        {p.description.length > 140 && (
+                          <button
+                            type="button"
+                            onClick={() => setDescExpanded(v => !v)}
+                            className="text-brand-cyan text-xs font-semibold mt-1.5 hover:text-white transition-colors"
+                            style={{ fontFamily: 'Space Grotesk' }}
+                          >
+                            {descExpanded ? 'Ver menos ▴' : 'Ver más ▾'}
+                          </button>
+                        )}
+                      </div>
                     )}
 
-                    {/* Especificaciones técnicas */}
+                    {/* Especificaciones técnicas — acordeón desplegable, filas en zebra */}
                     {p.specs && p.specs.length > 0 && (
-                      <div className="mt-4 border-t border-white/5 pt-4">
-                        <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2" style={{ fontFamily: 'Space Grotesk' }}>
-                          Especificaciones
-                        </p>
-                        <div className="space-y-1.5">
-                          {p.specs.map((s, i) => (
-                            <div key={i} className="flex items-start justify-between gap-3 text-xs">
-                              <span className="text-white/40" style={{ fontFamily: 'Inter' }}>{s.label}</span>
-                              <span className="text-white/75 text-right font-medium" style={{ fontFamily: 'Inter' }}>{s.value}</span>
-                            </div>
-                          ))}
-                        </div>
+                      <div className="mt-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <button
+                          type="button"
+                          onClick={() => setSpecsOpen(o => !o)}
+                          className="w-full flex items-center justify-between px-4 py-3 text-left"
+                          style={{ background: 'rgba(255,255,255,0.03)' }}
+                        >
+                          <span className="text-white/80 text-xs font-bold uppercase tracking-wider" style={{ fontFamily: 'Space Grotesk' }}>
+                            Especificaciones
+                          </span>
+                          <motion.span
+                            animate={{ rotate: specsOpen ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex-shrink-0"
+                          >
+                            <ChevronDown size={16} className="text-white/50" />
+                          </motion.span>
+                        </button>
+
+                        <AnimatePresence initial={false}>
+                          {specsOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.25, ease: 'easeInOut' }}
+                              style={{ overflow: 'hidden' }}
+                            >
+                              {(showAllSpecs ? p.specs : p.specs.slice(0, 5)).map((s, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-start justify-between gap-3 px-4 py-2.5 text-xs"
+                                  style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent' }}
+                                >
+                                  <span className="text-white/70 font-semibold" style={{ fontFamily: 'Inter' }}>{s.label}</span>
+                                  <span className="text-white/50 text-right" style={{ fontFamily: 'Inter' }}>{s.value}</span>
+                                </div>
+                              ))}
+
+                              {p.specs.length > 5 && !showAllSpecs && (
+                                <button
+                                  type="button"
+                                  onClick={() => setShowAllSpecs(true)}
+                                  className="w-full py-2.5 text-xs font-semibold text-brand-cyan hover:text-white transition-colors"
+                                  style={{ fontFamily: 'Space Grotesk', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                                >
+                                  Mostrar más
+                                </button>
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     )}
                   </div>

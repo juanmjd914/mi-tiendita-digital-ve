@@ -368,7 +368,7 @@ function ProductTile({
       />
 
       {/* Zona de imagen — producto flotando sobre halo de luz */}
-      <div className="relative aspect-square overflow-hidden" style={{ background: 'radial-gradient(circle at 50% 30%, #14142a, #080810 78%)' }}>
+      <div className="relative aspect-square overflow-hidden flex items-center justify-center" style={{ background: 'radial-gradient(circle at 50% 30%, #14142a, #080810 78%)' }}>
         {/* Halo de color detrás del producto (verde→cian, marca de la tienda) */}
         <div
           className="absolute left-1/2 bottom-[14%] -translate-x-1/2 rounded-full pointer-events-none transition-opacity duration-300 opacity-70 group-hover:opacity-100"
@@ -384,13 +384,14 @@ function ProductTile({
           style={{ width: '50%', height: '10px', background: 'rgba(129,215,66,0.45)', filter: 'blur(6px)' }}
         />
 
+        {/* Tamaño en % (no padding fijo) para que se vea igual de grande en cualquier ancho de pantalla */}
         <motion.img
           src={imgSrc}
           alt={product.name}
           loading="lazy"
           decoding="async"
-          className={`relative z-10 w-full h-full object-contain p-7 transition-transform duration-500 group-hover:scale-[1.06] ${product.stock === 0 ? 'opacity-40 grayscale' : ''}`}
-          style={{ filter: 'drop-shadow(0 16px 20px rgba(0,0,0,0.5))' }}
+          className={`relative z-10 object-contain transition-transform duration-500 group-hover:scale-[1.06] ${product.stock === 0 ? 'opacity-40 grayscale' : ''}`}
+          style={{ maxWidth: '66%', maxHeight: '66%', width: 'auto', height: 'auto', filter: 'drop-shadow(0 16px 20px rgba(0,0,0,0.5))' }}
           whileHover={{ y: -6 }}
           onError={e => {
             e.currentTarget.src = 'https://mitienditadigitalve.com/wp-content/uploads/2021/12/Gabinete-MX410T-6.webp'

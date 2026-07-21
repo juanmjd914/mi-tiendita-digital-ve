@@ -81,7 +81,8 @@ export default function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 flex-shrink-0">
               <img src={LOGO_URL} alt="Mi Tiendita Digital Ve" className="h-14 w-14 object-contain" />
-              <span className="hidden sm:block text-white font-bold text-sm leading-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              {/* Texto junto al logo — visible también en móvil ahora */}
+              <span className="text-white font-bold text-sm leading-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                 Mi Tiendita<br /><span className="text-brand-violet">Digital Ve</span>
               </span>
             </Link>
