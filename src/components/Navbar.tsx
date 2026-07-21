@@ -35,6 +35,14 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Bloquea el scroll de la página de fondo mientras el menú móvil o el buscador están abiertos
+  useEffect(() => {
+    if (!mobileOpen && !showSearch) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prevOverflow }
+  }, [mobileOpen, showSearch])
+
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
     if (!openDropdown) return
