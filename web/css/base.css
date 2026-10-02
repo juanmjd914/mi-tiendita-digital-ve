@@ -277,3 +277,7 @@ body.has-sticky-bar .wa-float { bottom: calc(5.5rem + env(safe-area-inset-bottom
 .suggest__empty { margin: 0; padding: 1rem; font-size: 14px; color: var(--muted-2); }
 .suggest__empty a { color: var(--jade-2); text-decoration: underline; }
 .site-header.search-open .suggest { left: var(--gutter); right: var(--gutter); top: calc(100% - .4rem); }
+
+/* Protección general en celulares angostos: un botón con texto largo pasa a dos líneas
+   en vez de ensanchar la página. */
+@media (max-width: 420px) { .btn { white-space: normal; text-align: center; line-height: 1.25; max-width: 100%; } }

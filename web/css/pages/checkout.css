@@ -125,3 +125,8 @@
 @media (min-width: 1024px) { .co-mobile-bar { display: none; } }
 body:has(.co-mobile-bar) .wa-float { bottom: calc(5.5rem + env(safe-area-inset-bottom)); }
 @media (min-width: 1024px) { body:has(.co-mobile-bar) .wa-float { bottom: calc(1rem + env(safe-area-inset-bottom)); } }
+
+/* Móvil angosto: la columna del checkout no puede ser más ancha que la pantalla */
+.checkout { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1024px) { .checkout { grid-template-columns: minmax(0, 1fr) 400px; } }
+.co-card { min-width: 0; }
