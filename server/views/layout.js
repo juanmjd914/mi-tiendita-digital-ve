@@ -172,7 +172,7 @@ function footer(settings) {
     </div>
   </div>
   <div class="wrap site-footer__bottom">
-    <p>© ${new Date().getFullYear()} Mi Tiendita Digital Ve · ${settings.store_address || 'Rancagua, Chile'}</p>
+    <p>© ${new Date().getFullYear()} Mi Tiendita Digital Ve · ${settings.local_city || 'Rancagua'}, Región de O'Higgins, Chile</p>
     <p><a href="${wa}" target="_blank" rel="noopener">Contacto por WhatsApp</a> · <a href="mailto:${settings.contact_email}">${settings.contact_email}</a></p>
   </div>
 </footer>

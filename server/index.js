@@ -226,7 +226,6 @@ app.get('/api/store-config', async (_req, res) => {
       pickupEnabled:        s.pickup_enabled !== false,
       codEnabled:           s.cod_enabled !== false,
       localCity:            s.local_city || 'Rancagua',
-      storeAddress:         s.store_address || '',
       contactWhatsapp:      s.contact_whatsapp || '',
     })
   } catch (err) {

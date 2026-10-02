@@ -36,7 +36,7 @@ export function checkoutBody({ settings }) {
       <div class="options" role="radiogroup" aria-label="Método de entrega">
         ${settings.pickup_enabled !== false ? html`<label class="option">
           <input type="radio" name="deliveryMethod" value="pickup">
-          <span class="option__body"><strong>Retiro en local</strong><small>${settings.store_address || city} · Gratis</small></span>
+          <span class="option__body"><strong>Retiro en local</strong><small>${city} · Gratis · Te enviamos la dirección exacta al confirmar tu pedido</small></span>
         </label>` : ''}
         <label class="option">
           <input type="radio" name="deliveryMethod" value="local" checked>
