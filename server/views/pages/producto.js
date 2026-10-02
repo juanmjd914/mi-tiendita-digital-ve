@@ -147,6 +147,23 @@ export function productSchema(p, settings) {
     availability: (v.stock ?? 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     itemCondition: 'https://schema.org/NewCondition',
     seller: { '@type': 'Organization', name: 'Mi Tiendita Digital Ve' },
+    // Datos que Google recomienda para fichas de comerciante (mismos de Merchant Center)
+    shippingDetails: {
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: String(settings.shipping_flat_regions ?? 10000), currency: 'CLP' },
+      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'CL' },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: 5, maxValue: 8, unitCode: 'DAY' },
+      },
+    },
+    hasMerchantReturnPolicy: {
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'CL',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+      url: ORIGIN + '/politica-de-cambios-y-devoluciones',
+    },
     ...(p.variants?.length ? { name: `${p.name} — ${v.label}` } : {}),
   }))
   return [
