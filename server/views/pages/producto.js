@@ -158,12 +158,8 @@ export function productSchema(p, settings) {
         transitTime: { '@type': 'QuantitativeValue', minValue: 5, maxValue: 8, unitCode: 'DAY' },
       },
     },
-    hasMerchantReturnPolicy: {
-      '@type': 'MerchantReturnPolicy',
-      applicableCountry: 'CL',
-      returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
-      url: ORIGIN + '/politica-de-cambios-y-devoluciones',
-    },
+    // La política de devoluciones (solo productos defectuosos + cambios) vive en Merchant Center,
+    // que tiene prioridad; no se repite aquí para no contradecirla.
     ...(p.variants?.length ? { name: `${p.name} — ${v.label}` } : {}),
   }))
   return [
