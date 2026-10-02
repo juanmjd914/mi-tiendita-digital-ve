@@ -2,6 +2,7 @@
 import { cart, wishlist } from './store.js'
 import { toast, $, $$ } from './ui.js'
 import { readItem } from './analytics.js'
+import '../components/search-suggest.js'
 
 // ---------- Menú móvil ----------
 const menu = $('[data-menu]')

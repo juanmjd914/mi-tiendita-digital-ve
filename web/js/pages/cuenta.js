@@ -2,6 +2,7 @@ import { sb, requireSession, authFetch, authErrorEs } from '../core/auth.js'
 import { syncWishlist } from '../core/wishlist-sync.js'
 import { clp, esc, toast, $, $$ } from '../core/ui.js'
 import { validRut, formatRut } from '../core/rut.js'
+import { mountCaptcha } from '../core/captcha.js'
 
 const section = $('[data-account]')?.dataset.account
 const session = await requireSession()
@@ -261,6 +262,7 @@ async function direcciones() {
 // ================= CONTRASEÑA =================
 function password() {
   const form = $('[data-password]')
+  const captcha = mountCaptcha(form.querySelector('[data-captcha]'))
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
     showErr(form, '')
@@ -270,7 +272,10 @@ function password() {
     if (n1 !== $('#pw-new2').value) return showErr(form, 'Las contraseñas nuevas no coinciden.')
     busy(form, true)
     // Re-autenticación: confirma la contraseña actual antes de cambiarla
-    const { error: e1 } = await sb.auth.signInWithPassword({ email: user.email, password: cur })
+    let token
+    try { token = await (await captcha).token() } catch (ex) { busy(form, false); return showErr(form, ex.message) }
+    const { error: e1 } = await sb.auth.signInWithPassword({ email: user.email, password: cur, options: { captchaToken: token } })
+    ;(await captcha).reset()
     if (e1) { busy(form, false); return showErr(form, 'La contraseña actual no es correcta.') }
     const { error } = await sb.auth.updateUser({ password: n1 })
     busy(form, false)

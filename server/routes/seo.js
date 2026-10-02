@@ -4,6 +4,7 @@ import { getCatalog } from '../catalog-cache.js'
 import { getSettings } from '../settings.js'
 import { escapeHtml as x } from '../views/html.js'
 import { ORIGIN, SITE_NAME } from '../views/layout.js'
+import { SOCIAL, HOURS, HOURS_CLOSED, hoursLine } from '../store-info.js'
 
 const router = Router()
 const abs = (u) => (!u ? '' : u.startsWith('http') ? u : ORIGIN + u)
@@ -122,6 +123,8 @@ router.get('/llms.txt', async (_req, res, next) => {
       Number(s.free_shipping_min_rancagua) > 0 ? `- Envío gratis en ${s.local_city || 'Rancagua'} en compras desde ${clp(s.free_shipping_min_rancagua)}.` : '',
       '- Garantía legal de 6 meses por fallas de fabricación (Ley 19.496). Los productos no admiten derecho a retracto.',
       `- Contacto: ${s.contact_email} · WhatsApp +${String(s.contact_whatsapp).replace(/\D/g, '')}`,
+      `- Horario de atención: ${HOURS.map(hoursLine).join('; ')}. ${HOURS_CLOSED}.`,
+      `- Redes: ${SOCIAL.map(([, n, u]) => `[${n}](${u})`).join(' · ')}`,
       '',
       '## Páginas principales',
       '',

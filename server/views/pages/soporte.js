@@ -2,6 +2,7 @@ import { html } from '../html.js'
 import { icon } from '../icons.js'
 import { waLink } from '../layout.js'
 import { clp } from '../partials/product.js'
+import { HOURS, HOURS_CLOSED, hoursLine } from '../../store-info.js'
 
 export function soporteFaq(settings) {
   const city = settings.local_city || 'Rancagua'
@@ -12,7 +13,7 @@ export function soporteFaq(settings) {
     ['¿Qué garantía tienen los productos?', 'Todos los productos tienen garantía legal de 6 meses ante fallas de fabricación (Ley 19.496). Si el producto falla, puedes elegir cambio, reparación o devolución del dinero. Escríbenos con tu número de pedido y una foto o video de la falla.'],
     ['¿Puedo devolver un producto si me arrepiento?', 'Nuestros productos no admiten derecho a retracto, lo que se informa antes de cada compra. Siempre aplica la garantía legal por fallas de fabricación.'],
     ['¿Cómo pago de forma segura?', 'Puedes pagar con tarjetas de débito o crédito vía Webpay a través de Flow (no guardamos los datos de tu tarjeta), por transferencia bancaria o contra entrega en ' + city + '.'],
-    ['¿Emiten boleta o factura?', 'Por ahora no emitimos factura desde el sitio. Si necesitas un comprobante específico, escríbenos por WhatsApp antes de comprar.'],
+    ['¿Cuál es su horario de atención?', `${HOURS.map(hoursLine).join('. ')}. ${HOURS_CLOSED}. Fuera de ese horario puedes escribirnos por WhatsApp o por el formulario y te respondemos el siguiente día hábil.`],
   ]
 }
 
@@ -68,6 +69,7 @@ export function soporteBody({ settings }) {
     <div class="co-card sp-wa">
       <h2>${icon('whatsapp', { size: 20 })}Atención directa</h2>
       <p class="muted small">¿Duda antes de comprar? Conversa con nosotros por WhatsApp.</p>
+      <ul class="sp-hours">${HOURS.map((h) => html`<li><strong>${h.days}</strong><span>${h.from.replace(/^0/, '')} a ${h.to} h</span></li>`)}<li><strong>Domingos y festivos</strong><span>Cerrado</span></li></ul>
       <a class="btn btn--primary btn--block" href="${waLink(settings.contact_whatsapp, 'Hola, tengo una consulta')}" target="_blank" rel="noopener">Abrir WhatsApp</a>
     </div>
   </div>

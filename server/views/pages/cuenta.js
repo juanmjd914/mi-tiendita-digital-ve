@@ -14,7 +14,7 @@ const emailField = html`<div class="a-field">
   <div class="a-input">${icon('mail', { size: 18 })}<input id="email" name="email" type="email" autocomplete="email" required maxlength="120" placeholder="tucorreo@ejemplo.cl"></div>
 </div>`
 
-const turnstile = raw('<div class="a-captcha" data-captcha></div>')
+const turnstile = raw('<div class="captcha" data-captcha></div>')
 
 export function authBody(kind) {
   const views = {
@@ -154,6 +154,7 @@ export const passwordInner = html`<form class="acc-card" data-password novalidat
   <div class="strength" data-strength-bar><span></span></div>
   <div class="field"><label for="pw-new2">Confirmar nueva contraseña *</label><div class="pw-wrap"><input id="pw-new2" type="password" autocomplete="new-password" required><button type="button" class="a-eye" data-eye aria-label="Mostrar contraseña">${icon('eye', { size: 18 })}</button></div></div>
   <p class="form-error" data-error hidden></p>
+  <div class="captcha" data-captcha></div>
   <button class="btn btn--primary" type="submit">Actualizar contraseña</button>
 </form>`
 

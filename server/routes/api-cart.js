@@ -3,6 +3,7 @@ import { Router } from 'express'
 import { getCatalog } from '../catalog-cache.js'
 import { computeShipping } from '../shipping.js'
 import { getValidCoupon, computeDiscount } from '../coupons.js'
+import { filterCatalog } from '../views/pages/tienda.js'
 
 const router = Router()
 
@@ -53,6 +54,27 @@ export async function quoteCart({ items, couponCode, deliveryMethod, comuna }) {
     canCheckout: valid.length > 0 && valid.every((l) => !l.outOfStock && !l.notEnough),
   }
 }
+
+// Sugerencias del buscador: hasta 6 productos que coinciden + total de resultados.
+router.get('/api/search', async (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim().slice(0, 60)
+    if (q.length < 2) return res.json({ total: 0, items: [] })
+    const list = filterCatalog(await getCatalog(), { search: q })
+    res.set('Cache-Control', 'no-store').json({
+      total: list.length,
+      items: list.slice(0, 6).map((p) => ({
+        name: p.name, brand: p.brand, category: p.category, price: p.price,
+        original_price: p.original_price && p.original_price > p.price ? p.original_price : null,
+        url: `/producto/${p.slug}`, img: (p.img_url || '').replace(/(\/img\/productos\/.+)\.webp$/, '$1-400.webp'),
+        out: (p.stock ?? 0) <= 0,
+      })),
+    })
+  } catch (err) {
+    console.error('/api/search:', err.message)
+    res.status(500).json({ total: 0, items: [] })
+  }
+})
 
 router.post('/api/cart/quote', async (req, res) => {
   try {

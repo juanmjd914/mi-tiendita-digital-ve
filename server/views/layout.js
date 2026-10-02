@@ -1,5 +1,6 @@
 import { html, raw, jsonLd } from './html.js'
 import { icon } from './icons.js'
+import { SOCIAL, HOURS, HOURS_CLOSED, hoursLine, openingHoursSchema } from '../store-info.js'
 
 export const ORIGIN    = 'https://mitienditadigitalve.com'
 export const SITE_NAME = 'Mi Tiendita Digital Ve'
@@ -7,12 +8,6 @@ const GA_ID  = process.env.GA_ID  || 'G-Z2JC4X40WV'
 const GTM_ID = process.env.GTM_ID || ''
 export const ASSET_V = process.env.ASSET_VERSION || String(Date.now())
 
-// Enlaces de redes: se muestran solo los que estén configurados (Juan los pasará).
-const SOCIAL = [
-  ['instagram', 'Instagram', process.env.SOCIAL_INSTAGRAM],
-  ['facebook',  'Facebook',  process.env.SOCIAL_FACEBOOK],
-  ['tiktok',    'TikTok',    process.env.SOCIAL_TIKTOK],
-]
 
 const NAV = [
   ['inicio',   'Inicio',   '/'],
@@ -57,6 +52,7 @@ ${process.env.GOOGLE_SITE_VERIFICATION ? html`<meta name="google-site-verificati
 <meta name="twitter:image" content="${img}">
 <meta name="supabase-url" content="${process.env.SUPABASE_URL || ''}">
 <meta name="supabase-anon-key" content="${process.env.SUPABASE_ANON_KEY || ''}">
+${process.env.TURNSTILE_SITE_KEY ? html`<meta name="turnstile-site-key" content="${process.env.TURNSTILE_SITE_KEY}">` : ''}
 <link rel="icon" type="image/png" href="/img/logo.png">
 <link rel="apple-touch-icon" href="/img/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,7 +82,7 @@ function header(active) {
     <form class="site-search" action="/tienda" method="get" role="search" data-search>
       ${icon('search', { size: 18, cls: 'site-search__icon' })}
       <label class="sr-only" for="q">Buscar productos</label>
-      <input id="q" name="search" type="search" placeholder="Buscar audífonos, cables, accesorios gamer…" autocomplete="off">
+      <input id="q" name="search" type="search" placeholder="Buscar audífonos, cables, accesorios gamer…" autocomplete="off" data-suggest>
     </form>
     <div class="site-header__actions">
       <button class="icon-btn site-header__search-toggle" type="button" aria-label="Buscar" data-search-toggle>${icon('search')}</button>
@@ -123,6 +119,15 @@ export function benefits(settings) {
 </section>`
 }
 
+// Horario: en escritorio va bajo las redes (columna de la marca); en móvil, al final de "Atención y envíos".
+const hoursBlock = (where) => html`<div class="site-footer__hours-wrap site-footer__hours-wrap--${where}">
+  <h2 class="site-footer__title site-footer__title--sub">Horario de atención</h2>
+  <ul class="site-footer__hours">
+    ${HOURS.map((h) => html`<li>${icon('clock', { size: 16 })}<span>${hoursLine(h)}</span></li>`)}
+    <li class="muted">${HOURS_CLOSED}</li>
+  </ul>
+</div>`
+
 function footer(settings) {
   const wa = waLink(settings.contact_whatsapp, 'Hola, tengo una consulta sobre Mi Tiendita Digital Ve')
   const social = SOCIAL.filter(([, , url]) => url)
@@ -135,6 +140,7 @@ function footer(settings) {
         <a class="icon-btn icon-btn--accent" href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp">${icon('whatsapp')}</a>
         ${social.map(([name, label, url]) => html`<a class="icon-btn" href="${url}" target="_blank" rel="noopener" aria-label="${label}">${icon(name)}</a>`)}
       </div>
+      ${hoursBlock('desk')}
     </div>
     <div>
       <h2 class="site-footer__title">Tienda</h2>
@@ -154,6 +160,7 @@ function footer(settings) {
         <li><a href="/terminos-y-condiciones">Términos y condiciones</a></li>
         <li><a href="/politica-de-privacidad">Política de privacidad</a></li>
       </ul>
+      ${hoursBlock('mob')}
     </div>
     <div>
       <h2 class="site-footer__title">Pagos protegidos</h2>
@@ -204,6 +211,7 @@ export function organizationSchema(settings) {
     areaServed: 'CL',
     currenciesAccepted: 'CLP',
     paymentAccepted: 'Webpay, tarjeta de débito, tarjeta de crédito, transferencia bancaria, pago contra entrega',
+    openingHoursSpecification: openingHoursSchema(),
     sameAs: SOCIAL.map(([, , url]) => url).filter(Boolean),
   }
 }

@@ -53,3 +53,9 @@
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
 .form-ok { padding: .8rem 1rem; border-radius: var(--r-md); background: var(--jade-soft); border: 1px solid var(--jade-line); color: var(--text-2); font-size: 14px; }
+
+/* Horario en la tarjeta de WhatsApp (Soporte) */
+.sp-hours { list-style: none; margin: .2rem 0 1rem; padding: .8rem 1rem; display: grid; gap: .35rem; border-radius: var(--r-md); background: var(--bg); border: 1px solid var(--line); font-size: 13.5px; }
+.sp-hours li { display: flex; justify-content: space-between; gap: 1rem; }
+.sp-hours strong { color: var(--text-2); font-weight: 600; }
+.sp-hours span { color: var(--muted-2); }

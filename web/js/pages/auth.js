@@ -1,6 +1,7 @@
 import { sb, getSession, authErrorEs } from '../core/auth.js'
 import { syncWishlist } from '../core/wishlist-sync.js'
 import { $, $$ } from '../core/ui.js'
+import { mountCaptcha } from '../core/captcha.js'
 
 const form = $('[data-auth]')
 const kind = form?.dataset.auth
@@ -48,6 +49,9 @@ const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
 
 if (kind === 'registro' && params.get('email')) form.elements.email.value = params.get('email')
 
+// Anti-bots (Cloudflare Turnstile) en login, registro y recuperar contraseña
+const captcha = await mountCaptcha(form?.querySelector('[data-captcha]'))
+
 // Si ya hay sesión, login y registro no tienen sentido
 if (kind === 'login' || kind === 'registro') {
   getSession().then((s) => { if (s) location.replace(next) })
@@ -60,7 +64,7 @@ form?.addEventListener('submit', async (e) => {
     busy(true)
     if (kind === 'login') {
       if (!validEmail(val('email'))) throw new Error('Ingresa un correo válido.')
-      const { data, error } = await sb.auth.signInWithPassword({ email: val('email'), password: form.elements.password.value })
+      const { data, error } = await sb.auth.signInWithPassword({ email: val('email'), password: form.elements.password.value, options: { captchaToken: await captcha.token() } })
       if (error) throw new Error(authErrorEs(error))
       await syncWishlist(data.user.id).catch(() => {})
       location.replace(next)
@@ -75,6 +79,7 @@ form?.addEventListener('submit', async (e) => {
         password: form.elements.password.value,
         options: {
           emailRedirectTo: `${location.origin}/cuenta`,
+          captchaToken: await captcha.token(),
           data: { first_name: val('firstName'), last_name: val('lastName'), marketing_opt_in: form.elements.optin.checked },
         },
       })
@@ -85,7 +90,7 @@ form?.addEventListener('submit', async (e) => {
     }
     if (kind === 'recuperar') {
       if (!validEmail(val('email'))) throw new Error('Ingresa un correo válido.')
-      const { error } = await sb.auth.resetPasswordForEmail(val('email'), { redirectTo: `${location.origin}/cuenta/nueva-password` })
+      const { error } = await sb.auth.resetPasswordForEmail(val('email'), { redirectTo: `${location.origin}/cuenta/nueva-password`, captchaToken: await captcha.token() })
       if (error) throw new Error(authErrorEs(error))
       ok('Si el correo está registrado, te llegará un enlace para crear una nueva contraseña. Revisa también la carpeta de spam.')
     }
@@ -103,5 +108,6 @@ form?.addEventListener('submit', async (e) => {
     err(ex.message)
   } finally {
     busy(false)
+    captcha.reset() // cada token sirve una sola vez
   }
 })

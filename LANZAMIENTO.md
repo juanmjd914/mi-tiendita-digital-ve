@@ -10,7 +10,7 @@ Estado al cierre del 2026-10-01: sitio completo en local, migraciones 004–008 
 - [ ] **Juan termina de revisar la compra de prueba**: registro/login, carrito, checkout por transferencia o contra entrega, Gracias, correos, Mi Cuenta → pedidos, panel (confirmar pago, despacho con seguimiento), Soporte → consulta tu pedido, reseña. Webpay NO se prueba en local.
 - [ ] **Limpieza después de la revisión** (cuando Juan lo pida): borrar el producto de prueba `producto-de-prueba` (id 408), los pedidos de prueba y sus ítems, reseñas de prueba, registros de `stock_adjustments` de prueba, y reiniciar `order_counters` del día. Preguntar si conserva la cuenta de cliente que creó para probar.
 - [ ] Revisar lo que Juan encuentre. Ya corregido el 2026-10-01: carrusel del inicio (pool con stock), carrito vacío centrado, botón "Vaciar favoritos" y botones de Mis direcciones (estilo `.link-btn` movido a base.css), regreso a Mi cuenta desde Favoritos.
-- [ ] **Turnstile** (ver abajo).
+- [x] **Turnstile** integrado (ver abajo); falta activarlo en Supabase al lanzar.
 - [ ] Commit local de todo el trabajo (pedir permiso; nunca push sin autorización).
 
 ## 1. Antes del lanzamiento
@@ -18,9 +18,9 @@ Estado al cierre del 2026-10-01: sitio completo en local, migraciones 004–008 
 - [ ] **Cargar el stock** de los 187 productos desde el panel → Stock. Sin stock, la tienda y Merchant Center los muestran "agotados".
 - [x] Rediseño de correos Obsidian Jade + datos escapados + correo de contra entrega + aviso de pedido nuevo a la tienda (2026-10-01). Al lanzar: confirmar que las fotos de productos se vean en Gmail (dependen del dominio real).
 - [x] Mascota del 404: opción A aprobada por Juan (2026-10-01), `web/img/mascota-404.webp`; original en `mi tiendita digital ve e-commerce/assets/mascota-404.png`.
-- [ ] Cloudflare Turnstile en login/registro/recuperar (Juan crea el sitio en Cloudflare y entrega site key + secret).
+- [x] Cloudflare Turnstile integrado (2026-10-02) en login, registro, recuperar y cambiar contraseña. Claves en `.env` local (`TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`).
+- [x] Supabase Auth (2026-10-02): Redirect URLs, plantillas en español (`supabase/auth-templates/`) y SMTP con Resend.
 - [ ] Datos reales que faltan: imagen del hero limpia, enlaces de Instagram / Facebook / TikTok (`SOCIAL_INSTAGRAM`, `SOCIAL_FACEBOOK`, `SOCIAL_TIKTOK`), horarios, testimonios/cifras reales (si se quieren mostrar).
-- [ ] Supabase Auth: agregar `https://mitienditadigitalve.com/cuenta/nueva-password` a las URLs de redirección permitidas y traducir al español las plantillas de correo de Auth.
 - [ ] Revisión de un abogado de las páginas legales (recomendado).
 - [ ] Rotar la API key de Stitch (quedó expuesta en un chat).
 

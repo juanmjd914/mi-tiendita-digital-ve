@@ -22,7 +22,7 @@ export function filterCatalog(catalog, { cat, search, badge, orden }) {
   if (search) {
     const terms = norm(search).split(/\s+/).filter(Boolean)
     list = list.filter((p) => {
-      const hay = norm(`${p.name} ${p.brand || ''} ${p.category || ''} ${p.short_description || ''}`)
+      const hay = norm(`${p.name} ${p.brand || ''} ${p.category || ''} ${p.short_description || ''} ${p.sku || ''} ${(p.variants || []).map((v) => v.label).join(' ')}`)
       return terms.every((t) => hay.includes(t))
     })
   }
@@ -31,6 +31,16 @@ export function filterCatalog(catalog, { cat, search, badge, orden }) {
   else if (orden === 'precio-desc') sorted.sort((a, b) => b.price - a.price)
   else if (orden === 'nuevos') sorted.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
   else if (orden === 'nombre') sorted.sort((a, b) => a.name.localeCompare(b.name, 'es'))
+  else if (search) {
+    // Relevancia: frase completa en el nombre > todas las palabras en el nombre > marca > resto
+    const q = norm(search).trim()
+    const terms = q.split(/\s+/).filter(Boolean)
+    const score = (p) => {
+      const name = norm(p.name)
+      return (name.includes(q) ? 4 : 0) + (name.startsWith(terms[0]) ? 2 : 0) + (terms.every((t) => name.includes(t)) ? 2 : 0) + (terms.some((t) => norm(p.brand) === t) ? 1 : 0)
+    }
+    sorted.sort((a, b) => score(b) - score(a) || (stockState(a) === 'out') - (stockState(b) === 'out') || (b.featured - a.featured))
+  }
   else sorted.sort((a, b) => (stockState(a) === 'out') - (stockState(b) === 'out') || (b.featured - a.featured))
   return sorted
 }
@@ -91,7 +101,7 @@ export function tiendaBody({ catalog, params, categories }) {
   <form class="shop__bar" method="get" action="/tienda">
     ${params.cat ? html`<input type="hidden" name="cat" value="${params.cat}">` : ''}
     ${params.badge ? html`<input type="hidden" name="badge" value="${params.badge}">` : ''}
-    <div class="shop__search">${icon('search', { size: 18 })}<label class="sr-only" for="shop-q">Buscar</label><input id="shop-q" name="search" type="search" value="${params.search || ''}" placeholder="Buscar en el catálogo…"></div>
+    <div class="shop__search">${icon('search', { size: 18 })}<label class="sr-only" for="shop-q">Buscar</label><input id="shop-q" name="search" type="search" autocomplete="off" data-suggest value="${params.search || ''}" placeholder="Buscar en el catálogo…"></div>
     <label class="shop__sort"><span>Ordenar por</span>
       <select name="orden" data-autosubmit>${SORTS.map(([v, l]) => html`<option value="${v}"${(params.orden || 'relevancia') === v ? raw(' selected') : ''}>${l}</option>`)}</select>
     </label>
