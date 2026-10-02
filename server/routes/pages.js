@@ -249,6 +249,15 @@ router.get('/admin', (_req, res) => {
   res.set('X-Robots-Tag', 'noindex, nofollow')
   send(res, String(adminPage()))
 })
+// Direcciones de la época de WordPress que pueden seguir en Google o en Merchant Center
+const LEGACY_REDIRECTS = {
+  '/reembolso_devoluciones': '/politica-de-cambios-y-devoluciones',
+  '/wp-content/uploads/rex-feed/feed-4817.xml': '/feed/google-merchant.xml',
+}
+for (const [from, to] of Object.entries(LEGACY_REDIRECTS)) {
+  router.get([from, `${from}/`], (_req, res) => res.redirect(301, to))
+}
+
 // Compatibilidad con la ruta antigua del panel
 router.get('/ADMIN', (_req, res) => res.redirect(301, '/admin'))
 
