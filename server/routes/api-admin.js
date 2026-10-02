@@ -140,7 +140,7 @@ router.get('/api/admin/overview', requireAuth, async (_req, res) => {
     startOfDay.setHours(0, 0, 0, 0)
     const startOfMonth = new Date(startOfDay.getFullYear(), startOfDay.getMonth(), 1)
     const [orders, products, variants, reviews] = await Promise.all([
-      supabase.from('orders').select('id, order_number, total, status, fulfillment_status, created_at, paid_at, customer_name, payment_method').gte('created_at', new Date(Date.now() - 90 * 864e5).toISOString()).order('created_at', { ascending: false }),
+      supabase.from('orders').select('id, order_number, total, status, fulfillment_status, delivery_method, created_at, paid_at, customer_name, payment_method').gte('created_at', new Date(Date.now() - 90 * 864e5).toISOString()).order('created_at', { ascending: false }),
       supabase.from('products').select('id, stock, low_stock_threshold, active'),
       supabase.from('product_variants').select('product_id, stock, active'),
       supabase.from('product_reviews').select('id', { count: 'exact', head: true }).eq('status', 'pending'),

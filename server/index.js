@@ -913,9 +913,10 @@ app.post('/api/admin/orders/:id/fulfillment', requireAuth, async (req, res) => {
     const status = String(req.body?.fulfillment_status || '')
     if (!VALID.includes(status)) return res.status(400).json({ error: 'Estado de envío inválido' })
 
+    const { data: before } = await supabase.from('orders').select('fulfillment_status').eq('id', req.params.id).maybeSingle()
     const updates = { fulfillment_status: status }
     if ('tracking_code' in req.body) updates.tracking_code = String(req.body.tracking_code || '').trim() || null
-    if (status === 'shipped') updates.shipped_at = new Date().toISOString()
+    if (status === 'shipped' && before?.fulfillment_status !== 'shipped') updates.shipped_at = new Date().toISOString()
 
     const { data: order, error } = await supabase
       .from('orders').update(updates).eq('id', req.params.id)
@@ -923,8 +924,10 @@ app.post('/api/admin/orders/:id/fulfillment', requireAuth, async (req, res) => {
     if (error) throw error
 
     // Avisar al cliente cuando el pedido se marca como enviado
-    if (status === 'shipped' && order?.customer_email) {
-      import('./email.js').then(m => m.sendShippedNotification?.({ order, items: order.order_items || [] })).catch(() => {})
+    // Solo cuando cambia a ese estado (si se vuelve a guardar igual, no se repite el correo)
+    if (status === 'shipped' && before?.fulfillment_status !== 'shipped' && order?.customer_email) {
+      // Retiro en local: "listo para retirar"; despacho: "va en camino"
+      import('./email.js').then(m => (order.delivery_method === 'pickup' ? m.sendReadyForPickup : m.sendShippedNotification)?.({ order, items: order.order_items || [] })).catch(() => {})
     }
 
     res.json({ ok: true, order })

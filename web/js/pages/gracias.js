@@ -56,7 +56,9 @@ function render(o, status) {
       title.textContent = '¡Gracias por tu compra!'
       sub.textContent = 'Tu pago fue confirmado. Te enviamos el detalle a tu correo.'
       stage = 2
-      cart.clear(); savedCoupon.set('')
+      // Solo al volver de Flow recién pagado (con ?token=); si el cliente abre el seguimiento
+      // días después desde el correo, no se le vacía el carrito actual.
+      if (token) { cart.clear(); savedCoupon.set('') }
       purchaseEvent(o)
     } else if (status === 'pending') {
       title.textContent = 'Estamos confirmando tu pago…'
@@ -83,6 +85,18 @@ function render(o, status) {
   }
   if (o.fulfillment === 'shipped') stage = 3
   if (o.fulfillment === 'delivered') stage = 4
+  // Seguimiento: si el pedido ya avanzó, el título muestra el estado actual
+  if (!['rejected', 'cancelled'].includes(status) && status !== 'pending') {
+    if (o.fulfillment === 'shipped') {
+      title.textContent = pickup ? '¡Tu pedido está listo para retirar!' : '¡Tu pedido va en camino!'
+      sub.textContent = pickup ? 'Ya puedes pasar a buscarlo a nuestro local. Presenta tu N° de pedido.' : (o.tracking ? `Código de seguimiento: ${o.tracking}` : 'Te contactaremos si necesitamos coordinar la entrega.')
+    } else if (o.fulfillment === 'delivered') {
+      title.textContent = pickup ? 'Pedido retirado' : 'Pedido entregado'
+      sub.textContent = '¡Gracias por comprar en Mi Tiendita Digital Ve! Esperamos que lo disfrutes.'
+    } else if (o.fulfillment === 'preparing') {
+      sub.textContent = `${sub.textContent} Ya estamos preparando tu pedido.`.trim()
+    }
+  }
 
   const created = new Date(o.createdAt)
   const eta = pickup ? 'Te avisaremos cuando esté listo'
@@ -90,8 +104,8 @@ function render(o, status) {
       : `Entre el ${short(addDays(created, 5))} y el ${short(addDays(created, 8))}`
   const steps = [
     ['Pedido realizado', fmtDate(o.createdAt)],
-    [pickup ? 'Listo para retiro' : 'Listo para despacho', stage >= 2 ? 'En preparación' : 'Pendiente de pago'],
-    [pickup ? 'Retiro en local' : 'Entrega estimada', o.tracking ? `Seguimiento: ${o.tracking}` : eta],
+    [pickup ? 'Listo para retiro' : 'Listo para despacho', stage >= 3 ? (pickup ? 'Listo' : 'Despachado') : stage >= 2 ? 'En preparación' : 'Pendiente de pago'],
+    [pickup ? 'Retiro en local' : 'Entrega estimada', stage >= 4 ? (pickup ? 'Retirado' : 'Entregado') : pickup && stage >= 3 ? 'Ya puedes retirarlo' : o.tracking ? `Seguimiento: ${o.tracking}` : eta],
   ]
   $('[data-t-track]').innerHTML = steps.map(([t, d], i) => `<li class="track__step${i < stage ? ' is-done' : ''}${i === stage ? ' is-current' : ''}"><span class="track__dot"></span><strong>${esc(t)}</strong><small>${esc(d)}</small></li>`).join('')
 
@@ -117,7 +131,7 @@ function render(o, status) {
   const logged = Boolean(window.mtdAuth?.accessToken?.())
   $('[data-t-register]').hidden = logged
   if (!logged) {
-    $('[data-t-register]').href = `/cuenta/registro?email=${encodeURIComponent(o.customer.email || '')}`
+    $('[data-t-register]').href = `/cuenta/registro?email=${encodeURIComponent(o.customer.email || '')}&next=${encodeURIComponent('/cuenta/pedidos')}`
     $('[data-t-myorder]').href = '/cuenta/login?next=/cuenta/pedidos'
   }
   $('[data-t-loading]').hidden = true

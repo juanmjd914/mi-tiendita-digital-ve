@@ -1,4 +1,4 @@
-import { api, run, clp, esc, fmtDate, orderNo, statusPill, fulfillPill, PAY, FULFILL, drawer, debounce, $ } from '../lib.js'
+import { api, run, clp, esc, fmtDate, orderNo, statusPill, fulfillPill, fulfillMap, PAY, drawer, debounce, $ } from '../lib.js'
 
 const FILTERS = [
   ['', 'Todos'],
@@ -26,7 +26,7 @@ export async function render(view, ctx) {
       ${rows.map((o) => `<tr class="is-click" data-order="${esc(o.id)}"><td class="nowrap"><strong>${esc(orderNo(o))}</strong></td><td class="nowrap">${fmtDate(o.created_at)}</td>
         <td class="name"><strong>${esc(o.customer_name || '—')}</strong><span>${esc(o.customer_email || '')}</span></td>
         <td>${o.delivery_method === 'pickup' ? 'Retiro' : esc(o.customer_comuna || 'Despacho')}</td>
-        <td>${esc(PAY[o.payment_method] || o.payment_method || '—')}</td><td>${statusPill(o.status)}</td><td>${fulfillPill(o.fulfillment_status)}</td><td class="num">${clp(o.total)}</td></tr>`).join('')}
+        <td>${esc(PAY[o.payment_method] || o.payment_method || '—')}</td><td>${statusPill(o.status)}</td><td>${fulfillPill(o.fulfillment_status, o)}</td><td class="num">${clp(o.total)}</td></tr>`).join('')}
       </tbody></table></div>` : '<p class="empty">No hay pedidos con este filtro.</p>'
   }
   const load = async () => {
@@ -59,6 +59,7 @@ export async function openOrder(id, onChange) {
   d.el.querySelector('.drawer__head h2').textContent = `Pedido ${orderNo(o)}`
 
   const items = o.order_items || []
+  const pickup = o.delivery_method === 'pickup'
   const subtotal = items.reduce((n, it) => n + (it.price || 0) * (it.quantity || 0), 0)
   const address = o.delivery_method === 'pickup'
     ? 'Retiro en tienda'
@@ -68,7 +69,7 @@ export async function openOrder(id, onChange) {
   const canResend = ['pending_transfer', 'pending_cod', 'paid'].includes(o.status)
   const canFulfill = o.status === 'paid' || o.status === 'pending_cod'
 
-  d.body.innerHTML = `<div class="toolbar">${statusPill(o.status)} ${fulfillPill(o.fulfillment_status)} <span class="pill">${esc(PAY[o.payment_method] || o.payment_method || '—')}</span></div>
+  d.body.innerHTML = `<div class="toolbar">${statusPill(o.status)} ${fulfillPill(o.fulfillment_status, o)} <span class="pill">${esc(PAY[o.payment_method] || o.payment_method || '—')}</span></div>
   <div class="grid-2">
     <section class="card"><h2>Cliente</h2><dl class="dl">
       <dt>Nombre</dt><dd>${esc(o.customer_name || '—')}</dd>
@@ -83,8 +84,8 @@ export async function openOrder(id, onChange) {
       ${o.customer_reference ? `<dt>Referencia</dt><dd>${esc(o.customer_reference)}</dd>` : ''}
       <dt>Creado</dt><dd>${fmtDate(o.created_at)}</dd>
       ${o.paid_at ? `<dt>Pagado</dt><dd>${fmtDate(o.paid_at)}</dd>` : ''}
-      ${o.shipped_at ? `<dt>Enviado</dt><dd>${fmtDate(o.shipped_at)}</dd>` : ''}
-      ${o.delivered_at ? `<dt>Entregado</dt><dd>${fmtDate(o.delivered_at)}</dd>` : ''}
+      ${o.shipped_at ? `<dt>${pickup ? 'Listo para retirar' : 'Enviado'}</dt><dd>${fmtDate(o.shipped_at)}</dd>` : ''}
+      ${o.delivered_at ? `<dt>${pickup ? 'Retirado' : 'Entregado'}</dt><dd>${fmtDate(o.delivered_at)}</dd>` : ''}
     </dl></section>
   </div>
   <section class="card"><h2>Productos</h2><ul class="items">${items.map((it) => `<li><img src="${esc(it.img_url || '/img/logo.webp')}" alt="" loading="lazy"><div><strong>${esc(it.name)}</strong><span>${it.variant_label ? `${esc(it.variant_label)} · ` : ''}${it.quantity} × ${clp(it.price)}</span></div><b>${clp((it.price || 0) * (it.quantity || 0))}</b></li>`).join('')}</ul>
@@ -93,10 +94,10 @@ export async function openOrder(id, onChange) {
       <div><span>Envío</span><span>${o.shipping_cost ? clp(o.shipping_cost) : 'Gratis'}</span></div>
       <div class="total"><span>Total</span><span>${clp(o.total)}</span></div></div>
   </section>
-  ${canFulfill ? `<section class="card"><h2>Despacho</h2><form class="form-grid form-grid--2" data-fulfill>
-    <label class="fld"><span>Estado del despacho</span><select class="sel" name="fulfillment_status">${Object.entries(FULFILL).map(([v, [l]]) => `<option value="${v}"${(o.fulfillment_status || 'pending') === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
-    <label class="fld"><span>Código de seguimiento</span><input class="inp" name="tracking_code" value="${esc(o.tracking_code || '')}" placeholder="Opcional"></label>
-    <div class="fld--full"><button class="btn btn--primary btn--sm" type="submit">Guardar despacho</button> <small class="muted">Al marcar "En camino" se avisa al cliente por correo.</small></div>
+  ${canFulfill ? `<section class="card"><h2>${pickup ? 'Retiro en local' : 'Despacho'}</h2><form class="form-grid form-grid--2" data-fulfill>
+    <label class="fld"><span>${pickup ? 'Estado del retiro' : 'Estado del despacho'}</span><select class="sel" name="fulfillment_status">${Object.entries(fulfillMap(o)).map(([v, [l]]) => `<option value="${v}"${(o.fulfillment_status || 'pending') === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+    ${pickup ? '<input type="hidden" name="tracking_code" value="">' : `<label class="fld"><span>Código de seguimiento</span><input class="inp" name="tracking_code" value="${esc(o.tracking_code || '')}" placeholder="Opcional"></label>`}
+    <div class="fld--full"><button class="btn btn--primary btn--sm" type="submit">${pickup ? 'Guardar estado' : 'Guardar despacho'}</button> <small class="muted">${pickup ? 'Al marcar "Listo para retirar" se avisa al cliente por correo que puede pasar a buscarlo.' : 'Al marcar "En camino" se avisa al cliente por correo.'}</small></div>
   </form></section>` : ''}
   <section class="card"><h2>Notas internas</h2><form data-notes><textarea class="txt" name="admin_notes" placeholder="Solo las ves tú">${esc(o.admin_notes || '')}</textarea><button class="btn btn--ghost btn--sm" type="submit" style="margin-top:.6rem">Guardar nota</button></form></section>`
 
@@ -123,7 +124,7 @@ export async function openOrder(id, onChange) {
   $('[data-fulfill]', d.body)?.addEventListener('submit', async (e) => {
     e.preventDefault()
     const f = e.target
-    const ok = await run(() => api(`/api/admin/orders/${id}/fulfillment`, { method: 'POST', body: { fulfillment_status: f.fulfillment_status.value, tracking_code: f.tracking_code.value } }), 'Despacho actualizado')
+    const ok = await run(() => api(`/api/admin/orders/${id}/fulfillment`, { method: 'POST', body: { fulfillment_status: f.fulfillment_status.value, tracking_code: f.tracking_code.value } }), pickup ? 'Estado del retiro actualizado' : 'Despacho actualizado')
     if (ok) reopen()
   })
   $('[data-notes]', d.body).addEventListener('submit', (e) => {

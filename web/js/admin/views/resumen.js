@@ -17,7 +17,7 @@ export async function render(view, ctx) {
   </div>
   <section class="card"><h2>Últimos pedidos</h2>
     ${o.recentOrders.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Pago</th><th>Estado</th><th>Despacho</th><th class="num">Total</th></tr></thead><tbody>
-      ${o.recentOrders.map((r) => `<tr class="is-click" data-order="${esc(r.id)}"><td class="nowrap"><strong>${esc(orderNo(r))}</strong></td><td class="nowrap">${fmtDate(r.created_at)}</td><td>${esc(r.customer_name || '—')}</td><td>${esc(PAY[r.payment_method] || r.payment_method || '—')}</td><td>${statusPill(r.status)}</td><td>${fulfillPill(r.fulfillment_status)}</td><td class="num">${clp(r.total)}</td></tr>`).join('')}
+      ${o.recentOrders.map((r) => `<tr class="is-click" data-order="${esc(r.id)}"><td class="nowrap"><strong>${esc(orderNo(r))}</strong></td><td class="nowrap">${fmtDate(r.created_at)}</td><td>${esc(r.customer_name || '—')}</td><td>${esc(PAY[r.payment_method] || r.payment_method || '—')}</td><td>${statusPill(r.status)}</td><td>${fulfillPill(r.fulfillment_status, r)}</td><td class="num">${clp(r.total)}</td></tr>`).join('')}
     </tbody></table></div>` : '<p class="empty">Todavía no hay pedidos.</p>'}
   </section>`
   view.querySelector('tbody')?.addEventListener('click', (e) => {

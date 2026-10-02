@@ -80,8 +80,8 @@ const button = (href, text, { primary = true } = {}) =>
   `<a href="${esc(href)}" style="display:inline-block;margin:4px;padding:13px 24px;border-radius:12px;font:700 14px/1 ${FONT};text-decoration:none;${primary ? `background:${C.jade};color:${C.ink};` : `background:transparent;color:${C.jade2};border:1px solid ${C.jade};`}">${text}</a>`
 const jadeBox = { bg: '#0d2a24', border: '#1f6b52' }
 
-function steps(active, etaText) {
-  const items = [['Pedido realizado', 'Recibido'], ['En preparación', 'Lo alistamos'], ['Entrega estimada', etaText]]
+function steps(active, etaText, pickup = false) {
+  const items = [['Pedido realizado', 'Recibido'], ['En preparación', 'Lo alistamos'], [pickup ? 'Retiro en local' : 'Entrega estimada', etaText]]
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${items.map(([t, d], i) => {
     const on = i <= active
     return `<td width="33%" valign="top" style="padding:0 4px;text-align:center;">
@@ -156,6 +156,9 @@ function layout({ preheader, badge, badgeColor = C.jade2, title, intro, body, s 
 </body></html>`
 }
 
+/** Página de seguimiento del pedido (funciona sin cuenta: el enlace lleva el identificador del pedido). */
+const trackUrl = (order) => `${SITE}/pago/resultado?pedido=${encodeURIComponent(order.id)}`
+
 /** Cuerpo del pedido: N°, etapas, productos, totales, entrega y pago. */
 function orderBody({ order, items, s, step, extra = '' }) {
   const d = deliveryInfo(order, s)
@@ -164,17 +167,41 @@ function orderBody({ order, items, s, step, extra = '' }) {
     <td><p style="margin:0;color:${C.muted};font:700 11px/1.4 ${FONT};letter-spacing:.1em;text-transform:uppercase;">N° de pedido</p><p style="margin:4px 0 0;color:${C.text};font:800 20px/1.2 ${HEAD};letter-spacing:.04em;">#${orderNo(order)}</p></td>
     <td align="right"><p style="margin:0;color:${C.muted};font:700 11px/1.4 ${FONT};letter-spacing:.1em;text-transform:uppercase;">Fecha</p><p style="margin:4px 0 0;color:${C.text2};font:700 15px/1.2 ${FONT};white-space:nowrap;">${fmtDate(order.created_at)}</p></td>
   </tr></table>`))}
-  ${section(steps(step, d.eta))}
+  ${section(steps(step, d.eta, order.delivery_method === 'pickup'))}
   ${extra}
   ${section(`${label('Tu pedido')}<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${itemsTable(items)}</table>${totals(order, items)}`)}
   ${section(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
     <td width="50%" valign="top" style="padding-right:6px;">${box(`${label('Entrega')}<p style="margin:0;color:${C.text};font:700 14px/1.4 ${FONT};">${esc(d.title)}</p>${d.lines.map((l) => `<p style="margin:3px 0 0;color:${C.muted};font:500 13px/1.5 ${FONT};">${esc(l)}</p>`).join('')}`, { pad: '16px' })}</td>
     <td width="50%" valign="top" style="padding-left:6px;">${box(`${label('Pago')}<p style="margin:0;color:${C.text};font:700 14px/1.4 ${FONT};">${esc(PAY[order.payment_method] || 'Pago')}</p><p style="margin:3px 0 0;color:${C.muted};font:500 13px/1.5 ${FONT};">${esc(order.customer_name || '')}<br>${esc(order.customer_phone || '')}</p>`, { pad: '16px' })}</td>
   </tr></table>`)}
-  ${section(`<div style="text-align:center;">${button(`${SITE}/pago/resultado?pedido=${encodeURIComponent(order.id)}`, 'Ver mi pedido')}${button(`${SITE}/tienda`, 'Seguir comprando', { primary: false })}</div>`)}`
+  ${section(`<div style="text-align:center;">${button(trackUrl(order), 'Seguir mi pedido')}${order.user_id ? button(`${SITE}/cuenta/pedidos`, 'Ver en Mi Cuenta', { primary: false }) : button(`${SITE}/tienda`, 'Seguir comprando', { primary: false })}</div>`)}
+  ${order.user_id ? '' : section(box(`<p style="margin:0 0 6px;color:${C.text};font:800 15px/1.3 ${HEAD};">Crea tu cuenta y sigue todas tus compras</p>
+    <p style="margin:0 0 12px;color:${C.muted};font:500 13.5px/1.6 ${FONT};">Regístrate con <strong style="color:${C.text2};">${esc(order.customer_email)}</strong> y este pedido aparecerá automáticamente en <strong style="color:${C.text2};">Mi Cuenta</strong>, junto con su seguimiento. También podrás guardar tus direcciones y favoritos.</p>
+    ${button(`${SITE}/cuenta/registro?email=${encodeURIComponent(order.customer_email || '')}&next=${encodeURIComponent('/cuenta/pedidos')}`, 'Crear mi cuenta', { primary: false })}`))}`
 }
 
 // ---------- Constructores (devuelven { subject, html }) ----------
+
+export async function buildReadyForPickup({ order, items }) {
+  const [s, list] = await Promise.all([getSettings(), enrich(items)])
+  const no = orderNo(order)
+  const wa = waNumber(s)
+  const where = section(box(`${label('Dónde retirar')}
+    <p style="margin:0;color:${C.text};font:700 15px/1.5 ${FONT};">${esc(s.store_address || s.local_city || 'Rancagua')}</p>
+    <p style="margin:6px 0 0;color:${C.muted};font:500 13.5px/1.6 ${FONT};">Horario: ${esc(HOURS_TEXT)}.<br>Presenta tu N° de pedido <strong style="color:${C.text};">#${no}</strong> y tu nombre al retirar.</p>
+    ${wa ? `<div style="margin-top:12px;">${button(`https://wa.me/${wa}?text=${encodeURIComponent(`Hola, quiero coordinar el retiro del pedido #${no}`)}`, 'Coordinar retiro por WhatsApp', { primary: false })}</div>` : ''}`, jadeBox))
+  return {
+    subject: `Tu pedido #${no} está listo para retirar — Mi Tiendita Digital Ve`,
+    html: layout({
+      s, preheader: `Ya puedes retirar tu pedido #${no} en nuestro local.`,
+      badge: '✓ Listo para retirar', title: '¡Tu pedido está listo para retirar!',
+      intro: `${hello(order)}, ya preparamos tu pedido. Puedes pasar a buscarlo a nuestro local en el horario de atención.`,
+      body: orderBody({ order, items: list, s, step: 2, extra: where }) + section(box(`<p style="margin:0 0 6px;color:${C.text};font:800 15px/1.3 ${HEAD};">⭐ ¿Cómo fue tu experiencia?</p>
+      <p style="margin:0 0 12px;color:${C.muted};font:500 13.5px/1.6 ${FONT};">Cuando retires tu pedido, cuéntanos qué te pareció. Tu opinión en Google ayuda a otros clientes y a nuestra tienda.</p>
+      ${button(GOOGLE_REVIEW_URL, 'Déjanos tu opinión en Google')}`, jadeBox)),
+    }),
+  }
+}
 
 export async function buildConfirmation({ order, items }) {
   const [s, list] = await Promise.all([getSettings(), enrich(items)])
@@ -286,3 +313,5 @@ export const sendCodConfirmation = (args) => send(buildCod, args, 'contra entreg
 export const sendShippedNotification = (args) => send(buildShipped, args, 'despacho', args.order?.customer_email)
 /** Aviso interno a la tienda de un pedido nuevo. */
 export const sendStoreNewOrder = (args) => send(buildStoreNewOrder, args, 'aviso tienda')
+/** Retiro en local: el pedido está listo para retirar. */
+export const sendReadyForPickup = (args) => send(buildReadyForPickup, args, 'listo para retirar', args.order?.customer_email)

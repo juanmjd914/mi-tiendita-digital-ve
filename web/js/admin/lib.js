@@ -65,7 +65,15 @@ export const FULFILL = {
 export const PAY = { flow: 'Webpay (Flow)', transfer: 'Transferencia', cod: 'Contra entrega' }
 export const pill = ([label, kind] = ['—', '']) => `<span class="pill${kind ? ` pill--${kind}` : ''}">${esc(label)}</span>`
 export const statusPill = (s) => pill(STATUS[s] || [s || '—', ''])
-export const fulfillPill = (s) => pill(FULFILL[s || 'pending'] || [s, ''])
+// Retiro en local: mismas etapas internas con nombres propios
+export const FULFILL_PICKUP = {
+  pending: ['Por preparar', 'warn'],
+  preparing: ['En preparación', 'info'],
+  shipped: ['Listo para retirar', 'info'],
+  delivered: ['Retirado', 'ok'],
+}
+export const fulfillMap = (o) => (o?.delivery_method === 'pickup' ? FULFILL_PICKUP : FULFILL)
+export const fulfillPill = (s, o) => pill(fulfillMap(o)[s || 'pending'] || [s, ''])
 
 export const ICONS = {
   close: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
