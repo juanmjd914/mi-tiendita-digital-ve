@@ -1,0 +1,35 @@
+{
+  "slug": "extension-multiple-philco-4-posiciones",
+  "name": "Extensión múltiple Philco 4 posiciones 1,5 m",
+  "brand": "Philco",
+  "category": "Enchufes y extensiones",
+  "price": 4800,
+  "original_price": null,
+  "short_description": "Alargador de 4 tomas con cable de 1,5 metros.",
+  "description": "Extensión múltiple Philco XT52 con 4 posiciones y cable de 1,5 metros. Disponible en blanco y negro.",
+  "photos": [
+    "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS BLANCO PHILCO.webp",
+    "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS BLANCO PHILCO1.webp",
+    "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS NEGRO PHILCO.webp"
+  ],
+  "variant_kind": "Color",
+  "variants": [
+    {
+      "label": "Blanco",
+      "photos": [
+        "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS BLANCO PHILCO.webp",
+        "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS BLANCO PHILCO1.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Negro",
+      "photos": [
+        "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS NEGRO PHILCO.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "badge": null,
+  "stock": 0
+}

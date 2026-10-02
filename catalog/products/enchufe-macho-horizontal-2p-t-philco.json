@@ -1,0 +1,39 @@
+{
+  "slug": "enchufe-macho-horizontal-2p-t-philco",
+  "name": "Enchufe macho horizontal 2P+T Philco",
+  "brand": "Philco",
+  "category": "Enchufes y extensiones",
+  "price": 1200,
+  "original_price": null,
+  "short_description": "Enchufe macho de perfil horizontal, en blanco o negro.",
+  "description": "Enchufe macho horizontal 2P+T Philco (10 A, 250 V), de perfil bajo para dejar los equipos más pegados a la pared. Disponible en blanco y negro.",
+  "photos": [
+    "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO.webp",
+    "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO1.webp",
+    "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO13.webp",
+    "ENCHUFE MACHO HORIZONTAL 2P + T 78549 NEGRO PHILCO.webp",
+    "ENCHUFE MACHO HORIZONTAL 2P + T 78549 NEGRO PHILCO1.webp"
+  ],
+  "variant_kind": "Color",
+  "variants": [
+    {
+      "label": "Blanco",
+      "photos": [
+        "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO.webp",
+        "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO1.webp",
+        "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO13.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Negro",
+      "photos": [
+        "ENCHUFE MACHO HORIZONTAL 2P + T 78549 NEGRO PHILCO.webp",
+        "ENCHUFE MACHO HORIZONTAL 2P + T 78549 NEGRO PHILCO1.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "badge": null,
+  "stock": 0
+}

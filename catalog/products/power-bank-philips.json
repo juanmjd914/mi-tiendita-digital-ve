@@ -1,0 +1,17 @@
+{
+  "slug": "power-bank-philips",
+  "name": "Power bank Philips",
+  "brand": "Philips",
+  "category": "Cargadores y energía",
+  "price": 7000,
+  "original_price": null,
+  "badge": null,
+  "short_description": "Batería portátil compacta Philips.",
+  "description": "Power bank Philips ultra compacto para cargar tu celular donde estés.",
+  "photos": [
+    "POWER BANK PHILIPS 4000 mAH1.webp",
+    "POWER BANK PHILIPS 4000 mAH12.webp",
+    "POWER BANK PHILIPS 4000 mAH.webp"
+  ],
+  "stock": 0
+}

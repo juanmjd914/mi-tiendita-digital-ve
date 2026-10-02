@@ -22,7 +22,8 @@ export const DEFAULTS = {
   local_city:            'Rancagua',
   store_address:         'Rancagua, Región de O\'Higgins',
   contact_email:         'soporte@mitienditadigitalve.com',
-  contact_whatsapp:      '56946216579',
+  contact_whatsapp:      '56957480911',
+  free_shipping_min_rancagua: 80000,
 }
 
 let cache = null
@@ -48,8 +49,9 @@ const EDITABLE = [
   'bank_name', 'bank_account_type', 'bank_account_number', 'bank_holder', 'bank_rut',
   'delivery_cost_rancagua', 'shipping_flat_regions', 'pickup_enabled', 'cod_enabled',
   'local_city', 'store_address', 'contact_email', 'contact_whatsapp',
+  'free_shipping_min_rancagua',
 ]
-const INT_FIELDS  = ['delivery_cost_rancagua', 'shipping_flat_regions']
+const INT_FIELDS  = ['delivery_cost_rancagua', 'shipping_flat_regions', 'free_shipping_min_rancagua']
 const BOOL_FIELDS = ['pickup_enabled', 'cod_enabled']
 
 /** Actualiza la configuración (whitelist + saneo). Invalida la caché. */

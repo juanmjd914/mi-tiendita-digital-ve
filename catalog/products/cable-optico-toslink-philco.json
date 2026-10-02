@@ -1,0 +1,36 @@
+{
+  "slug": "cable-optico-toslink-philco",
+  "name": "Cable óptico Toslink Philco",
+  "brand": "Philco",
+  "category": "Cables y adaptadores",
+  "price": 3200,
+  "original_price": null,
+  "badge": null,
+  "short_description": "Cable de audio digital óptico, disponible en 1,8 m y 3 m.",
+  "description": "Cable de audio digital óptico Toslink Philco para conectar TV, consolas y reproductores a barras de sonido, receptores y amplificadores. Disponible en 1,8 y 3 metros.",
+  "photos": [
+    "CABLE OPTICO TOSLINK 1.8 MTS.webp",
+    "CABLE OPTICO TOSLINK 1.8 MTS 2.webp",
+    "CABLE OPTICO PHILCO DE 3 MTS 720X720.webp"
+  ],
+  "variant_kind": "Largo",
+  "variants": [
+    {
+      "label": "1,8 m",
+      "photos": [
+        "CABLE OPTICO TOSLINK 1.8 MTS.webp",
+        "CABLE OPTICO TOSLINK 1.8 MTS 2.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "3 m",
+      "photos": [
+        "CABLE OPTICO TOSLINK 1.8 MTS.webp",
+        "CABLE OPTICO PHILCO DE 3 MTS 720X720.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "stock": 0
+}

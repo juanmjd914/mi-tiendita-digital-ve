@@ -56,6 +56,13 @@ async function adjustStock(productId, delta) {
   return true
 }
 
+// Ajusta el stock de una variante (color, largo…) de forma atómica.
+async function adjustVariantStock(variantId, delta) {
+  const { error } = await supabase.rpc('adjust_variant_stock', { p_id: variantId, p_delta: delta })
+  if (error) console.error(`❌ adjustVariantStock id=${variantId}: ${error.message}`)
+  return !error
+}
+
 /** Descuenta stock por cada ítem del pedido. */
 export async function decrementStock(orderItems) {
   if (!orderItems?.length) {
@@ -64,6 +71,10 @@ export async function decrementStock(orderItems) {
   }
   for (const item of orderItems) {
     const qty = Number(item.quantity) || 1
+    if (item.variant_id) {
+      if (await adjustVariantStock(item.variant_id, -qty)) console.log(`📦 Stock -${qty} → variante id=${item.variant_id} ("${item.name}")`)
+      continue
+    }
     const productId = await resolveProductId(item)
     if (!productId) {
       console.warn(`⚠️  decrementStock: producto no encontrado — id=${item.product_id} name="${item.name}"`)
@@ -79,6 +90,10 @@ export async function restoreStock(orderItems) {
   if (!orderItems?.length) return
   for (const item of orderItems) {
     const qty = Number(item.quantity) || 1
+    if (item.variant_id) {
+      if (await adjustVariantStock(item.variant_id, +qty)) console.log(`📦 Stock +${qty} (restaurado) → variante id=${item.variant_id}`)
+      continue
+    }
     const productId = await resolveProductId(item)
     if (!productId) continue
     const ok = await adjustStock(productId, +qty)

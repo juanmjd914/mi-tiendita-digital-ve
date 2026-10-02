@@ -11,10 +11,6 @@ const SECRET_KEY = process.env.FLOW_SECRET_KEY
 const BASE_URL   = process.env.FLOW_BASE_URL || 'https://sandbox.flow.cl/api'
 const PUBLIC_URL = process.env.PUBLIC_URL    || 'http://localhost:3001'
 
-// En dev el frontend corre en :5174, en producción en el mismo dominio
-const FRONTEND_URL = process.env.NODE_ENV === 'production'
-  ? PUBLIC_URL
-  : PUBLIC_URL.replace(':3001', ':5174')
 
 /**
  * Genera la firma HMAC-SHA256 requerida por Flow
@@ -53,7 +49,7 @@ export async function createPayment({ orderId, subject, amount, email }) {
     amount:          Math.round(amount),
     email:           email,
     urlConfirmation: `${PUBLIC_URL}/api/payment/confirm`,
-    urlReturn:       `${FRONTEND_URL}/pago/resultado`,
+    urlReturn:       `${PUBLIC_URL}/pago/resultado`,
   }
   params.s = sign(params)
 

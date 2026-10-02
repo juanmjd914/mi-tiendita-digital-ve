@@ -1,0 +1,39 @@
+{
+  "slug": "mouse-usb-genius-dx-110",
+  "name": "Mouse USB Genius DX-110",
+  "brand": "Genius",
+  "category": "Teclados y mouse",
+  "price": 4900,
+  "original_price": null,
+  "badge": null,
+  "short_description": "Mouse óptico con cable USB, disponible en verde y rojo.",
+  "description": "Mouse óptico con cable USB, disponible en verde y rojo.",
+  "photos": [
+    "MOUSE USB DX-110 GENIUS G5 GREEN.webp",
+    "MOUSE USB DX-110 GENIUS G5 GREEN1.webp",
+    "MOUSE USB DX-110 GENIUS G5 RED1.webp",
+    "MOUSE USB DX-110 GENIUS G5 RED.webp",
+    "MOUSE USB DX-110 GENIUS G5 RED12.webp"
+  ],
+  "variant_kind": "Color",
+  "variants": [
+    {
+      "label": "Verde",
+      "photos": [
+        "MOUSE USB DX-110 GENIUS G5 GREEN.webp",
+        "MOUSE USB DX-110 GENIUS G5 GREEN1.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Rojo",
+      "photos": [
+        "MOUSE USB DX-110 GENIUS G5 RED1.webp",
+        "MOUSE USB DX-110 GENIUS G5 RED.webp",
+        "MOUSE USB DX-110 GENIUS G5 RED12.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "stock": 0
+}

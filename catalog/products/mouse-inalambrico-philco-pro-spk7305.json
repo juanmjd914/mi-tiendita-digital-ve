@@ -1,0 +1,41 @@
+{
+  "slug": "mouse-inalambrico-philco-pro-spk7305",
+  "name": "Mouse inalámbrico Philco Pro SPK7305",
+  "brand": "Philco",
+  "category": "Teclados y mouse",
+  "price": 5700,
+  "original_price": null,
+  "badge": null,
+  "short_description": "Mouse inalámbrico de diseño delgado, disponible en blanco y negro.",
+  "description": "Mouse inalámbrico de diseño delgado, disponible en blanco y negro.",
+  "photos": [
+    "MOUSE INAL. SPK7305 BLANCO PHILCO PRO.webp",
+    "MOUSE INAL. SPK7305 BLANCO PHILCO PRO1.webp",
+    "MOUSE INAL. SPK7305 BLANCO PHILCO PRO2.webp",
+    "MOUSE INAL. SPK7305 NEGRO PHILCO PRO.webp",
+    "MOUSE INAL. SPK7305 NEGRO PHILCO PRO1.webp",
+    "MOUSE INAL. SPK7305 NEGRO PHILCO PRO2.webp"
+  ],
+  "variant_kind": "Color",
+  "variants": [
+    {
+      "label": "Blanco",
+      "photos": [
+        "MOUSE INAL. SPK7305 BLANCO PHILCO PRO.webp",
+        "MOUSE INAL. SPK7305 BLANCO PHILCO PRO1.webp",
+        "MOUSE INAL. SPK7305 BLANCO PHILCO PRO2.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Negro",
+      "photos": [
+        "MOUSE INAL. SPK7305 NEGRO PHILCO PRO.webp",
+        "MOUSE INAL. SPK7305 NEGRO PHILCO PRO1.webp",
+        "MOUSE INAL. SPK7305 NEGRO PHILCO PRO2.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "stock": 0
+}

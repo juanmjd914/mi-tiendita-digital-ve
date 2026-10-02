@@ -1,0 +1,36 @@
+{
+  "slug": "telefono-gondola-philco",
+  "name": "Teléfono tipo góndola Philco",
+  "brand": "Philco",
+  "category": "Hogar y oficina",
+  "price": 5990,
+  "original_price": 8500,
+  "short_description": "Teléfono compacto de pared o mesa, en blanco o negro.",
+  "description": "Teléfono tipo góndola Philco, compacto, para instalar en pared o sobre la mesa. Disponible en blanco y negro.",
+  "photos": [
+    "Telefono Gondola Philco.webp",
+    "TELEFONO PHILCO TIPO GONDOLA NEGRO1.webp",
+    "TELEFONO PHILCO TIPO GONDOLA1.webp"
+  ],
+  "variant_kind": "Color",
+  "variants": [
+    {
+      "label": "Blanco",
+      "photos": [
+        "Telefono Gondola Philco.webp",
+        "TELEFONO PHILCO TIPO GONDOLA1.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Negro",
+      "photos": [
+        "TELEFONO PHILCO TIPO GONDOLA NEGRO1.webp",
+        "TELEFONO PHILCO TIPO GONDOLA1.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "badge": null,
+  "stock": 0
+}

@@ -1,0 +1,15 @@
+{
+  "slug": "cable-micro-usb-master-g",
+  "name": "Cable micro USB Master G",
+  "brand": "Master G",
+  "category": "Cables y adaptadores",
+  "price": 3600,
+  "original_price": null,
+  "badge": null,
+  "short_description": "Cable USB a micro USB para carga y datos.",
+  "description": "Cable Master G USB a micro USB para cargar y transferir datos.",
+  "photos": [
+    "micro usb master g.webp"
+  ],
+  "stock": 0
+}

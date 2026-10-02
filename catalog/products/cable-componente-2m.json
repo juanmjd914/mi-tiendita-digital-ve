@@ -1,0 +1,16 @@
+{
+  "slug": "cable-componente-2m",
+  "name": "Cable componente 2 m",
+  "brand": null,
+  "category": "Cables y adaptadores",
+  "price": 1750,
+  "original_price": null,
+  "badge": null,
+  "short_description": "Cable de video componente y audio RCA, 2 metros.",
+  "description": "Cable componente de 2 metros con conectores RCA para video (Y/Pb/Pr) y audio, para TV, consolas y reproductores.",
+  "photos": [
+    "cable componente1.webp",
+    "cable componente.webp"
+  ],
+  "stock": 0
+}

@@ -4,16 +4,24 @@ import cors       from 'cors'
 import helmet     from 'helmet'
 import rateLimit  from 'express-rate-limit'
 import path       from 'path'
-import fs         from 'fs'
 import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
 import supabase   from './supabase.js'
-import { createPayment, getPaymentStatus, verifySignature, sign } from './flow.js'
-import { sendOrderConfirmation, sendTransferInstructions } from './email.js'
+import { createPayment, getPaymentStatus, verifySignature } from './flow.js'
+import { sendOrderConfirmation, sendTransferInstructions, sendCodConfirmation, sendStoreNewOrder } from './email.js'
 import { login, requireAuth, logout, adminUserCount } from './adminAuth.js'
 import { decrementStock, restoreStock } from './stock.js'
 import { computeCouponDiscount, redeemCoupon, refundCoupon, getValidCoupon, computeDiscount } from './coupons.js'
 import { getSettings, updateSettings, getBankDetails } from './settings.js'
+import { createOrder, OrderError } from './orders.js'
+import pagesRouter, { renderNotFound } from './routes/pages.js'
+import cartApi from './routes/api-cart.js'
+import ordersApi from './routes/api-orders.js'
+import accountApi from './routes/api-account.js'
+import supportApi from './routes/api-support.js'
+import adminApi from './routes/api-admin.js'
+import seoRouter from './routes/seo.js'
+import { invalidateCatalog } from './catalog-cache.js'
 
 // Cliente anon — solo para verificar JWTs de usuarios
 const authClient = createClient(
@@ -38,7 +46,7 @@ app.set('trust proxy', 1)
 // Cabeceras de seguridad. crossOriginResourcePolicy relajado para permitir que las
 // imágenes de Supabase Storage se sirvan en la tienda.
 app.use(helmet({
-  contentSecurityPolicy: false, // el SPA carga assets propios; evitamos romper Vite
+  contentSecurityPolicy: false, // pendiente: CSP con allowlist (GTM, Supabase, jsDelivr, Turnstile)
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }))
@@ -46,7 +54,7 @@ app.use(helmet({
 app.use(cors({
   origin: isProd
     ? ['https://mitienditadigitalve.com', 'https://www.mitienditadigitalve.com']
-    : ['http://localhost:5174', 'http://localhost:5175'],
+    : [`http://localhost:${PORT}`],
 }))
 app.use(express.json({ limit: '10mb' }))        // 10mb para imágenes en base64
 app.use(express.urlencoded({ extended: true })) // requerido para webhooks de Flow
@@ -56,6 +64,8 @@ app.use(express.urlencoded({ extended: true })) // requerido para webhooks de Fl
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 300,
   standardHeaders: true, legacyHeaders: false,
+  // El webhook de Flow es servidor-a-servidor: nunca se limita.
+  skip: (req) => req.originalUrl.startsWith('/api/payment/confirm'),
   message: { error: 'Demasiadas solicitudes. Intenta de nuevo en unos minutos.' },
 })
 // Límite estricto para el login admin (frena fuerza bruta de contraseñas).
@@ -70,14 +80,17 @@ const orderLimiter = rateLimit({
   standardHeaders: true, legacyHeaders: false,
   message: { error: 'Demasiados intentos. Espera unos minutos.' },
 })
-// El webhook de Flow NO se limita (es servidor-a-servidor); todo lo demás bajo /api sí.
-app.use('/api/payment/confirm', (req, _res, next) => next())
 app.use('/api', apiLimiter)
 
-if (isProd) {
-  // index:false → el catch-all sirve index.html con meta tags inyectados por ruta
-  app.use(express.static(path.join(__dirname, '..', 'dist'), { index: false }))
-}
+// Estáticos del sitio HTML (CSS, JS, imágenes). Las páginas las arma routes/pages.js.
+app.use(express.static(path.join(__dirname, '..', 'web'), {
+  index: false,
+  redirect: false,
+  setHeaders(res, filePath) {
+    if (/\.(webp|png|jpe?g|svg|woff2?)$/i.test(filePath)) res.setHeader('Cache-Control', 'public, max-age=2592000')
+    else res.setHeader('Cache-Control', 'no-cache')
+  },
+}))
 
 // ── Admin auth ────────────────────────────────────────────────────
 // POST /api/admin/login — usuario+contraseña → token de sesión
@@ -117,6 +130,16 @@ async function confirmOrderInventory(order, { wasPending } = {}) {
   // Marca la orden como procesada (si la columna existe). Si no existe, el update
   // ignora el campo desconocido y quedamos protegidos por wasPending hasta la migración.
   await supabase.from('orders').update({ stock_decremented: true }).eq('id', order.id)
+}
+
+// Correos de un pago Webpay recién aprobado: confirmación al cliente + aviso a la tienda.
+// Se lee el pedido completo (dirección, envío, método) porque las consultas de pago traen solo lo mínimo.
+async function notifyPaid(orderId) {
+  const { data: order } = await supabase.from('orders').select('*, order_items(*)').eq('id', orderId).maybeSingle()
+  if (!order) return
+  const items = order.order_items || []
+  sendOrderConfirmation({ order, items })
+  sendStoreNewOrder({ order, items, kind: 'Webpay pagado' })
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -169,8 +192,21 @@ app.post('/api/admin/coupons', requireAuth, async (req, res) => {
 
 // PUT /api/admin/coupons/:id — actualizar / toggle
 app.put('/api/admin/coupons/:id', requireAuth, async (req, res) => {
+  // Whitelist: nunca se pasa req.body crudo (evita tocar `uses`, `id`, etc.)
+  const b = req.body || {}
+  const patch = {}
+  if ('description'    in b) patch.description    = b.description ? String(b.description).slice(0, 200) : null
+  if ('discount_type'  in b) {
+    if (!['percentage', 'fixed'].includes(b.discount_type)) return res.status(400).json({ error: 'Tipo de descuento inválido' })
+    patch.discount_type = b.discount_type
+  }
+  if ('discount_value' in b) patch.discount_value = Math.max(0, Number(b.discount_value) || 0)
+  if ('min_order'      in b) patch.min_order      = Math.max(0, Number(b.min_order) || 0)
+  if ('max_uses'       in b) patch.max_uses       = b.max_uses === '' || b.max_uses == null ? null : Math.max(0, Math.trunc(Number(b.max_uses)))
+  if ('expires_at'     in b) patch.expires_at     = b.expires_at || null
+  if ('active'         in b) patch.active         = Boolean(b.active)
   const { data, error } = await supabase
-    .from('coupons').update(req.body).eq('id', req.params.id).select().single()
+    .from('coupons').update(patch).eq('id', req.params.id).select().single()
   if (error) return res.status(400).json({ error: error.message })
   res.json(data)
 })
@@ -274,102 +310,39 @@ app.get('/api/products/:id', async (req, res) => {
 //  PAGOS — FLOW CHILE
 // ═══════════════════════════════════════════════════════════════
 
-/**
- * Valida el carrito contra la BASE DE DATOS (no confía en el precio/nombre que
- * manda el navegador). Devuelve los ítems con precio y nombre reales, o lanza un
- * Error legible si algo no cuadra (producto inexistente, inactivo o sin stock).
- * Esto evita manipulación de precios desde el frontend.
- */
-async function buildValidatedItems(items) {
-  if (!Array.isArray(items) || items.length === 0) throw new Error('Carrito vacío')
-
-  const validated = []
-  for (const item of items) {
-    const qty = Math.max(1, Math.floor(Number(item.quantity) || 1))
-    const { data: product } = await supabase
-      .from('products').select('id, name, price, stock, active').eq('id', item.id).maybeSingle()
-
-    if (!product || product.active === false) {
-      throw new Error(`El producto "${item.name || item.id}" ya no está disponible`)
-    }
-    if ((product.stock ?? 999) < qty) {
-      throw new Error(`Sin stock suficiente para "${product.name}". Disponible: ${product.stock ?? 0}`)
-    }
-    validated.push({ product_id: product.id, name: product.name, price: product.price, quantity: qty })
-  }
-  const subtotal = validated.reduce((s, i) => s + i.price * i.quantity, 0)
-  return { validated, subtotal }
+// Devuelve el id del usuario si la petición trae un token válido de Supabase Auth.
+async function userIdFrom(req) {
+  const token = req.headers.authorization?.replace('Bearer ', '').trim()
+  if (!token) return null
+  try {
+    const { data: { user } } = await authClient.auth.getUser(token)
+    return user?.id || null
+  } catch { return null }
 }
 
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ''))
+function orderErrorStatus(err) {
+  return err instanceof OrderError ? 400 : 500
 }
 
-/**
- * Calcula el costo de envío según método de entrega y ciudad, usando la config.
- * - Retiro en local (pickup): $0.
- * - Delivery en la ciudad local (Rancagua): delivery_cost_rancagua.
- * - Delivery a regiones: shipping_flat_regions.
- * Devuelve { shippingCost, deliveryMethod, isLocal }.
- */
-async function computeShipping(deliveryMethod, city) {
-  const s = await getSettings()
-  const method = deliveryMethod === 'pickup' ? 'pickup' : 'delivery'
-  const localCity = String(s.local_city || 'Rancagua').trim().toLowerCase()
-  const isLocal = String(city || '').trim().toLowerCase().includes(localCity)
-
-  let shippingCost = 0
-  if (method === 'delivery') {
-    shippingCost = isLocal ? (s.delivery_cost_rancagua ?? 0) : (s.shipping_flat_regions ?? 0)
-  }
-  return { shippingCost: Math.max(0, Number(shippingCost) || 0), deliveryMethod: method, isLocal }
-}
-
-// POST /api/payment/create — inicia el pago con Flow
+// POST /api/payment/create — crea el pedido e inicia el pago con Flow (Webpay)
 app.post('/api/payment/create', orderLimiter, async (req, res) => {
   try {
-    const { items, email, customerName, customerPhone, customerAddress, couponCode, deliveryMethod, customerCity } = req.body
-    if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
-
-    // Precios y stock validados contra la base (no se confía en el frontend)
-    const { validated, subtotal } = await buildValidatedItems(items)
-    const { discountAmount, finalTotal: afterCoupon, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
-    const { shippingCost, deliveryMethod: method } = await computeShipping(deliveryMethod, customerCity)
-    const finalTotal = afterCoupon + shippingCost
-    const subject = validated.length === 1 ? validated[0].name.slice(0, 80) : `Mi Tiendita Digital Ve — ${validated.length} productos`
-
-    // Crear orden
-    const { data: order, error: orderErr } = await supabase
-      .from('orders').insert({
-        status:           'pending',
-        payment_method:   'flow',
-        delivery_method:  method,
-        shipping_cost:    shippingCost,
-        total:            finalTotal,
-        customer_email:   String(email).trim(),
-        customer_name:    customerName    || null,
-        customer_phone:   customerPhone   || null,
-        customer_address: customerAddress || null,
-        coupon_code:      appliedCoupon,
-        discount_amount:  discountAmount,
-      }).select().single()
-
-    if (orderErr) throw orderErr
-
-    const orderItems = validated.map(i => ({ order_id: order.id, ...i }))
-    await supabase.from('order_items').insert(orderItems)
-
-    const payment = await createPayment({ orderId: order.id, subject, amount: finalTotal, email: String(email).trim() })
+    const { order, items, total } = await createOrder(req.body || {}, { paymentMethod: 'flow', userId: await userIdFrom(req) })
+    const what = items.length === 1 ? items[0].name.slice(0, 80) : `${items.length} productos`
+    const subject = order.order_number ? `Pedido #${order.order_number} — ${what}` : `Mi Tiendita Digital Ve — ${what}`
+    const payment = await createPayment({ orderId: order.id, subject, amount: total, email: order.customer_email })
     await supabase.from('orders').update({ flow_token: payment.token }).eq('id', order.id)
-
     res.json({ redirectUrl: payment.redirectUrl, orderId: order.id })
   } catch (err) {
     console.error('/api/payment/create error:', err.message)
-    // Errores de validación (stock/producto) son 400; el resto 500
-    const isValidation = /stock|disponible|Carrito|Email/i.test(err.message)
-    res.status(isValidation ? 400 : 500).json({ error: err.message })
+    res.status(orderErrorStatus(err)).json({ error: err instanceof OrderError ? err.message : 'No pudimos iniciar el pago. Intenta de nuevo.' })
   }
 })
+
+// El pago informado por Flow debe corresponder a este pedido y a su monto exacto.
+function flowMatchesOrder(flowStatus, order) {
+  return String(flowStatus.commerceOrder) === String(order.id) && Number(flowStatus.amount) === Number(order.total)
+}
 
 // POST /api/payment/confirm — webhook que envía Flow tras el pago
 // ⚠️  Flow envía los datos como application/x-www-form-urlencoded
@@ -388,26 +361,23 @@ app.post('/api/payment/confirm', async (req, res) => {
     // correos de alerta. El procesamiento real se hace con getPaymentStatus (seguro:
     // nuestra petición a Flow va firmada con HMAC propio), así que la firma del
     // webhook entrante es una capa adicional, no la única.
-    if (!verifySignature(params)) {
-      const { s, ...rest } = params
-      const computed = sign(rest)
-      console.warn('⚠️  Firma inválida en webhook Flow', {
-        received:  s,
-        computed,
-        token,
-        paramKeys: Object.keys(params),
-      })
-      // Continúa el procesamiento — el estado se verifica en Flow directamente
-    }
+    // Flow envía solo el token (sin firma), así que la seguridad está en consultar el estado
+    // directamente a Flow con nuestra firma y en validar pedido + monto (flowMatchesOrder).
+    if (params.s && !verifySignature(params)) console.warn('⚠️  Firma inválida en webhook Flow', { token })
 
     // Consultar estado real del pago (independiente de la firma recibida)
     const status = await getPaymentStatus(token)
-    const statusLabel = status.statusLabel  // 'paid' | 'rejected' | 'cancelled' | 'pending'
+    let statusLabel = status.statusLabel  // 'paid' | 'rejected' | 'cancelled' | 'pending'
 
     // Estado previo (respaldo de idempotencia si la columna stock_decremented no existe aún)
     const { data: existingOrder } = await supabase
-      .from('orders').select('status').eq('flow_token', token).single()
+      .from('orders').select('id, total, status').eq('flow_token', token).single()
     const wasPending = existingOrder?.status === 'pending'
+
+    if (statusLabel === 'paid' && existingOrder && !flowMatchesOrder(status, existingOrder)) {
+      console.error('❌ Pago Flow no coincide con el pedido', { token, orderId: existingOrder.id, total: existingOrder.total, flowOrder: status.commerceOrder, flowAmount: status.amount })
+      statusLabel = 'pending'
+    }
 
     // Actualizar orden
     const { data: updatedOrder, error } = await supabase
@@ -422,7 +392,8 @@ app.post('/api/payment/confirm', async (req, res) => {
     // Solo si el pago fue exitoso: confirmar inventario (idempotente) + email
     if (statusLabel === 'paid' && updatedOrder) {
       await confirmOrderInventory(updatedOrder, { wasPending })
-      sendOrderConfirmation({ order: updatedOrder, items: updatedOrder.order_items || [] })
+      // Flow puede reintentar el webhook: los correos solo salen en la transición pendiente → pagado
+      if (wasPending) notifyPaid(updatedOrder.id)
     }
 
     res.status(200).send('OK')
@@ -448,13 +419,20 @@ app.get('/api/payment/status/:token', async (req, res) => {
     if (data.status === 'pending') {
       try {
         const flowStatus = await getPaymentStatus(req.params.token)
-        const newStatus  = flowStatus.statusLabel // 'paid' | 'rejected' | 'cancelled' | 'pending'
+        let newStatus    = flowStatus.statusLabel // 'paid' | 'rejected' | 'cancelled' | 'pending'
+        if (newStatus === 'paid' && !flowMatchesOrder(flowStatus, data)) {
+          console.error('❌ Pago Flow no coincide con el pedido (status)', { orderId: data.id })
+          newStatus = 'pending'
+        }
 
         if (newStatus !== 'pending') {
-          await supabase
+          // Solo actualiza si sigue pendiente (evita doble aviso si el webhook llegó primero)
+          const { data: changed } = await supabase
             .from('orders')
             .update({ status: newStatus, flow_order: flowStatus.flowOrder || null })
             .eq('flow_token', req.params.token)
+            .eq('status', 'pending')
+            .select('id')
 
           const wasPending = data.status === 'pending'
           data.status = newStatus
@@ -462,7 +440,7 @@ app.get('/api/payment/status/:token', async (req, res) => {
           // Confirmar inventario (idempotente) + email si el pago se acreditó
           if (newStatus === 'paid') {
             await confirmOrderInventory(data, { wasPending })
-            sendOrderConfirmation({ order: data, items: data.order_items || [] })
+            if (changed?.length) notifyPaid(data.id)
           }
         }
       } catch (flowErr) {
@@ -476,100 +454,31 @@ app.get('/api/payment/status/:token', async (req, res) => {
   }
 })
 
-// POST /api/payment/transfer — crea pedido pendiente de transferencia bancaria
+// POST /api/payment/transfer — pedido pendiente de transferencia (reserva stock)
 app.post('/api/payment/transfer', orderLimiter, async (req, res) => {
   try {
-    const { items, email, customerName, customerPhone, customerAddress, couponCode, deliveryMethod, customerCity } = req.body
-    if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
-
-    // Precios y stock validados contra la base (no se confía en el frontend)
-    const { validated, subtotal } = await buildValidatedItems(items)
-    const { discountAmount, finalTotal: afterCoupon, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
-    const { shippingCost, deliveryMethod: method } = await computeShipping(deliveryMethod, customerCity)
-    const finalTotal = afterCoupon + shippingCost
-
-    const { data: order, error: orderErr } = await supabase
-      .from('orders').insert({
-        status:           'pending_transfer',
-        payment_method:   'transfer',
-        delivery_method:  method,
-        shipping_cost:    shippingCost,
-        total:            finalTotal,
-        customer_email:   String(email).trim(),
-        customer_name:    customerName    || null,
-        customer_phone:   customerPhone   || null,
-        customer_address: customerAddress || null,
-        coupon_code:      appliedCoupon,
-        discount_amount:  discountAmount,
-      }).select().single()
-
-    if (orderErr) throw orderErr
-
-    const orderItems = validated.map(i => ({ order_id: order.id, ...i }))
-    await supabase.from('order_items').insert(orderItems)
-
-    // La transferencia RESERVA el stock al crear el pedido (idempotente).
-    await confirmOrderInventory({ ...order, order_items: orderItems }, { wasPending: true })
-
-    try { await sendTransferInstructions({ order, items: orderItems }) } catch (_) { /* ignore */ }
-
-    res.json({ orderId: order.id, total: finalTotal })
+    const { order, items, total, shipping } = await createOrder(req.body || {}, { paymentMethod: 'transfer', userId: await userIdFrom(req) })
+    await confirmOrderInventory({ ...order, order_items: items }, { wasPending: true })
+    try { await sendTransferInstructions({ order, items }) } catch (_) { /* el pedido ya está creado */ }
+    sendStoreNewOrder({ order, items, kind: 'Transferencia pendiente' })
+    res.json({ orderId: order.id, total, shippingCost: shipping.shippingCost })
   } catch (err) {
     console.error('/api/payment/transfer error:', err.message)
-    const isValidation = /stock|disponible|Carrito|Email/i.test(err.message)
-    res.status(isValidation ? 400 : 500).json({ error: err.message })
+    res.status(orderErrorStatus(err)).json({ error: err instanceof OrderError ? err.message : 'No pudimos crear tu pedido. Intenta de nuevo.' })
   }
 })
 
-// POST /api/payment/cod — Pago contra entrega (solo zona local / Rancagua).
-// No hay pago online: se crea el pedido, se reserva el stock y se cobra al entregar.
+// POST /api/payment/cod — pago contra entrega (solo delivery en la ciudad local)
 app.post('/api/payment/cod', orderLimiter, async (req, res) => {
   try {
-    const { items, email, customerName, customerPhone, customerAddress, couponCode, deliveryMethod, customerCity } = req.body
-    if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
-
-    const settings = await getSettings()
-    if (settings.cod_enabled === false) return res.status(400).json({ error: 'El pago contra entrega no está disponible' })
-
-    // COD solo aplica en la ciudad local (Rancagua)
-    const localCity = String(settings.local_city || 'Rancagua').trim().toLowerCase()
-    if (!String(customerCity || '').trim().toLowerCase().includes(localCity)) {
-      return res.status(400).json({ error: `El pago contra entrega solo está disponible en ${settings.local_city || 'Rancagua'}` })
-    }
-
-    const { validated, subtotal } = await buildValidatedItems(items)
-    const { discountAmount, finalTotal: afterCoupon, couponCode: appliedCoupon } = await computeCouponDiscount(couponCode, subtotal)
-    const { shippingCost, deliveryMethod: method } = await computeShipping(deliveryMethod, customerCity)
-    const finalTotal = afterCoupon + shippingCost
-
-    const { data: order, error: orderErr } = await supabase
-      .from('orders').insert({
-        status:           'pending_cod',
-        payment_method:   'cod',
-        delivery_method:  method,
-        shipping_cost:    shippingCost,
-        total:            finalTotal,
-        customer_email:   String(email).trim(),
-        customer_name:    customerName    || null,
-        customer_phone:   customerPhone   || null,
-        customer_address: customerAddress || null,
-        coupon_code:      appliedCoupon,
-        discount_amount:  discountAmount,
-      }).select().single()
-
-    if (orderErr) throw orderErr
-
-    const orderItems = validated.map(i => ({ order_id: order.id, ...i }))
-    await supabase.from('order_items').insert(orderItems)
-
-    // Reserva el stock al crear el pedido (idempotente), igual que la transferencia.
-    await confirmOrderInventory({ ...order, order_items: orderItems }, { wasPending: true })
-
-    res.json({ orderId: order.id, total: finalTotal, shippingCost })
+    const { order, items, total, shipping } = await createOrder(req.body || {}, { paymentMethod: 'cod', userId: await userIdFrom(req) })
+    await confirmOrderInventory({ ...order, order_items: items }, { wasPending: true })
+    sendCodConfirmation({ order, items })
+    sendStoreNewOrder({ order, items, kind: 'Contra entrega' })
+    res.json({ orderId: order.id, total, shippingCost: shipping.shippingCost })
   } catch (err) {
     console.error('/api/payment/cod error:', err.message)
-    const isValidation = /stock|disponible|Carrito|Email|Rancagua|entrega/i.test(err.message)
-    res.status(isValidation ? 400 : 500).json({ error: err.message })
+    res.status(orderErrorStatus(err)).json({ error: err instanceof OrderError ? err.message : 'No pudimos crear tu pedido. Intenta de nuevo.' })
   }
 })
 
@@ -738,6 +647,15 @@ function sanitizeProduct(body, { partial = false } = {}) {
   // specs: array de { label, value }  ·  gallery: array de URLs
   if ('specs'   in body) out.specs   = Array.isArray(body.specs)   ? body.specs.slice(0, 40)   : null
   if ('gallery' in body) out.gallery = Array.isArray(body.gallery) ? body.gallery.slice(0, 12) : null
+  // Campos del sitio HTML (migración 004)
+  if ('slug' in body) {
+    out.slug = str(body.slug)?.toLowerCase() ?? null
+    if (out.slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(out.slug)) throw new Error('El slug es inválido (solo minúsculas, números y guiones)')
+  }
+  if ('short_description' in body) out.short_description = str(body.short_description)
+  if ('featured'   in body) out.featured   = Boolean(body.featured)
+  if ('sort_order' in body) out.sort_order = int(body.sort_order)
+  if ('gtin'       in body) out.gtin       = str(body.gtin)
 
   if (!partial) {
     if (!out.name)  throw new Error('El nombre es requerido')
@@ -754,6 +672,7 @@ app.post('/api/admin/products', requireAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('products').insert(payload).select().single()
     if (error) throw error
+    invalidateCatalog()
     res.json(data)
   } catch (err) {
     const isValidation = /requerid|inválido/i.test(err.message)
@@ -768,6 +687,7 @@ app.put('/api/admin/products/:id', requireAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('products').update(payload).eq('id', req.params.id).select().single()
     if (error) throw error
+    invalidateCatalog()
     res.json(data)
   } catch (err) {
     const isValidation = /requerid|inválido/i.test(err.message)
@@ -781,6 +701,7 @@ app.delete('/api/admin/products/:id', requireAuth, async (req, res) => {
     const { error } = await supabase
       .from('products').update({ active: false }).eq('id', req.params.id)
     if (error) throw error
+    invalidateCatalog()
     res.json({ ok: true })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -897,8 +818,9 @@ app.post('/api/admin/orders/:id/cancel', requireAuth, async (req, res) => {
 app.get('/api/admin/orders/:id', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('orders').select('*, order_items(*)').eq('id', req.params.id).single()
+      .from('orders').select('*, order_items(*, products(img_url, slug))').eq('id', req.params.id).single()
     if (error || !data) return res.status(404).json({ error: 'Orden no encontrada' })
+    for (const it of data.order_items || []) { it.img_url = it.products?.img_url || null; it.slug = it.products?.slug || null; delete it.products }
     res.json(data)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -927,7 +849,8 @@ app.post('/api/admin/orders/:id/resend-email', requireAuth, async (req, res) => 
 
     const items = order.order_items || []
     if (order.status === 'pending_transfer')      await sendTransferInstructions({ order, items })
-    else if (order.status === 'paid')             sendOrderConfirmation({ order, items })
+    else if (order.status === 'pending_cod')      await sendCodConfirmation({ order, items })
+    else if (order.status === 'paid')             await sendOrderConfirmation({ order, items })
     else return res.status(400).json({ error: 'Este pedido no tiene un email para reenviar' })
 
     res.json({ ok: true })
@@ -961,6 +884,7 @@ app.post('/api/admin/products/:id/adjust-stock', requireAuth, async (req, res) =
       product_id: productId, delta, new_stock: newStock, reason, admin_user: req.adminUser,
     }).then(() => {}, () => {})
 
+    invalidateCatalog()
     res.json({ ok: true, stock: newStock, delta })
   } catch (err) {
     console.error('/api/admin/products/:id/adjust-stock error:', err.message)
@@ -1106,74 +1030,26 @@ app.post('/pago/resultado', (req, res) => {
   res.redirect(302, '/pago/resultado')
 })
 
-// ── SPA fallback + inyección de meta tags por ruta (Express 5) ───
-// Los crawlers sociales (WhatsApp, Facebook, X, LinkedIn) NO ejecutan JS,
-// así que aquí reescribimos title/description/Open Graph/canonical según la
-// ruta solicitada, antes de servir el HTML. El cliente (useSEO) los mantiene.
-const ORIGIN    = 'https://mitienditadigitalve.com'
-const SITE_NAME = 'Mi Tiendita Digital Ve'
-const INDEX_HTML = path.join(__dirname, '..', 'dist', 'index.html')
-
-const ROUTE_META = {
-  '/': {
-    title: 'Mi Tiendita Digital Ve — Tecnología y Gaming en Rancagua',
-    description: 'Tu tienda de tecnología y gaming en Rancagua, Chile. Gabinetes gamer, accesorios, computación, audio y video con garantía local y despacho a todo Chile.',
-  },
-  '/tienda': {
-    title: `Tienda — ${SITE_NAME}`,
-    description: 'Catálogo completo de Mi Tiendita Digital Ve — gabinetes gamer, accesorios, computación y más en Rancagua, Chile.',
-  },
-  '/nosotros': {
-    title: `Nosotros — ${SITE_NAME}`,
-    description: 'Conoce a Mi Tiendita Digital Ve, tu tienda de tecnología y gaming en Rancagua, Chile.',
-  },
-  '/soporte': {
-    title: `Soporte — ${SITE_NAME}`,
-    description: 'Centro de ayuda y soporte de Mi Tiendita Digital Ve. Resuelve tus dudas sobre productos, envíos y pagos.',
-  },
-  '/politica-de-privacidad': {
-    title: `Política de Privacidad — ${SITE_NAME}`,
-    description: 'Política de privacidad de Mi Tiendita Digital Ve: cómo tratamos tus datos personales.',
-  },
-}
-
-// Plantilla cacheada (se relee al reiniciar el proceso, p.ej. tras un deploy)
-let htmlTemplate = null
-function getTemplate() {
-  if (htmlTemplate === null) htmlTemplate = fs.readFileSync(INDEX_HTML, 'utf8')
-  return htmlTemplate
-}
-
-// Escapa comillas dobles para no romper los atributos content="..."
-const esc = (s) => String(s).replace(/"/g, '&quot;')
-
-function renderWithMeta(reqPath) {
-  const meta = ROUTE_META[reqPath] || ROUTE_META['/']
-  const url  = ORIGIN + (reqPath === '/' ? '/' : reqPath)
-  const t    = esc(meta.title)
-  const d    = esc(meta.description)
-
-  return getTemplate()
-    .replace(/<title>[\s\S]*?<\/title>/i,                                   `<title>${t}</title>`)
-    .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/i,            `$1${d}$2`)
-    .replace(/(<meta\s+property="og:title"\s+content=")[^"]*(")/i,          `$1${t}$2`)
-    .replace(/(<meta\s+property="og:description"\s+content=")[^"]*(")/i,    `$1${d}$2`)
-    .replace(/(<meta\s+property="og:url"\s+content=")[^"]*(")/i,            `$1${url}$2`)
-    .replace(/(<meta\s+name="twitter:title"\s+content=")[^"]*(")/i,         `$1${t}$2`)
-    .replace(/(<meta\s+name="twitter:description"\s+content=")[^"]*(")/i,   `$1${d}$2`)
-    .replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i,                 `$1${url}$2`)
-}
-
-if (isProd) {
-  app.get('/{*path}', (req, res) => {
-    try {
-      res.set('Content-Type', 'text/html; charset=utf-8').send(renderWithMeta(req.path))
-    } catch (err) {
-      console.error('Render meta error:', err.message)
-      res.sendFile(INDEX_HTML)
-    }
+// ── Páginas HTML (renderizadas en el servidor) + 404 ─────────────
+app.use(cartApi)
+app.use(ordersApi)
+app.use(accountApi)
+app.use(supportApi)
+app.use(adminApi)
+app.use(seoRouter)
+app.use(pagesRouter)
+app.use((req, res) => {
+  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Ruta no encontrada' })
+  renderNotFound(req, res).catch((err) => {
+    console.error('404 render:', err.message)
+    res.status(404).send('Página no encontrada')
   })
-}
+})
+app.use((err, req, res, _next) => {
+  console.error('❌ Error en', req.method, req.path, err.message)
+  if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'Error interno' })
+  res.status(500).send('Error interno del servidor')
+})
 
 // ── Arranque ──────────────────────────────────────────────────────
 const server = app.listen(PORT, '0.0.0.0', () => {

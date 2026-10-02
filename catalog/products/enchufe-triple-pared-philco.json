@@ -1,0 +1,37 @@
+{
+  "slug": "enchufe-triple-pared-philco",
+  "name": "Enchufe triple de pared Philco",
+  "brand": "Philco",
+  "category": "Enchufes y extensiones",
+  "price": 1990,
+  "original_price": 4200,
+  "short_description": "Tres tomas desde un solo enchufe, en blanco o negro.",
+  "description": "Enchufe triple de pared Philco 2P+T: conecta hasta tres equipos desde un solo enchufe. Disponible en blanco y negro.",
+  "photos": [
+    "ENCHUFE TRIPLE 78546 BLANCO PHILCO.webp",
+    "ENCHUFE TRIPLE 78546 BLANCO PHILCO1.webp",
+    "ENCHUFE TRIPLE 78547 NEGRO PHILCO.webp",
+    "ENCHUFE TRIPLE 78547 NEGRO PHILCO1.webp"
+  ],
+  "variant_kind": "Color",
+  "variants": [
+    {
+      "label": "Blanco",
+      "photos": [
+        "ENCHUFE TRIPLE 78546 BLANCO PHILCO.webp",
+        "ENCHUFE TRIPLE 78546 BLANCO PHILCO1.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Negro",
+      "photos": [
+        "ENCHUFE TRIPLE 78547 NEGRO PHILCO.webp",
+        "ENCHUFE TRIPLE 78547 NEGRO PHILCO1.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "badge": null,
+  "stock": 0
+}

@@ -1,0 +1,35 @@
+{
+  "slug": "enchufe-hembra-2p-t-philco",
+  "name": "Enchufe hembra 2P+T Philco",
+  "brand": "Philco",
+  "category": "Enchufes y extensiones",
+  "price": 1500,
+  "original_price": null,
+  "short_description": "Adaptador de enchufe hembra 2P+T, en blanco o negro.",
+  "description": "Enchufe hembra 2P+T Philco (10 A, 250 V) para instalaciones y adaptaciones eléctricas. Disponible en blanco y negro.",
+  "photos": [
+    "ENCHUFHE HEMBRA 2P + T 78553 BLANCO PHILCO.webp",
+    "ENCHUFHE HEMBRA 2P + T 78553 BLANCO PHILCO1.webp",
+    "ENCHUFE HEMBRA 2P + T 78554 NEGRO PHILCO.webp"
+  ],
+  "variant_kind": "Color",
+  "variants": [
+    {
+      "label": "Blanco",
+      "photos": [
+        "ENCHUFHE HEMBRA 2P + T 78553 BLANCO PHILCO.webp",
+        "ENCHUFHE HEMBRA 2P + T 78553 BLANCO PHILCO1.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Negro",
+      "photos": [
+        "ENCHUFE HEMBRA 2P + T 78554 NEGRO PHILCO.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "badge": null,
+  "stock": 0
+}

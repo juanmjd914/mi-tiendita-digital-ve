@@ -1,0 +1,4676 @@
+[
+  {
+    "n": 1,
+    "draft_name": "Adaptador Bluetooth 5.0 para pc",
+    "slug": "adaptador-bluetooth-5-0-para-pc",
+    "category": "COMPUTACION",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "Adaptador Bluetooth 5.0 para pc.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 78,
+      "name": "Adaptador Bluetooth para Pc 5.1",
+      "price": 7900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 2,
+    "draft_name": "Adaptador BT Philips",
+    "slug": "adaptador-bt-philips",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philips",
+    "files": [
+      "Adaptador BT Philips.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 201,
+      "name": "Adaptador bluetooth para audifonos philips",
+      "price": 14250,
+      "original_price": 20990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 3,
+    "draft_name": "ADAPTADOR DE AUDIO PARA CONSOLA DE VIDEO JUEGOS",
+    "slug": "adaptador-de-audio-para-consola-de-video-juegos",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "ADAPTADOR DE AUDIO PARA CONSOLA DE VIDEO JUEGOS 720X720.webp",
+      "ADAPTADOR DE AUDIO PARA CONSOLA DE VIDEO JUEGOS 720X7201.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 4,
+    "draft_name": "ADAPTADOR DE VIDEO PARA MAC BOOK A HD",
+    "slug": "adaptador-de-video-para-mac-book-a-hd",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "ADAPTADOR DE VIDEO PARA MAC BOOK A HD 720X720.webp",
+      "ADAPTADOR DE VIDEO PARA MAC BOOK A HD 720X7201.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 5,
+    "draft_name": "ADAPTADOR TIPO C A MICRO USB",
+    "slug": "adaptador-tipo-c-a-micro-usb",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "ADAPTADOR TIPO C A MICRO USB.webp",
+      "ADAPTADOR TIPO C A MICRO USB1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 81,
+      "name": "Adaptador Micro Usb a Tipo c",
+      "price": 1290,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 6,
+    "draft_name": "Adaptador USB Bluetooth 5.1 para Notebook o Pc",
+    "slug": "adaptador-usb-bluetooth-5-1-para-notebook-o-pc",
+    "category": "COMPUTACION",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "Adaptador USB Bluetooth 5.1 para Notebook o Pc.webp",
+      "Adaptador USB Bluetooth 5.1 para Notebook o Pc1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 78,
+      "name": "Adaptador Bluetooth para Pc 5.1",
+      "price": 7900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 7,
+    "draft_name": "ANTENA MAGNAVOX",
+    "slug": "antena-magnavox",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Hogar y oficina",
+    "brand": "Magnavox",
+    "files": [
+      "ANTENA MAGNAVOX.webp",
+      "ANTENA MAGNAVOX1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 193,
+      "name": "Antena hdtv Magnavox",
+      "price": 7990,
+      "original_price": 8600,
+      "stock": 10
+    }
+  },
+  {
+    "n": 8,
+    "draft_name": "Aro de Luz con Porta Celular Philco",
+    "slug": "aro-de-luz-con-porta-celular-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Iluminación y fotografía",
+    "brand": "Philco",
+    "files": [
+      "Aro de Luz con Porta Celular Philco.webp",
+      "Aro de Luz con Porta Celular Philco1.webp",
+      "Aro de Luz con Porta Celular Philco125.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 15,
+      "name": "Aro de Luz con Soporte para Celular Philco",
+      "price": 7400,
+      "original_price": null,
+      "stock": 2
+    }
+  },
+  {
+    "n": 9,
+    "draft_name": "ARO DE LUZ TIPO CLIP PARA SMATPHONE RECARGABLE",
+    "slug": "aro-de-luz-tipo-clip-para-smatphone-recargable",
+    "category": "Iluminación y fotografía",
+    "category_guess": "Iluminación y fotografía",
+    "brand": null,
+    "files": [
+      "ARO DE LUZ TIPO CLIP PARA SMATPHONE RECARGABLE.webp",
+      "ARO DE LUZ TIPO CLIP PARA SMATPHONE RECARGABLE2.webp",
+      "ARO DE LUZ TIPO CLIP PARA SMATPHONE RECARGABLE3.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 174,
+      "name": "Aro de Luz Para Celular Tipo Clip",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 10,
+    "draft_name": "audifinos redragon ares",
+    "slug": "audifinos-redragon-ares",
+    "category": "Audífonos",
+    "category_guess": "Audífonos",
+    "brand": "Redragon",
+    "files": [
+      "audifinos redragon ares.webp",
+      "audifinos redragon ares1.webp",
+      "audifinos redragon ares2.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 55,
+      "name": "Audifonos Gamer Redragon Ares",
+      "price": 12750,
+      "original_price": 17900,
+      "stock": 10
+    }
+  },
+  {
+    "n": 11,
+    "draft_name": "AUDIFONO GAMER ULTRA",
+    "slug": "audifono-gamer-ultra",
+    "category": "Audífonos",
+    "category_guess": "Audífonos",
+    "brand": "Ultra",
+    "files": [
+      "AUDIFONO GAMER ULTRA.webp",
+      "AUDIFONO GAMER ULTRA1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 56,
+      "name": "Audifonos Gamer Ultra",
+      "price": 9990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 12,
+    "draft_name": "Audifono manos libres bluetooth philips 1613",
+    "slug": "audifono-manos-libres-bluetooth-philips-1613",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Philips",
+    "files": [
+      "Audifono manos libres bluetooth philips 1613.webp",
+      "Audifono manos libres bluetooth philips 16131.webp"
+    ],
+    "legacy_match": {
+      "score": 0.83,
+      "id": 121,
+      "name": "Audifono Bluetooth Manos Libres Philips Shb1623",
+      "price": 17700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 13,
+    "draft_name": "Audifono manos libres bluetooth philips 1623",
+    "slug": "audifono-manos-libres-bluetooth-philips-1623",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Philips",
+    "files": [
+      "Audifono manos libres bluetooth philips 1623.webp",
+      "Audifono manos libres bluetooth philips 16231.webp",
+      "Audifono manos libres bluetooth philips 162312.webp"
+    ],
+    "legacy_match": {
+      "score": 0.83,
+      "id": 121,
+      "name": "Audifono Bluetooth Manos Libres Philips Shb1623",
+      "price": 17700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 14,
+    "draft_name": "AUDIFONO MOTOROLA EARBUDS SPORT MANOS LIBRES NEGRO",
+    "slug": "audifono-motorola-earbuds-sport-manos-libres-negro",
+    "category": "Audífonos",
+    "category_guess": "Audífonos",
+    "brand": "Motorola",
+    "files": [
+      "AUDIFONO MOTOROLA EARBUDS SPORT MANOS LIBRES NEGRO.webp",
+      "AUDIFONO MOTOROLA EARBUDS SPORT MANOS LIBRES NEGRO1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 176,
+      "name": "Audifonos Motorola Earbuds Sport",
+      "price": 9990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 15,
+    "draft_name": "audifonos bluetooth Philco",
+    "slug": "audifonos-bluetooth-philco",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Philco",
+    "files": [
+      "audifonos bluetooth Philco.webp",
+      "audifonos bluetooth Philco1.webp",
+      "audifonos bluetooth Philco2.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 54,
+      "name": "Audifonos Bluetooth Philco",
+      "price": 8990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 16,
+    "draft_name": "audifonos gaming set fiddler z caja",
+    "slug": "audifonos-gaming-set-fiddler-z-caja",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Fiddler",
+    "files": [
+      "audifonos gaming set fiddler z caja.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 57,
+      "name": "Audifonos Gaming Set Fiddler Z Hp820",
+      "price": 11900,
+      "original_price": 16990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 17,
+    "draft_name": "audifonos Gaming set FIDLLER z FD-HP820",
+    "slug": "audifonos-gaming-set-fidller-z-fd-hp820",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": null,
+    "files": [
+      "audifonos Gaming set FIDLLER z  FD-HP820.webp",
+      "audifonos Gaming set FIDLLER z  FD-HP820 1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 57,
+      "name": "Audifonos Gaming Set Fiddler Z Hp820",
+      "price": 11900,
+      "original_price": 16990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 18,
+    "draft_name": "audifonos hp dhe7000",
+    "slug": "audifonos-hp-dhe7000",
+    "category": "Audífonos",
+    "category_guess": "Audífonos",
+    "brand": "HP",
+    "files": [
+      "audifonos hp dhe7000.webp",
+      "audifonos hp dhe70001.webp",
+      "audifonos hp dhe700012.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 53,
+      "name": "Audifonos Hp Dhh1601",
+      "price": 7950,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 19,
+    "draft_name": "Audifonos hp Dhh1601",
+    "slug": "audifonos-hp-dhh1601",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "HP",
+    "files": [
+      "Audifonos hp Dhh1601.webp",
+      "Audifonos hp Dhh16011.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 53,
+      "name": "Audifonos Hp Dhh1601",
+      "price": 7950,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 20,
+    "draft_name": "Audifonos Monster Lofty",
+    "slug": "audifonos-monster-lofty",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Monster",
+    "files": [
+      "Audifonos Monster Lofty.webp",
+      "Audifonos Monster Lofty1.webp",
+      "Audifonos Monster Lofty12.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 58,
+      "name": "Audifonos Monster Lofty",
+      "price": 7590,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 21,
+    "draft_name": "Audifonos Monster Loud",
+    "slug": "audifonos-monster-loud",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Monster",
+    "files": [
+      "Audifonos Monster Loud.webp",
+      "Audifonos Monster Loud1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 60,
+      "name": "Audifonos Monster Loud",
+      "price": 6490,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 22,
+    "draft_name": "Audifonos para niños Paw Patrol",
+    "slug": "audifonos-para-ninos-paw-patrol",
+    "category": "Audífonos",
+    "category_guess": "Audífonos",
+    "brand": null,
+    "files": [
+      "Audifonos para niños Paw Patrol.webp",
+      "Audifonos para niños Paw Patrol1.webp",
+      "Audifonos para niños Paw Patrol12.webp",
+      "Audifonos para niños Paw Patrol1234.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 206,
+      "name": "Audifonos Kids Disney Paw Patrol Chase",
+      "price": 9990,
+      "original_price": 14290,
+      "stock": 10
+    }
+  },
+  {
+    "n": 23,
+    "draft_name": "Audifonos Paw Patrol",
+    "slug": "audifonos-paw-patrol",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": null,
+    "files": [
+      "Audifonos Paw Patrol.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 206,
+      "name": "Audifonos Kids Disney Paw Patrol Chase",
+      "price": 9990,
+      "original_price": 14290,
+      "stock": 10
+    }
+  },
+  {
+    "n": 24,
+    "draft_name": "Audifonos Philco Video Conferencia",
+    "slug": "audifonos-philco-video-conferencia",
+    "category": "COMPUTACION",
+    "category_guess": "Audífonos",
+    "brand": "Philco",
+    "files": [
+      "Audifonos Philco Video Conferencia.webp",
+      "Audifonos Philco Video Conferencia1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 62,
+      "name": "Audifonos Philco Video Conferencia",
+      "price": 4890,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 25,
+    "draft_name": "audifonos philips she 3595 azul",
+    "slug": "audifonos-philips-she-3595-azul",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Philips",
+    "files": [
+      "audifonos philips she 3595 azul.webp",
+      "audifonos philips she 3595 azul (1).webp",
+      "audifonos philips she 3595 azul1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 131,
+      "name": "Audifonos Philips SHE 3595",
+      "price": 7990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 26,
+    "draft_name": "Audifonos Redragon Themis2",
+    "slug": "audifonos-redragon-themis2",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Redragon",
+    "files": [
+      "Audifonos Redragon Themis2.webp",
+      "Audifonos Redragon Themis2 (2).webp",
+      "Audifonos Redragon Themis21.webp",
+      "Audifonos Redragon Themis213.webp",
+      "Audifonos Redragon Themis2134.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 20,
+      "name": "Audifonos Redragon Themis2",
+      "price": 19990,
+      "original_price": null,
+      "stock": 3
+    }
+  },
+  {
+    "n": 27,
+    "draft_name": "Balanza Digital 7 kg",
+    "slug": "balanza-digital-7-kg",
+    "category": "HOGAR",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "Balanza Digital 7 kg.webp",
+      "Balanza Digital 7 kg1.webp",
+      "Balanza Digital 7 kg13.webp",
+      "Balanza Digital 7 kg2.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 145,
+      "name": "Balanza Digital Hasta 7 Kg",
+      "price": 6500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 28,
+    "draft_name": "Balanza Digital hasta 5 Kilos",
+    "slug": "balanza-digital-hasta-5-kilos",
+    "category": "Hogar y oficina",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "Balanza Digital hasta 5 Kilos.webp",
+      "Balanza Digital hasta 5 Kilos1.webp",
+      "Balanza Digital hasta 5 Kilos12.webp",
+      "Balanza Digital hasta 5 Kilos123.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 145,
+      "name": "Balanza Digital Hasta 7 Kg",
+      "price": 6500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 29,
+    "draft_name": "Bandeja Notebook 15 pulgadas Desing 235",
+    "slug": "bandeja-notebook-15-pulgadas-desing-235",
+    "category": "Accesorios notebook y PC",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": null,
+    "files": [
+      "Bandeja Notebook 15 pulgadas Desing 235.webp",
+      "Bandeja Notebook 15 pulgadas Desing 235 1.webp",
+      "Bandeja Notebook 15 pulgadas Desing 2354.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 199,
+      "name": "Bandeja Notebook 15 Pulgadas con almohadilla y soporte Celular -tablet",
+      "price": 7990,
+      "original_price": 12600,
+      "stock": 10
+    }
+  },
+  {
+    "n": 30,
+    "draft_name": "Bluetooth Car Kit PHILCO1",
+    "slug": "bluetooth-car-kit-philco1",
+    "category": "Otros",
+    "category_guess": "Otros",
+    "brand": null,
+    "files": [
+      "Bluetooth Car Kit PHILCO1.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 31,
+    "draft_name": "Bluetooth Speakers Fortlink WS201",
+    "slug": "bluetooth-speakers-fortlink-ws201",
+    "category": "Parlantes",
+    "category_guess": "Parlantes",
+    "brand": "Fortlink",
+    "files": [
+      "Bluetooth Speakers Fortlink WS201.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 162,
+      "name": "Parlante Bluetooth Ws201",
+      "price": 6990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 32,
+    "draft_name": "Bolso para bicicleta body glove",
+    "slug": "bolso-para-bicicleta-body-glove",
+    "category": "Ciclismo y outdoor",
+    "category_guess": "Ciclismo y outdoor",
+    "brand": "Body Glove",
+    "files": [
+      "Bolso para bicicleta body glove.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 152,
+      "name": "Bolso para Bicicletas Body Glove",
+      "price": 6990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 33,
+    "draft_name": "Bolso para ciclismo Body Glove",
+    "slug": "bolso-para-ciclismo-body-glove",
+    "category": "Ciclismo y outdoor",
+    "category_guess": "Ciclismo y outdoor",
+    "brand": "Body Glove",
+    "files": [
+      "Bolso para ciclismo Body Glove 720x720.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 152,
+      "name": "Bolso para Bicicletas Body Glove",
+      "price": 6990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 34,
+    "draft_name": "cable 1 plug 3.5mm a 2 Plug rca",
+    "slug": "cable-1-plug-3-5mm-a-2-plug-rca",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "cable 1 plug 3.5mm a 2 Plug rca.webp",
+      "cable 1 plug 3.5mm a 2 Plug rca1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 95,
+      "name": "Cable 1 Plug 3.5mm a 2 Plug Rca",
+      "price": 1650,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 35,
+    "draft_name": "CABLE 3.5MM A 3.5MM + MICROFONO PHILCO",
+    "slug": "cable-3-5mm-a-3-5mm-microfono-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Micrófonos y streaming",
+    "brand": "Philco",
+    "files": [
+      "CABLE 3.5MM A 3.5MM + MICROFONO PHILCO.webp",
+      "CABLE 3.5MM A 3.5MM + MICROFONO PHILCO1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 83,
+      "name": "Cable Philco Tipo C",
+      "price": 3890,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 36,
+    "draft_name": "cable componente",
+    "slug": "cable-componente",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "cable componente.webp",
+      "cable componente1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 103,
+      "name": "Cable Componente 2 Mts",
+      "price": 1750,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 37,
+    "draft_name": "Cable de Impresora Philco1",
+    "slug": "cable-de-impresora-philco1",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "Cable de Impresora Philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 82,
+      "name": "Cable para Impresora Philco",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 38,
+    "draft_name": "Cable de poder tipo 8",
+    "slug": "cable-de-poder-tipo-8",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "Cable de poder tipo 8.webp",
+      "Cable de poder tipo 81.webp",
+      "Cable de poder tipo 812.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 100,
+      "name": "Cable de Poder tipo Trebol",
+      "price": 2490,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 39,
+    "draft_name": "Cable extension usb 1.8 mts",
+    "slug": "cable-extension-usb-1-8-mts",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "Cable extension usb 1.8 mts.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 97,
+      "name": "Cable Extension Usb 1.8 Mts",
+      "price": 2990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 40,
+    "draft_name": "CABLE HDMI 1.8 MTS ULTRA EN BLISTER",
+    "slug": "cable-hdmi-1-8-mts-ultra-en-blister",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Ultra",
+    "files": [
+      "CABLE HDMI 1.8 MTS ULTRA EN BLISTER.webp",
+      "CABLE HDMI 1.8 MTS ULTRA EN BLISTER1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 104,
+      "name": "Cable Hdmi Ultra 1.8 Mts",
+      "price": 2600,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 41,
+    "draft_name": "CABLE HDMI HP 4K 1.5 MTS EN BOLSA1",
+    "slug": "cable-hdmi-hp-4k-1-5-mts-en-bolsa1",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": "HP",
+    "files": [
+      "CABLE HDMI HP 4K 1.5 MTS EN BOLSA1.webp",
+      "CABLE HDMI HP 4K 1.5 MTS EN BOLSA12.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 104,
+      "name": "Cable Hdmi Ultra 1.8 Mts",
+      "price": 2600,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 42,
+    "draft_name": "cable ipad",
+    "slug": "cable-ipad",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "cable ipad.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 75,
+      "name": "Cable OTG para iPad 30-pin a USB-A (H)",
+      "price": 2200,
+      "original_price": null,
+      "stock": 9
+    }
+  },
+  {
+    "n": 43,
+    "draft_name": "Cable lightning master g",
+    "slug": "cable-lightning-master-g",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Master G",
+    "files": [
+      "Cable lightning master g.webp",
+      "Cable lightning master g1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 93,
+      "name": "Cable Lightning Para Iphone Master G",
+      "price": 3790,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 44,
+    "draft_name": "cable lightning philco",
+    "slug": "cable-lightning-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "cable lightning philco.webp",
+      "cable lightning philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 83,
+      "name": "Cable Philco Tipo C",
+      "price": 3890,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 45,
+    "draft_name": "CABLE MINI USB A USB HEMBRA",
+    "slug": "cable-mini-usb-a-usb-hembra",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "CABLE MINI USB A USB HEMBRA.webp",
+      "CABLE MINI USB A USB HEMBRA1.webp",
+      "CABLE MINI USB A USB HEMBRA12.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 98,
+      "name": "Cable Usb a Mini Usb Macho",
+      "price": 1650,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 46,
+    "draft_name": "CABLE OPTICO PHILCO DE 3 MTS",
+    "slug": "cable-optico-philco-de-3-mts",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "CABLE OPTICO PHILCO DE 3 MTS 720X720.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 83,
+      "name": "Cable Philco Tipo C",
+      "price": 3890,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 47,
+    "draft_name": "CABLE OPTICO TOSLINK 1.8 MTS",
+    "slug": "cable-optico-toslink-1-8-mts",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "CABLE OPTICO TOSLINK 1.8 MTS.webp",
+      "CABLE OPTICO TOSLINK 1.8 MTS 2.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 168,
+      "name": "Cable Optico Tsolink Philco 1.8-3 Mts",
+      "price": 3200,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 48,
+    "draft_name": "CABLE OTG IPAD 23",
+    "slug": "cable-otg-ipad-23",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "CABLE OTG IPAD 23.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 75,
+      "name": "Cable OTG para iPad 30-pin a USB-A (H)",
+      "price": 2200,
+      "original_price": null,
+      "stock": 9
+    }
+  },
+  {
+    "n": 49,
+    "draft_name": "CABLE OTG SAMSUNG GALAXY TAB 12",
+    "slug": "cable-otg-samsung-galaxy-tab-12",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Samsung",
+    "files": [
+      "CABLE OTG SAMSUNG GALAXY TAB 12.webp",
+      "CABLE OTG SAMSUNG GALAXY TAB 123.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 77,
+      "name": "Cable Otg Samsung Galaxy Tab 1-2",
+      "price": 4990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 50,
+    "draft_name": "cable para impresora philco",
+    "slug": "cable-para-impresora-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "cable para impresora philco.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 82,
+      "name": "Cable para Impresora Philco",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 51,
+    "draft_name": "Cable philco gold",
+    "slug": "cable-philco-gold",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "Cable philco gold.webp",
+      "Cable philco gold1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 83,
+      "name": "Cable Philco Tipo C",
+      "price": 3890,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 52,
+    "draft_name": "CABLE PHILCO TIPO C DE COLORES1",
+    "slug": "cable-philco-tipo-c-de-colores1",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "CABLE PHILCO TIPO C DE COLORES1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 83,
+      "name": "Cable Philco Tipo C",
+      "price": 3890,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 53,
+    "draft_name": "CABLE PHILCO TIPO C DE COLORES2",
+    "slug": "cable-philco-tipo-c-de-colores2",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "CABLE PHILCO TIPO C DE COLORES2.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 83,
+      "name": "Cable Philco Tipo C",
+      "price": 3890,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 54,
+    "draft_name": "CABLE PODER PC 1.8M",
+    "slug": "cable-poder-pc-1-8m",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "CABLE PODER PC 1.8M.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 101,
+      "name": "Cable de Poder Para Pc 1.8 Mts",
+      "price": 2200,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 55,
+    "draft_name": "CABLE PODER TIPO TREBOL",
+    "slug": "cable-poder-tipo-trebol",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "CABLE PODER TIPO TREBOL.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 100,
+      "name": "Cable de Poder tipo Trebol",
+      "price": 2490,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 56,
+    "draft_name": "cable rca estereo 3a3",
+    "slug": "cable-rca-estereo-3a3",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "cable rca estereo 3a3.webp",
+      "cable rca estereo 3a31.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 96,
+      "name": "Cable Rca Estereo 3 a 3",
+      "price": 3490,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 57,
+    "draft_name": "Cable recto Plug a Plug 3.5 st2",
+    "slug": "cable-recto-plug-a-plug-3-5-st2",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "Cable recto Plug a Plug 3.5 st2.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 58,
+    "draft_name": "Cable Red Cat 5E",
+    "slug": "cable-red-cat-5e",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "Cable Red Cat 5E.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 107,
+      "name": "Cable de Red Categoria 5E de 5 Metros",
+      "price": 2200,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 59,
+    "draft_name": "Cable Sony Lightning",
+    "slug": "cable-sony-lightning",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Sony",
+    "files": [
+      "Cable Sony Lightning.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 207,
+      "name": "Cable Sony Lightning para Iphone y Micro Usb",
+      "price": 6300,
+      "original_price": 9000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 60,
+    "draft_name": "Cable Sony Micro usb a C",
+    "slug": "cable-sony-micro-usb-a-c",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Sony",
+    "files": [
+      "Cable Sony Micro usb  a C.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 88,
+      "name": "Cable Sony Micro Usb a Tipo C",
+      "price": 4990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 61,
+    "draft_name": "cable tipo c de colores philco",
+    "slug": "cable-tipo-c-de-colores-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "cable tipo c de colores philco (1).webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 83,
+      "name": "Cable Philco Tipo C",
+      "price": 3890,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 62,
+    "draft_name": "CABLE USB A MICRO USB",
+    "slug": "cable-usb-a-micro-usb",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "CABLE USB A MICRO USB.webp",
+      "CABLE USB A MICRO USB1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 88,
+      "name": "Cable Sony Micro Usb a Tipo C",
+      "price": 4990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 63,
+    "draft_name": "CABLE USB - C 1,2 MTS GOMA ROJO DLC2528C Philips1",
+    "slug": "cable-usb-c-1-2-mts-goma-rojo-dlc2528c-philips1",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "CABLE USB - C 1,2 MTS GOMA ROJO DLC2528C Philips1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 86,
+      "name": "Cable tipo «C» Philips de 1.2 Mts Goma Rojo",
+      "price": 4500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 64,
+    "draft_name": "CABLE USB TIPO C A 3.5MM",
+    "slug": "cable-usb-tipo-c-a-3-5mm",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "CABLE USB TIPO C  A 3.5MM.webp",
+      "CABLE USB TIPO C  A 3.5MM1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 85,
+      "name": "Cable Philco 3.5mm a 3.5mm + Micrófono",
+      "price": 3590,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 65,
+    "draft_name": "Cable usb tipo c philco",
+    "slug": "cable-usb-tipo-c-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "Cable usb tipo c philco.webp",
+      "CABLE USB TIPO C PHILCO 1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 82,
+      "name": "Cable para Impresora Philco",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 66,
+    "draft_name": "Cable VGA Macho a Macho",
+    "slug": "cable-vga-macho-a-macho",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "Cable VGA Macho a Macho.webp",
+      "Cable VGA Macho a Macho1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 109,
+      "name": "Cable Vga Macho-Macho de 1.8 Mts",
+      "price": 3950,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 67,
+    "draft_name": "Camara wifi Motorola para exteriores",
+    "slug": "camara-wifi-motorola-para-exteriores",
+    "category": "Webcams",
+    "category_guess": "Webcams",
+    "brand": "Motorola",
+    "files": [
+      "Camara wifi Motorola para exteriores.webp",
+      "Camara wifi Motorola para exteriores 1 (1).webp",
+      "Camara wifi Motorola para exteriores 2.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 52,
+      "name": "Camara Exterior Wifi Motorola Focus 72",
+      "price": 77500,
+      "original_price": 97500,
+      "stock": 1
+    }
+  },
+  {
+    "n": 68,
+    "draft_name": "CARGADOR 12V 24V 3.0 AMP 3 PUERTOS USB",
+    "slug": "cargador-12v-24v-3-0-amp-3-puertos-usb",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": null,
+    "files": [
+      "CARGADOR 12V  24V 3.0 AMP 3 PUERTOS USB.webp",
+      "CARGADOR 12V  24V 3.0 AMP 3 PUERTOS USB1.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 69,
+    "draft_name": "CARGADOR 12V IPHONE 344SIPAD - DURACELL",
+    "slug": "cargador-12v-iphone-344sipad-duracell",
+    "category": "ACCESORIOS",
+    "category_guess": "Cargadores y energía",
+    "brand": null,
+    "files": [
+      "CARGADOR 12V IPHONE 344SIPAD - DURACELL.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 115,
+      "name": "Cargador 12V Iphone 3/4/4S/Ipad Duracell",
+      "price": 5990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 70,
+    "draft_name": "CARGADOR AUTO DOBLE USB CON PANT LED PHILCO",
+    "slug": "cargador-auto-doble-usb-con-pant-led-philco",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Philco",
+    "files": [
+      "CARGADOR AUTO DOBLE USB CON PANT LED PHILCO.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 126,
+      "name": "Cargador Doble Usb + Cable Tipo C Philco",
+      "price": 6500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 71,
+    "draft_name": "CARGADOR AUTO DOBLE USB CON PANT LED1",
+    "slug": "cargador-auto-doble-usb-con-pant-led1",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": null,
+    "files": [
+      "CARGADOR AUTO DOBLE USB CON PANT LED1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 113,
+      "name": "Cargador Rapido de Auto Doble Usb Pantalla Led",
+      "price": 4990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 72,
+    "draft_name": "CARGADOR AUTO MICRO USB 12V ULTRA",
+    "slug": "cargador-auto-micro-usb-12v-ultra",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Ultra",
+    "files": [
+      "CARGADOR AUTO MICRO USB 12V ULTRA.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 114,
+      "name": "Cargador 12V para Auto Micro Usb Ultra",
+      "price": 2990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 73,
+    "draft_name": "Cargador notebook acer 19v 3.42a 29tnbac195",
+    "slug": "cargador-notebook-acer-19v-3-42a-29tnbac195",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Acer",
+    "files": [
+      "Cargador notebook acer 19v 3.42a 29tnbac195.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 74,
+    "draft_name": "Cargador notebook acer 19v 3.42a 29tnbac342",
+    "slug": "cargador-notebook-acer-19v-3-42a-29tnbac342",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Acer",
+    "files": [
+      "Cargador notebook acer 19v 3.42a 29tnbac342.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 75,
+    "draft_name": "Cargador Notebook asus 19v 2.1a 29tnbas191",
+    "slug": "cargador-notebook-asus-19v-2-1a-29tnbas191",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "Asus",
+    "files": [
+      "Cargador Notebook asus 19v 2.1a  29tnbas191.webp",
+      "Cargador Notebook asus 19v 2.1a  29tnbas191 1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 43,
+      "name": "Cargador para Notebook Asus 19V-2.1A",
+      "price": 9900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 76,
+    "draft_name": "Cargador notebook hp 119.5v 3.33a 29tnbhp334",
+    "slug": "cargador-notebook-hp-119-5v-3-33a-29tnbhp334",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "HP",
+    "files": [
+      "Cargador notebook hp 119.5v 3.33a 29tnbhp334.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 48,
+      "name": "Cargador para Notebook Hp",
+      "price": 8990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 77,
+    "draft_name": "Cargador notebook hp 18.5v 3.5a 29tnbhp187",
+    "slug": "cargador-notebook-hp-18-5v-3-5a-29tnbhp187",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "HP",
+    "files": [
+      "Cargador notebook hp 18.5v 3.5a  29tnbhp187.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 48,
+      "name": "Cargador para Notebook Hp",
+      "price": 8990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 78,
+    "draft_name": "Cargador notebook hp 19.5v 2.05a 29tnbhp194",
+    "slug": "cargador-notebook-hp-19-5v-2-05a-29tnbhp194",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "HP",
+    "files": [
+      "Cargador notebook hp 19.5v 2.05a 29tnbhp194.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 48,
+      "name": "Cargador para Notebook Hp",
+      "price": 8990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 79,
+    "draft_name": "Cargador notebook hp 19v 158a 29tnbhp158",
+    "slug": "cargador-notebook-hp-19v-158a-29tnbhp158",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "HP",
+    "files": [
+      "Cargador notebook hp 19v 158a  29tnbhp158.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 48,
+      "name": "Cargador para Notebook Hp",
+      "price": 8990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 80,
+    "draft_name": "Cargador notebook hp 29tnbhp184",
+    "slug": "cargador-notebook-hp-29tnbhp184",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "HP",
+    "files": [
+      "Cargador notebook hp 29tnbhp184.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 48,
+      "name": "Cargador para Notebook Hp",
+      "price": 8990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 81,
+    "draft_name": "Cargador notebook lenovo 20v 2a 29tnbln202",
+    "slug": "cargador-notebook-lenovo-20v-2a-29tnbln202",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Lenovo",
+    "files": [
+      "Cargador notebook lenovo 20v 2a  29tnbln202.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 82,
+    "draft_name": "Cargador notebook lenovo 20v 3.25a 29tnbln207",
+    "slug": "cargador-notebook-lenovo-20v-3-25a-29tnbln207",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Lenovo",
+    "files": [
+      "Cargador notebook lenovo 20v 3.25a  29tnbln207.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 83,
+    "draft_name": "Cargador notebook lenovo 20v 3.25a 29tnbln325",
+    "slug": "cargador-notebook-lenovo-20v-3-25a-29tnbln325",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Lenovo",
+    "files": [
+      "Cargador notebook lenovo 20v 3.25a  29tnbln325.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 84,
+    "draft_name": "Cargador notebook mcbook air 14.5v 3.1a 29tnbmc145",
+    "slug": "cargador-notebook-mcbook-air-14-5v-3-1a-29tnbmc145",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": null,
+    "files": [
+      "Cargador notebook mcbook air 14.5v 3.1a 29tnbmc145.webp",
+      "Cargador notebook mcbook air 14.5v 3.1a 29tnbmc145 1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 44,
+      "name": "Cargador para Notebook Mcbook Air 14.5V-3.1A",
+      "price": 29600,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 85,
+    "draft_name": "Cargador notebook toshiba 19v 3.42a 29tnbtb193",
+    "slug": "cargador-notebook-toshiba-19v-3-42a-29tnbtb193",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Toshiba",
+    "files": [
+      "Cargador notebook toshiba 19v 3.42a 29tnbtb193.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 86,
+    "draft_name": "Cargador notebook toshiba 19v 3.95a 29tnbtb395",
+    "slug": "cargador-notebook-toshiba-19v-3-95a-29tnbtb395",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Toshiba",
+    "files": [
+      "Cargador notebook toshiba 19v 3.95a  29tnbtb395.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 87,
+    "draft_name": "Cargador para mcbook air 14.5v 3.1a 29tnbmc145",
+    "slug": "cargador-para-mcbook-air-14-5v-3-1a-29tnbmc145",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": null,
+    "files": [
+      "Cargador para mcbook air 14.5v 3.1a  29tnbmc145.webp"
+    ],
+    "legacy_match": {
+      "score": 0.86,
+      "id": 44,
+      "name": "Cargador para Notebook Mcbook Air 14.5V-3.1A",
+      "price": 29600,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 88,
+    "draft_name": "Cargador para Notebook Samsung 19V 2.1A 29NTBSM193",
+    "slug": "cargador-para-notebook-samsung-19v-2-1a-29ntbsm193",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "Samsung",
+    "files": [
+      "Cargador para Notebook Samsung 19V 2.1A  29NTBSM193.webp",
+      "Cargador para Notebook Samsung 19V 2.1A  29NTBSM1931.webp"
+    ],
+    "legacy_match": {
+      "score": 0.83,
+      "id": 42,
+      "name": "Cargador para Notebook Samsung 19V-2.1A Ultrabook",
+      "price": 10000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 89,
+    "draft_name": "Cargador para Notebook Sony 19.5v 3.9a 29tnbsn196",
+    "slug": "cargador-para-notebook-sony-19-5v-3-9a-29tnbsn196",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "Sony",
+    "files": [
+      "Cargador para Notebook Sony 19.5v 3.9a  29tnbsn196.webp",
+      "Cargador para Notebook Sony 19.5v 3.9a  29tnbsn1961.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 90,
+    "draft_name": "Cargador para Notebook Sony 19.5v 4.7a 29tnbsn470",
+    "slug": "cargador-para-notebook-sony-19-5v-4-7a-29tnbsn470",
+    "category": "COMPUTACION",
+    "category_guess": "Cargadores y energía",
+    "brand": "Sony",
+    "files": [
+      "Cargador para Notebook Sony 19.5v 4.7a  29tnbsn470.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 41,
+      "name": "Cargador para Notebook Sony",
+      "price": 12000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 91,
+    "draft_name": "Cargador Pared Doble USB Philco",
+    "slug": "cargador-pared-doble-usb-philco",
+    "category": "HOGAR",
+    "category_guess": "Cargadores y energía",
+    "brand": "Philco",
+    "files": [
+      "Cargador Pared Doble USB Philco.webp",
+      "Cargador Pared Doble USB Philco (2).webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 208,
+      "name": "Cargador de Pared Doble Usb 3.1 Philco Blanco",
+      "price": 8000,
+      "original_price": 9500,
+      "stock": 10
+    }
+  },
+  {
+    "n": 92,
+    "draft_name": "Cargador Philco con 2 pilas aaa",
+    "slug": "cargador-philco-con-2-pilas-aaa",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Philco",
+    "files": [
+      "Cargador Philco con 2 pilas aaa.webp",
+      "Cargador Philco con 2 pilas aaa2.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 178,
+      "name": "Cargador Pilas Recargables Philco",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 93,
+    "draft_name": "CARGADOR PHILIPS DE PARED SIN CABLE",
+    "slug": "cargador-philips-de-pared-sin-cable",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philips",
+    "files": [
+      "CARGADOR PHILIPS DE PARED SIN CABLE.webp",
+      "CARGADOR PHILIPS DE PARED SIN CABLE1.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 94,
+    "draft_name": "CARGADOR PILAS RECARGABLES AAAAA PHILCO",
+    "slug": "cargador-pilas-recargables-aaaaa-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Cargadores y energía",
+    "brand": "Philco",
+    "files": [
+      "CARGADOR PILAS RECARGABLES AAAAA  PHILCO.webp",
+      "CARGADOR PILAS RECARGABLES AAAAA  PHILCO1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 178,
+      "name": "Cargador Pilas Recargables Philco",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 95,
+    "draft_name": "Cofre para disco duro conexion tipo c1",
+    "slug": "cofre-para-disco-duro-conexion-tipo-c1",
+    "category": "COMPUTACION",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": null,
+    "files": [
+      "Cofre para disco duro conexion tipo c1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 143,
+      "name": "Cofre para Disco Duro- SSD Conexion Tipo C",
+      "price": 9990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 96,
+    "draft_name": "COFRE PARA DISCO DURO PLATEADO SATA 2.5 1",
+    "slug": "cofre-para-disco-duro-plateado-sata-2-5-1",
+    "category": "Accesorios notebook y PC",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": null,
+    "files": [
+      "COFRE PARA DISCO DURO PLATEADO SATA 2.5 1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 142,
+      "name": "Cofre para Disco Duro 2.5 Philco",
+      "price": 5700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 97,
+    "draft_name": "COFRE PARA DISCO DURO PLATEADO SATA 2.5 PHILCO",
+    "slug": "cofre-para-disco-duro-plateado-sata-2-5-philco",
+    "category": "COMPUTACION",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": "Philco",
+    "files": [
+      "COFRE PARA DISCO DURO PLATEADO SATA 2.5 PHILCO.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 142,
+      "name": "Cofre para Disco Duro 2.5 Philco",
+      "price": 5700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 98,
+    "draft_name": "Cofre para Disco Duro- SSD Conexion Tipo C",
+    "slug": "cofre-para-disco-duro-ssd-conexion-tipo-c",
+    "category": "COMPUTACION",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": null,
+    "files": [
+      "Cofre para Disco Duro- SSD Conexion Tipo C.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 143,
+      "name": "Cofre para Disco Duro- SSD Conexion Tipo C",
+      "price": 9990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 99,
+    "draft_name": "COMBO TECLADO + MOUSE + AUDIFONO GAMER ULTRA",
+    "slug": "combo-teclado-mouse-audifono-gamer-ultra",
+    "category": "Audífonos",
+    "category_guess": "Audífonos",
+    "brand": "Ultra",
+    "files": [
+      "COMBO TECLADO + MOUSE + AUDIFONO GAMER ULTRA.webp",
+      "COMBO TECLADO + MOUSE + AUDIFONO GAMER ULTRA1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 61,
+      "name": "Mouse Gamer Ultra X5",
+      "price": 5500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 100,
+    "draft_name": "Control Bluetooth Ps4 Monster Games",
+    "slug": "control-bluetooth-ps4-monster-games",
+    "category": "ACCESORIOS",
+    "category_guess": "Gaming",
+    "brand": "Monster",
+    "files": [
+      "Control Bluetooth Ps4 Monster Games.webp",
+      "Control Bluetooth Ps4 Monster Games1.webp",
+      "Control Bluetooth Ps4 Monster Games2.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 50,
+      "name": "Control Bluetooth Para Ps4 Monster Game",
+      "price": 23900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 101,
+    "draft_name": "CONTROL REMOTO PARA TV SAMSUNG x100",
+    "slug": "control-remoto-para-tv-samsung-x100",
+    "category": "ACCESORIOS",
+    "category_guess": "Hogar y oficina",
+    "brand": "Samsung",
+    "files": [
+      "CONTROL REMOTO PARA TV SAMSUNG x100.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 155,
+      "name": "Control Remoto Universal Para Tv Samsung",
+      "price": 4700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 102,
+    "draft_name": "CONTROL REMOTO PARA TV SONY",
+    "slug": "control-remoto-para-tv-sony",
+    "category": "ACCESORIOS",
+    "category_guess": "Hogar y oficina",
+    "brand": "Sony",
+    "files": [
+      "CONTROL REMOTO PARA TV SONY.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 156,
+      "name": "Control Remoto Universal Para Tv Sony",
+      "price": 4990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 103,
+    "draft_name": "CONTROL REMOTO TV UNIVERSAL x-300",
+    "slug": "control-remoto-tv-universal-x-300",
+    "category": "ACCESORIOS",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "CONTROL REMOTO TV UNIVERSAL x-300.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 151,
+      "name": "Control Remoto Universal X-300",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 104,
+    "draft_name": "CONTROL REMOTO TV UNIVERSAL1",
+    "slug": "control-remoto-tv-universal1",
+    "category": "Hogar y oficina",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "CONTROL REMOTO TV UNIVERSAL1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 155,
+      "name": "Control Remoto Universal Para Tv Samsung",
+      "price": 4700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 105,
+    "draft_name": "Control remoto universal para tv samsung dgt-121",
+    "slug": "control-remoto-universal-para-tv-samsung-dgt-121",
+    "category": "ACCESORIOS",
+    "category_guess": "Hogar y oficina",
+    "brand": "Samsung",
+    "files": [
+      "Control remoto universal para tv samsung dgt-121.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 155,
+      "name": "Control Remoto Universal Para Tv Samsung",
+      "price": 4700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 106,
+    "draft_name": "CONTROL REMOTO UNIVERSAL SAMSUNG dgt-121",
+    "slug": "control-remoto-universal-samsung-dgt-121",
+    "category": "ACCESORIOS",
+    "category_guess": "Hogar y oficina",
+    "brand": "Samsung",
+    "files": [
+      "CONTROL REMOTO UNIVERSAL SAMSUNG dgt-121.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 155,
+      "name": "Control Remoto Universal Para Tv Samsung",
+      "price": 4700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 107,
+    "draft_name": "Conversor de Audifónos a Bluetooth PHILIPS1",
+    "slug": "conversor-de-audifonos-a-bluetooth-philips1",
+    "category": "Audífonos",
+    "category_guess": "Audífonos",
+    "brand": null,
+    "files": [
+      "Conversor de Audifónos a Bluetooth PHILIPS1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 54,
+      "name": "Audifonos Bluetooth Philco",
+      "price": 8990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 108,
+    "draft_name": "Correa Applewatch",
+    "slug": "correa-applewatch",
+    "category": "ACCESORIOS",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Applewatch.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 109,
+    "draft_name": "Correa Para Applewatch Azul Media Noche",
+    "slug": "correa-para-applewatch-azul-media-noche",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Azul Media Noche.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 110,
+    "draft_name": "Correa Para Applewatch Blanco",
+    "slug": "correa-para-applewatch-blanco",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Blanco.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 111,
+    "draft_name": "Correa Para Applewatch Gris",
+    "slug": "correa-para-applewatch-gris",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Gris.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 112,
+    "draft_name": "Correa Para Applewatch Lavanda",
+    "slug": "correa-para-applewatch-lavanda",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Lavanda.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 113,
+    "draft_name": "Correa Para Applewatch Lila",
+    "slug": "correa-para-applewatch-lila",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Lila.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 114,
+    "draft_name": "Correa Para Applewatch Negro",
+    "slug": "correa-para-applewatch-negro",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Negro.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 115,
+    "draft_name": "Correa Para Applewatch Pomegranate",
+    "slug": "correa-para-applewatch-pomegranate",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Pomegranate.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 116,
+    "draft_name": "Correa Para Applewatch Rojo",
+    "slug": "correa-para-applewatch-rojo",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Rojo.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 117,
+    "draft_name": "Correa Para Applewatch Rosado Brillante",
+    "slug": "correa-para-applewatch-rosado-brillante",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Rosado Brillante.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 118,
+    "draft_name": "Correa Para Applewatch Verde",
+    "slug": "correa-para-applewatch-verde",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Verde.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 171,
+      "name": "Correa de Silicone para Applewatch 38-40-41mm",
+      "price": 3900,
+      "original_price": 5000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 119,
+    "draft_name": "Correa Para Applewatch Verde Manzana",
+    "slug": "correa-para-applewatch-verde-manzana",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correa Para Applewatch Verde Manzana.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 120,
+    "draft_name": "Correas para Applewatch_w26_plus",
+    "slug": "correas-para-applewatch-w26-plus",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "Correas para Applewatch_w26_plus.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 121,
+    "draft_name": "cougar iron grey",
+    "slug": "cougar-iron-grey",
+    "category": "GABINETES GAMER",
+    "category_guess": "Gabinetes",
+    "brand": "Cougar",
+    "files": [
+      "cougar iron grey.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 218,
+      "name": "Gabinete Cougar Gamer Iron Grey",
+      "price": 69500,
+      "original_price": 79990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 122,
+    "draft_name": "crimson desertp",
+    "slug": "crimson-desertp",
+    "category": "Gabinetes",
+    "category_guess": "Gabinetes",
+    "brand": null,
+    "files": [
+      "crimson desertp.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 123,
+    "draft_name": "DETECTOR DE BILLETES 2 TUBOS DE 6 WATTS DL-1031",
+    "slug": "detector-de-billetes-2-tubos-de-6-watts-dl-1031",
+    "category": "Hogar y oficina",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "DETECTOR DE BILLETES 2 TUBOS DE 6 WATTS DL-1031.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 72,
+      "name": "Detector de Billetes Falsos Dl-103",
+      "price": 12700,
+      "original_price": 18990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 124,
+    "draft_name": "DETECTOR DE BILLETES 2 TUBOS DE 6 WATTS DL-1033",
+    "slug": "detector-de-billetes-2-tubos-de-6-watts-dl-1033",
+    "category": "Hogar y oficina",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "DETECTOR DE BILLETES 2 TUBOS DE 6 WATTS DL-1033.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 72,
+      "name": "Detector de Billetes Falsos Dl-103",
+      "price": 12700,
+      "original_price": 18990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 125,
+    "draft_name": "DETECTOR DE BILLETES TUBO 4 WATTS DL-062",
+    "slug": "detector-de-billetes-tubo-4-watts-dl-062",
+    "category": "Hogar y oficina",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "DETECTOR DE BILLETES TUBO 4 WATTS DL-062.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 72,
+      "name": "Detector de Billetes Falsos Dl-103",
+      "price": 12700,
+      "original_price": 18990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 126,
+    "draft_name": "DETECTOR DE BILLETES TUBO 4 WATTS DL-064",
+    "slug": "detector-de-billetes-tubo-4-watts-dl-064",
+    "category": "Hogar y oficina",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "DETECTOR DE BILLETES TUBO 4 WATTS DL-064.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 72,
+      "name": "Detector de Billetes Falsos Dl-103",
+      "price": 12700,
+      "original_price": 18990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 127,
+    "draft_name": "dongle bluetooth receptor de audio",
+    "slug": "dongle-bluetooth-receptor-de-audio",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "dongle bluetooth receptor de audio.webp",
+      "dongle bluetooth receptor de audio1.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 128,
+    "draft_name": "ENCHUFE HEMBRA 2P + T 78554 NEGRO PHILCO",
+    "slug": "enchufe-hembra-2p-t-78554-negro-philco",
+    "category": "HOGAR",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFE HEMBRA 2P + T 78554 NEGRO PHILCO.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 136,
+      "name": "Enchufe Hembra Philco",
+      "price": 1500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 129,
+    "draft_name": "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO",
+    "slug": "enchufe-macho-horizontal-2p-t-78548-blanco-philco",
+    "category": "HOGAR",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO.webp",
+      "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO1.webp",
+      "ENCHUFE MACHO HORIZONTAL 2P + T 78548 BLANCO PHILCO13.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 135,
+      "name": "Enchufe Macho Horizontal",
+      "price": 1200,
+      "original_price": null,
+      "stock": 9
+    }
+  },
+  {
+    "n": 130,
+    "draft_name": "ENCHUFE MACHO HORIZONTAL 2P + T 78549 NEGRO PHILCO",
+    "slug": "enchufe-macho-horizontal-2p-t-78549-negro-philco",
+    "category": "HOGAR",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFE MACHO HORIZONTAL 2P + T 78549 NEGRO PHILCO.webp",
+      "ENCHUFE MACHO HORIZONTAL 2P + T 78549 NEGRO PHILCO1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 135,
+      "name": "Enchufe Macho Horizontal",
+      "price": 1200,
+      "original_price": null,
+      "stock": 9
+    }
+  },
+  {
+    "n": 131,
+    "draft_name": "Enchufe Smart Plug",
+    "slug": "enchufe-smart-plug",
+    "category": "HOGAR",
+    "category_guess": "Enchufes y extensiones",
+    "brand": null,
+    "files": [
+      "Enchufe Smart Plug.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 187,
+      "name": "Enchufe Wifi Smart Plug Philco",
+      "price": 9990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 132,
+    "draft_name": "ENCHUFE TRIPLE 78546 BLANCO PHILCO",
+    "slug": "enchufe-triple-78546-blanco-philco",
+    "category": "Enchufes y extensiones",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFE TRIPLE 78546 BLANCO PHILCO.webp",
+      "ENCHUFE TRIPLE 78546 BLANCO PHILCO1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 182,
+      "name": "Enchufe Triple de Pared Philco",
+      "price": 1990,
+      "original_price": 4200,
+      "stock": 10
+    }
+  },
+  {
+    "n": 133,
+    "draft_name": "ENCHUFE TRIPLE 78547 NEGRO PHILCO",
+    "slug": "enchufe-triple-78547-negro-philco",
+    "category": "Enchufes y extensiones",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFE TRIPLE 78547 NEGRO PHILCO.webp",
+      "ENCHUFE TRIPLE 78547 NEGRO PHILCO1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 182,
+      "name": "Enchufe Triple de Pared Philco",
+      "price": 1990,
+      "original_price": 4200,
+      "stock": 10
+    }
+  },
+  {
+    "n": 134,
+    "draft_name": "ENCHUFE TRIPLE CSWITHCH 2P + T 10A 250V BLANCO PHILCO",
+    "slug": "enchufe-triple-cswithch-2p-t-10a-250v-blanco-philco",
+    "category": "Enchufes y extensiones",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFE TRIPLE CSWITHCH 2P + T 10A 250V BLANCO PHILCO.webp",
+      "ENCHUFE TRIPLE CSWITHCH 2P + T 10A 250V BLANCO PHILCO1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 182,
+      "name": "Enchufe Triple de Pared Philco",
+      "price": 1990,
+      "original_price": 4200,
+      "stock": 10
+    }
+  },
+  {
+    "n": 135,
+    "draft_name": "ENCHUFE TRIPLE DE PARED PHILCO",
+    "slug": "enchufe-triple-de-pared-philco",
+    "category": "HOGAR",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFE TRIPLE DE PARED PHILCO.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 182,
+      "name": "Enchufe Triple de Pared Philco",
+      "price": 1990,
+      "original_price": 4200,
+      "stock": 10
+    }
+  },
+  {
+    "n": 136,
+    "draft_name": "ENCHUFE WI FI 10A250V PHILCO BLANCO",
+    "slug": "enchufe-wi-fi-10a250v-philco-blanco",
+    "category": "Enchufes y extensiones",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFE WI FI 10A250V PHILCO BLANCO.webp",
+      "ENCHUFE WI FI 10A250V PHILCO BLANCO1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 136,
+      "name": "Enchufe Hembra Philco",
+      "price": 1500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 137,
+    "draft_name": "enchufe wifi smart plug philco",
+    "slug": "enchufe-wifi-smart-plug-philco",
+    "category": "HOGAR",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "enchufe wifi smart plug philco.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 187,
+      "name": "Enchufe Wifi Smart Plug Philco",
+      "price": 9990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 138,
+    "draft_name": "ENCHUFHE HEMBRA 2P + T 78553 BLANCO PHILCO",
+    "slug": "enchufhe-hembra-2p-t-78553-blanco-philco",
+    "category": "Enchufes y extensiones",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "ENCHUFHE HEMBRA 2P + T 78553 BLANCO PHILCO.webp",
+      "ENCHUFHE HEMBRA 2P + T 78553 BLANCO PHILCO1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 136,
+      "name": "Enchufe Hembra Philco",
+      "price": 1500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 139,
+    "draft_name": "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS BLANCO PHILCO",
+    "slug": "extension-multiple-xt52-4-pos-1-50-mts-blanco-philco",
+    "category": "Enchufes y extensiones",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS BLANCO PHILCO.webp",
+      "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS BLANCO PHILCO1.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 140,
+    "draft_name": "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS NEGRO PHILCO",
+    "slug": "extension-multiple-xt52-4-pos-1-50-mts-negro-philco",
+    "category": "Enchufes y extensiones",
+    "category_guess": "Enchufes y extensiones",
+    "brand": "Philco",
+    "files": [
+      "EXTENSION MULTIPLE XT52 4 POS 1.50 MTS NEGRO PHILCO.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 141,
+    "draft_name": "FIDDLER GAMING KIT",
+    "slug": "fiddler-gaming-kit",
+    "category": "COMPUTACION",
+    "category_guess": "Gaming",
+    "brand": "Fiddler",
+    "files": [
+      "FIDDLER GAMING KIT.webp",
+      "FIDDLER GAMING KIT 1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 69,
+      "name": "Fiddler Gaming Kit (Teclado-Mouse-Audífonos y Mousepad )",
+      "price": 35000,
+      "original_price": 45990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 142,
+    "draft_name": "Gabinete Cougar Gemini s",
+    "slug": "gabinete-cougar-gemini-s",
+    "category": "Gabinetes",
+    "category_guess": "Gabinetes",
+    "brand": "Cougar",
+    "files": [
+      "Gabinete Cougar Gemini s 720x720.webp",
+      "Gabinete Cougar Gemini s 720x7202.webp",
+      "Gabinete Cougar Gemini s 720x72023.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 9,
+      "name": "Gabinete Gamer Cougar MX410-T",
+      "price": 60000,
+      "original_price": 85000,
+      "stock": 1
+    }
+  },
+  {
+    "n": 143,
+    "draft_name": "Gabinete cougar MX350",
+    "slug": "gabinete-cougar-mx350",
+    "category": "GABINETES GAMER",
+    "category_guess": "Gabinetes",
+    "brand": "Cougar",
+    "files": [
+      "Gabinete cougar MX350.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 205,
+      "name": "Gabinete Cougar Mx350 Mid Tower",
+      "price": 66300,
+      "original_price": 81990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 144,
+    "draft_name": "Gabinete gamer redragon tail 702",
+    "slug": "gabinete-gamer-redragon-tail-702",
+    "category": "GABINETES GAMER",
+    "category_guess": "Gaming",
+    "brand": "Redragon",
+    "files": [
+      "Gabinete gamer redragon tail 702.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 213,
+      "name": "Gabinete Gamer Redragon Tailgate 702",
+      "price": 120000,
+      "original_price": 159990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 145,
+    "draft_name": "Gabinete-MX410T-6",
+    "slug": "gabinete-mx410t-6",
+    "category": "Gabinetes",
+    "category_guess": "Gabinetes",
+    "brand": null,
+    "files": [
+      "Gabinete-MX410T-6.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 146,
+    "draft_name": "Gabinete-MX410T-8",
+    "slug": "gabinete-mx410t-8",
+    "category": "Gabinetes",
+    "category_guess": "Gabinetes",
+    "brand": null,
+    "files": [
+      "Gabinete-MX410T-8.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 147,
+    "draft_name": "Gabinete-MX410T-9",
+    "slug": "gabinete-mx410t-9",
+    "category": "Gabinetes",
+    "category_guess": "Gabinetes",
+    "brand": null,
+    "files": [
+      "Gabinete-MX410T-9.webp",
+      "Gabinete-MX410T-91.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 148,
+    "draft_name": "Gaming kit TECLADO MOUSE ULTRA TECHNOLOGY",
+    "slug": "gaming-kit-teclado-mouse-ultra-technology",
+    "category": "COMPUTACION",
+    "category_guess": "Gaming",
+    "brand": "Ultra",
+    "files": [
+      "Gaming kit TECLADO MOUSE  ULTRA TECHNOLOGY.webp",
+      "Gaming Kit TECLADO MOUSE ULTRA TECHNOLOGY1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.83,
+      "id": 39,
+      "name": "Gaming Kit Teclado y Mouse Storm Ultra",
+      "price": 13590,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 149,
+    "draft_name": "general power compatible acer",
+    "slug": "general-power-compatible-acer",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Acer",
+    "files": [
+      "general power compatible acer.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 150,
+    "draft_name": "general power compatible hp",
+    "slug": "general-power-compatible-hp",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "HP",
+    "files": [
+      "general power compatible hp.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 151,
+    "draft_name": "general power compatible lenovo",
+    "slug": "general-power-compatible-lenovo",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Lenovo",
+    "files": [
+      "general power compatible lenovo.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 152,
+    "draft_name": "general power compatible toshiba",
+    "slug": "general-power-compatible-toshiba",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Toshiba",
+    "files": [
+      "general power compatible toshiba.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 153,
+    "draft_name": "Joystick Bluetooth para Celular Ultra",
+    "slug": "joystick-bluetooth-para-celular-ultra",
+    "category": "ACCESORIOS",
+    "category_guess": "Gaming",
+    "brand": "Ultra",
+    "files": [
+      "Joystick Bluetooth para Celular Ultra.webp",
+      "Joystick Bluetooth para Celular Ultra1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 12,
+      "name": "Joystick Bluetooth 3.0 para Celular Ultra",
+      "price": 19990,
+      "original_price": null,
+      "stock": 2
+    }
+  },
+  {
+    "n": 154,
+    "draft_name": "KIT LIMPIEZA PANTALLA ULTRA 78CLN04147",
+    "slug": "kit-limpieza-pantalla-ultra-78cln04147",
+    "category": "Accesorios notebook y PC",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": "Ultra",
+    "files": [
+      "KIT LIMPIEZA PANTALLA ULTRA 78CLN04147.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 186,
+      "name": "Kit Limpieza de Pantallas Ultra",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 155,
+    "draft_name": "KIT MONSTER CREW INSERTION A",
+    "slug": "kit-monster-crew-insertion-a",
+    "category": "Gaming",
+    "category_guess": "Gaming",
+    "brand": "Monster",
+    "files": [
+      "KIT MONSTER CREW INSERTION A.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 156,
+    "draft_name": "KIT MONSTER CREW INSERTION B",
+    "slug": "kit-monster-crew-insertion-b",
+    "category": "Gaming",
+    "category_guess": "Gaming",
+    "brand": "Monster",
+    "files": [
+      "KIT MONSTER CREW INSERTION B.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 157,
+    "draft_name": "Kit Mouse y Teclado Philips Alambrico",
+    "slug": "kit-mouse-y-teclado-philips-alambrico",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Philips",
+    "files": [
+      "Kit Mouse y Teclado Philips Alambrico.webp",
+      "Kit Mouse y Teclado Philips Alambrico1.webp",
+      "Kit Mouse y Teclado Philips Alambrico12.webp",
+      "Kit Mouse y Teclado Philips Alambrico123.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 21,
+      "name": "Kit Teclado y Mouse Philips Alambrico",
+      "price": 9500,
+      "original_price": 12650,
+      "stock": 0
+    }
+  },
+  {
+    "n": 158,
+    "draft_name": "LAMPARA LED FLEXIBLE USB PARA NOTEBOOKS Y PC blanca",
+    "slug": "lampara-led-flexible-usb-para-notebooks-y-pc-blanca",
+    "category": "ACCESORIOS",
+    "category_guess": "Iluminación y fotografía",
+    "brand": null,
+    "files": [
+      "LAMPARA LED FLEXIBLE USB PARA NOTEBOOKS Y PC blanca.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 124,
+      "name": "Lampara Led Flexible Usb",
+      "price": 4500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 159,
+    "draft_name": "Manos Libres bluetooth philco",
+    "slug": "manos-libres-bluetooth-philco",
+    "category": "Audífonos",
+    "category_guess": "Audífonos",
+    "brand": "Philco",
+    "files": [
+      "Manos Libres bluetooth philco.webp",
+      "Manos Libres bluetooth philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 121,
+      "name": "Audifono Bluetooth Manos Libres Philips Shb1623",
+      "price": 17700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 160,
+    "draft_name": "MANOS LIBRES PHILIPS CON CARGADOR",
+    "slug": "manos-libres-philips-con-cargador",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Philips",
+    "files": [
+      "MANOS LIBRES PHILIPS CON CARGADOR.webp",
+      "MANOS LIBRES PHILIPS CON CARGADOR1.webp",
+      "MANOS LIBRES PHILIPS CON CARGADOR12.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 165,
+      "name": "Manos Libres Bluetooth Philips Con Cargador",
+      "price": 14990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 161,
+    "draft_name": "micro usb master g",
+    "slug": "micro-usb-master-g",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Master G",
+    "files": [
+      "micro usb master g.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 92,
+      "name": "Cable Micro Usb Master G",
+      "price": 3600,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 162,
+    "draft_name": "MICROFONO CONDENSADOR GAMERSTREAMER CTRIPODE",
+    "slug": "microfono-condensador-gamerstreamer-ctripode",
+    "category": "Gaming",
+    "category_guess": "Gaming",
+    "brand": null,
+    "files": [
+      "MICROFONO CONDENSADOR GAMERSTREAMER CTRIPODE.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 33,
+      "name": "Micrófono Condensador Para Streaming",
+      "price": 19990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 163,
+    "draft_name": "Microfono condensador para streaming con base y antipop philco",
+    "slug": "microfono-condensador-para-streaming-con-base-y-antipop-philco",
+    "category": "COMPUTACION",
+    "category_guess": "Micrófonos y streaming",
+    "brand": "Philco",
+    "files": [
+      "Microfono condensador para streaming con base y antipop philco.webp",
+      "Microfono condensador para streaming con base y antipop philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 33,
+      "name": "Micrófono Condensador Para Streaming",
+      "price": 19990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 164,
+    "draft_name": "Microfono lavalier",
+    "slug": "microfono-lavalier",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Micrófonos y streaming",
+    "brand": null,
+    "files": [
+      "Microfono lavalier.webp",
+      "Micrófono Lavalier.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 160,
+      "name": "Microfono de Solapa Lavalier 3.5mm",
+      "price": 4650,
+      "original_price": 6990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 165,
+    "draft_name": "Microfono Multimedia Philco",
+    "slug": "microfono-multimedia-philco",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Micrófonos y streaming",
+    "brand": "Philco",
+    "files": [
+      "Microfono Multimedia Philco.webp",
+      "Microfono Multimedia Philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 49,
+      "name": "Microfono Multimedia Philco",
+      "price": 5500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 166,
+    "draft_name": "micrófono-philc-gm100-2",
+    "slug": "microfono-philc-gm100-2",
+    "category": "Micrófonos y streaming",
+    "category_guess": "Micrófonos y streaming",
+    "brand": null,
+    "files": [
+      "micrófono-philc-gm100-2.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 167,
+    "draft_name": "Microfono Prosound",
+    "slug": "microfono-prosound",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Micrófonos y streaming",
+    "brand": "Prosound",
+    "files": [
+      "Microfono Prosound.webp",
+      "Microfono Prosound1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 67,
+      "name": "Microfono Prosound Dm 301",
+      "price": 4990,
+      "original_price": 7900,
+      "stock": 10
+    }
+  },
+  {
+    "n": 168,
+    "draft_name": "microfono streamer philco",
+    "slug": "microfono-streamer-philco",
+    "category": "Micrófonos y streaming",
+    "category_guess": "Micrófonos y streaming",
+    "brand": "Philco",
+    "files": [
+      "microfono streamer philco.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 10,
+      "name": "Soporte de Escritorio para Micrófono Philco",
+      "price": 7990,
+      "original_price": null,
+      "stock": 1
+    }
+  },
+  {
+    "n": 169,
+    "draft_name": "Mini Teclado Bluetooth Philco 10 pulgadas",
+    "slug": "mini-teclado-bluetooth-philco-10-pulgadas",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Philco",
+    "files": [
+      "Mini Teclado Bluetooth Philco 10 pulgadas.webp",
+      "Mini Teclado Bluetooth Philco 10 pulgadas1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 16,
+      "name": "Mini Teclado Bluetooth Philco",
+      "price": 11950,
+      "original_price": null,
+      "stock": 1
+    }
+  },
+  {
+    "n": 170,
+    "draft_name": "minihub 2.0",
+    "slug": "minihub-2-0",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "minihub 2.0.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 171,
+    "draft_name": "minihub 2.0 philco",
+    "slug": "minihub-2-0-philco",
+    "category": "Cables y adaptadores",
+    "category_guess": "Cables y adaptadores",
+    "brand": "Philco",
+    "files": [
+      "minihub 2.0 philco.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 172,
+    "draft_name": "MONOPODE BLUTOOTH ULTRA NEGRO4",
+    "slug": "monopode-blutooth-ultra-negro4",
+    "category": "Iluminación y fotografía",
+    "category_guess": "Iluminación y fotografía",
+    "brand": "Ultra",
+    "files": [
+      "MONOPODE BLUTOOTH ULTRA NEGRO4.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 173,
+    "draft_name": "Mouse Fiddler z mo532",
+    "slug": "mouse-fiddler-z-mo532",
+    "category": "Gaming",
+    "category_guess": "Gaming",
+    "brand": "Fiddler",
+    "files": [
+      "Mouse Fiddler z  mo532.webp",
+      "Mouse Fiddler z  mo5321.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 36,
+      "name": "Mouse Gaming Fiddler Z MO304",
+      "price": 6400,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 174,
+    "draft_name": "Mouse Gaming Fiddler z MO304",
+    "slug": "mouse-gaming-fiddler-z-mo304",
+    "category": "COMPUTACION",
+    "category_guess": "Gaming",
+    "brand": "Fiddler",
+    "files": [
+      "Mouse Gaming Fiddler z MO304.webp",
+      "Mouse Gaming Fiddler z MO3041.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 36,
+      "name": "Mouse Gaming Fiddler Z MO304",
+      "price": 6400,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 175,
+    "draft_name": "mouse genius g2001",
+    "slug": "mouse-genius-g2001",
+    "category": "Teclados y mouse",
+    "category_guess": "Teclados y mouse",
+    "brand": "Genius",
+    "files": [
+      "mouse genius g2001.webp",
+      "mouse genius g20012.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 140,
+      "name": "Mouse Genius Dx-110",
+      "price": 4900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 176,
+    "draft_name": "Mouse Genius X-G200",
+    "slug": "mouse-genius-x-g200",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Genius",
+    "files": [
+      "Mouse Genius X-G200.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 141,
+      "name": "Mouse Genius X-G200",
+      "price": 6500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 177,
+    "draft_name": "MOUSE HP GAMER RGB M160",
+    "slug": "mouse-hp-gamer-rgb-m160",
+    "category": "COMPUTACION",
+    "category_guess": "Gaming",
+    "brand": "HP",
+    "files": [
+      "MOUSE HP GAMER RGB M160.webp",
+      "MOUSE HP GAMER RGB M160 1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 217,
+      "name": "Mouse HP gamer rgb m160",
+      "price": 4900,
+      "original_price": 6590,
+      "stock": 9
+    }
+  },
+  {
+    "n": 178,
+    "draft_name": "mouse hp m150 blanco",
+    "slug": "mouse-hp-m150-blanco",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "HP",
+    "files": [
+      "mouse hp m150 blanco.webp",
+      "mouse hp m150 blanco1.webp",
+      "mouse hp m150 blanco12.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 138,
+      "name": "Mouse Hp M150 Blanco",
+      "price": 7650,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 179,
+    "draft_name": "MOUSE INAL. SPK7305 BLANCO PHILCO PRO",
+    "slug": "mouse-inal-spk7305-blanco-philco-pro",
+    "category": "Teclados y mouse",
+    "category_guess": "Teclados y mouse",
+    "brand": "Philco",
+    "files": [
+      "MOUSE INAL. SPK7305 BLANCO PHILCO PRO.webp",
+      "MOUSE INAL. SPK7305 BLANCO PHILCO PRO1.webp",
+      "MOUSE INAL. SPK7305 BLANCO PHILCO PRO2.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 181,
+      "name": "Mouse Inalambrico Philco Pro",
+      "price": 5700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 180,
+    "draft_name": "MOUSE INAL. SPK7305 NEGRO PHILCO PRO",
+    "slug": "mouse-inal-spk7305-negro-philco-pro",
+    "category": "Teclados y mouse",
+    "category_guess": "Teclados y mouse",
+    "brand": "Philco",
+    "files": [
+      "MOUSE INAL. SPK7305 NEGRO PHILCO PRO.webp",
+      "MOUSE INAL. SPK7305 NEGRO PHILCO PRO1.webp",
+      "MOUSE INAL. SPK7305 NEGRO PHILCO PRO2.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 181,
+      "name": "Mouse Inalambrico Philco Pro",
+      "price": 5700,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 181,
+    "draft_name": "Mouse Ls-012",
+    "slug": "mouse-ls-012",
+    "category": "Teclados y mouse",
+    "category_guess": "Teclados y mouse",
+    "brand": null,
+    "files": [
+      "Mouse Ls-012.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 139,
+      "name": "Mouse Optico Ls-01",
+      "price": 2690,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 182,
+    "draft_name": "Mouse optico LS-01",
+    "slug": "mouse-optico-ls-01",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": null,
+    "files": [
+      "Mouse optico LS-01.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 139,
+      "name": "Mouse Optico Ls-01",
+      "price": 2690,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 183,
+    "draft_name": "mouse optico q52",
+    "slug": "mouse-optico-q52",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": null,
+    "files": [
+      "mouse optico q52.webp",
+      "mouse optico q521.webp",
+      "mouse optico q5212.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 137,
+      "name": "Mouse Optico Q52",
+      "price": 5400,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 184,
+    "draft_name": "MOUSE PHILIPS ALAMBRICO SPK 7104",
+    "slug": "mouse-philips-alambrico-spk-7104",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Philips",
+    "files": [
+      "MOUSE PHILIPS ALAMBRICO SPK 7104.webp",
+      "MOUSE PHILIPS ALAMBRICO SPK 71045.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 163,
+      "name": "Mouse Philips",
+      "price": 3590,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 185,
+    "draft_name": "Mouse Ultra X5",
+    "slug": "mouse-ultra-x5",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Ultra",
+    "files": [
+      "Mouse Ultra X5.webp",
+      "Mouse Ultra X51.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 61,
+      "name": "Mouse Gamer Ultra X5",
+      "price": 5500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 186,
+    "draft_name": "Mouse Ultra X6",
+    "slug": "mouse-ultra-x6",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Ultra",
+    "files": [
+      "Mouse Ultra X6.webp",
+      "Mouse Ultra X6P.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 59,
+      "name": "Mouse Ultra X6",
+      "price": 5690,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 187,
+    "draft_name": "MOUSE USB DX-110 GENIUS G5 GREEN",
+    "slug": "mouse-usb-dx-110-genius-g5-green",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Genius",
+    "files": [
+      "MOUSE USB DX-110 GENIUS G5 GREEN.webp",
+      "MOUSE USB DX-110 GENIUS G5 GREEN1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 140,
+      "name": "Mouse Genius Dx-110",
+      "price": 4900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 188,
+    "draft_name": "MOUSE USB DX-110 GENIUS G5 RED",
+    "slug": "mouse-usb-dx-110-genius-g5-red",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Genius",
+    "files": [
+      "MOUSE USB DX-110 GENIUS G5 RED.webp",
+      "MOUSE USB DX-110 GENIUS G5 RED1.webp",
+      "MOUSE USB DX-110 GENIUS G5 RED12.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 140,
+      "name": "Mouse Genius Dx-110",
+      "price": 4900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 189,
+    "draft_name": "MOUSEPAD BÁSICO SMALL PHILCO PRO",
+    "slug": "mousepad-basico-small-philco-pro",
+    "category": "COMPUTACION",
+    "category_guess": "Mousepads",
+    "brand": "Philco",
+    "files": [
+      "MOUSEPAD BÁSICO SMALL PHILCO PRO.webp",
+      "MOUSEPAD BÁSICO SMALL PHILCO PRO12.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 66,
+      "name": "Mousepad Philco Pro",
+      "price": 3950,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 190,
+    "draft_name": "Mousepad Gamer Rgb Monster",
+    "slug": "mousepad-gamer-rgb-monster",
+    "category": "COMPUTACION",
+    "category_guess": "Gaming",
+    "brand": "Monster",
+    "files": [
+      "Mousepad Gamer Rgb Monster.webp",
+      "Mousepad Gamer Rgb Monster1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 17,
+      "name": "Mousepad Gamer Rgb Monster",
+      "price": 10900,
+      "original_price": null,
+      "stock": 1
+    }
+  },
+  {
+    "n": 191,
+    "draft_name": "Mousepad Kensington",
+    "slug": "mousepad-kensington",
+    "category": "COMPUTACION",
+    "category_guess": "Mousepads",
+    "brand": "Kensington",
+    "files": [
+      "Mousepad Kensington.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 31,
+      "name": "Mousepad Kensington 26X24",
+      "price": 5990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 192,
+    "draft_name": "Mousepad monster magic",
+    "slug": "mousepad-monster-magic",
+    "category": "COMPUTACION",
+    "category_guess": "Mousepads",
+    "brand": "Monster",
+    "files": [
+      "Mousepad monster magic.webp",
+      "Mousepad monster magic1.webp",
+      "Mousepad monster magic12.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 64,
+      "name": "Mousepad Monster Magic Games",
+      "price": 5990,
+      "original_price": 7990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 193,
+    "draft_name": "mousepad monster start",
+    "slug": "mousepad-monster-start",
+    "category": "COMPUTACION",
+    "category_guess": "Mousepads",
+    "brand": "Monster",
+    "files": [
+      "mousepad monster start.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 65,
+      "name": "Mousepad Monster Start Gaming",
+      "price": 3000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 194,
+    "draft_name": "mousepad monster start gaming1",
+    "slug": "mousepad-monster-start-gaming1",
+    "category": "Gaming",
+    "category_guess": "Gaming",
+    "brand": "Monster",
+    "files": [
+      "mousepad monster start gaming1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 65,
+      "name": "Mousepad Monster Start Gaming",
+      "price": 3000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 195,
+    "draft_name": "mousepad ultra gaming",
+    "slug": "mousepad-ultra-gaming",
+    "category": "ACCESORIOS",
+    "category_guess": "Gaming",
+    "brand": "Ultra",
+    "files": [
+      "mousepad ultra gaming.webp",
+      "mousepad ultra gaming1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 71,
+      "name": "Mousepad Gaming Ultra",
+      "price": 4990,
+      "original_price": 6990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 196,
+    "draft_name": "MX350-RGB-2",
+    "slug": "mx350-rgb-2",
+    "category": "Gabinetes",
+    "category_guess": "Gabinetes",
+    "brand": null,
+    "files": [
+      "MX350-RGB-2.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 197,
+    "draft_name": "MX350-RGB-3",
+    "slug": "mx350-rgb-3",
+    "category": "Gabinetes",
+    "category_guess": "Gabinetes",
+    "brand": null,
+    "files": [
+      "MX350-RGB-3.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 198,
+    "draft_name": "Parlante Bluetooth Tipo Bazooka Philco",
+    "slug": "parlante-bluetooth-tipo-bazooka-philco",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Parlantes",
+    "brand": "Philco",
+    "files": [
+      "Parlante Bluetooth Tipo Bazooka Philco.webp",
+      "Parlante Bluetooth Tipo Bazooka Philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 27,
+      "name": "Parlante Bluetooth Tipo Bazooka Philco",
+      "price": 10900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 199,
+    "draft_name": "Parlante Bluetooth Tipo Torre Philco",
+    "slug": "parlante-bluetooth-tipo-torre-philco",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Parlantes",
+    "brand": "Philco",
+    "files": [
+      "Parlante Bluetooth Tipo Torre Philco.webp",
+      "Parlante Bluetooth Tipo Torre Philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 28,
+      "name": "Parlante Bluetooth Tipo Torre Rgb Philco",
+      "price": 10990,
+      "original_price": 15790,
+      "stock": 10
+    }
+  },
+  {
+    "n": 200,
+    "draft_name": "Parlante Bt Philco",
+    "slug": "parlante-bt-philco",
+    "category": "Parlantes",
+    "category_guess": "Parlantes",
+    "brand": "Philco",
+    "files": [
+      "Parlante Bt Philco.webp",
+      "Parlante Bt Philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 26,
+      "name": "Kit Parlante Philco + Audiófonos Bluetooth",
+      "price": 11590,
+      "original_price": 19990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 201,
+    "draft_name": "Parlante hp dhe-6002",
+    "slug": "parlante-hp-dhe-6002",
+    "category": "AUDIO Y VIDEO / COMPUTACION",
+    "category_guess": "Parlantes",
+    "brand": "HP",
+    "files": [
+      "Parlante hp dhe-6002.webp",
+      "Parlante hp dhe-6002-12.webp",
+      "Parlante hp dhe-6002-1234.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 73,
+      "name": "Parlante Hp Multimedia Dhe-6002",
+      "price": 27500,
+      "original_price": 35000,
+      "stock": 10
+    }
+  },
+  {
+    "n": 202,
+    "draft_name": "Parlante Monster p450d",
+    "slug": "parlante-monster-p450d",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Parlantes",
+    "brand": "Monster",
+    "files": [
+      "Parlante Monster p450d.webp",
+      "Parlante Monster p450d1.webp",
+      "Parlante Monster p450d12.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 25,
+      "name": "Parlante Monster P450D Naranja",
+      "price": 11900,
+      "original_price": 17500,
+      "stock": 10
+    }
+  },
+  {
+    "n": 203,
+    "draft_name": "Parlante Multimedia Hp Dhe60001",
+    "slug": "parlante-multimedia-hp-dhe60001",
+    "category": "Parlantes",
+    "category_guess": "Parlantes",
+    "brand": "HP",
+    "files": [
+      "Parlante Multimedia Hp Dhe60001.webp",
+      "Parlante Multimedia Hp Dhe600012.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 24,
+      "name": "Parlante Multimedia Hp Dhe-6000",
+      "price": 11990,
+      "original_price": 16300,
+      "stock": 10
+    }
+  },
+  {
+    "n": 204,
+    "draft_name": "Parlante Multimedia Hp Dhe60003",
+    "slug": "parlante-multimedia-hp-dhe60003",
+    "category": "Parlantes",
+    "category_guess": "Parlantes",
+    "brand": "HP",
+    "files": [
+      "Parlante Multimedia Hp Dhe60003.webp",
+      "Parlante Multimedia Hp Dhe60003NUE.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 24,
+      "name": "Parlante Multimedia Hp Dhe-6000",
+      "price": 11990,
+      "original_price": 16300,
+      "stock": 10
+    }
+  },
+  {
+    "n": 205,
+    "draft_name": "Parlante Philco con Audifonos Bluetooth",
+    "slug": "parlante-philco-con-audifonos-bluetooth",
+    "category": "AUDIO Y VIDEO",
+    "category_guess": "Audífonos",
+    "brand": "Philco",
+    "files": [
+      "Parlante Philco con Audifonos Bluetooth.webp",
+      "Parlante Philco con Audifonos Bluetooth1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 32,
+      "name": "Parlante Bluetooth Philco",
+      "price": 7990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 206,
+    "draft_name": "PARLANTES GENIUS q160 AZUL",
+    "slug": "parlantes-genius-q160-azul",
+    "category": "Parlantes",
+    "category_guess": "Parlantes",
+    "brand": "Genius",
+    "files": [
+      "PARLANTES GENIUS q160 AZUL.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 207,
+    "draft_name": "Parlantes Hp Multimedia Dhs2111",
+    "slug": "parlantes-hp-multimedia-dhs2111",
+    "category": "Parlantes",
+    "category_guess": "Parlantes",
+    "brand": "HP",
+    "files": [
+      "Parlantes Hp Multimedia  Dhs2111.webp",
+      "Parlantes Hp Multimedia  Dhs21111.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 35,
+      "name": "Parlantes Hp Multimedia Dhs-2111",
+      "price": 9900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 208,
+    "draft_name": "Parlantes multimedia Hp Dhe 60001",
+    "slug": "parlantes-multimedia-hp-dhe-60001",
+    "category": "Parlantes",
+    "category_guess": "Parlantes",
+    "brand": "HP",
+    "files": [
+      "Parlantes multimedia Hp Dhe 60001.webp",
+      "Parlantes multimedia Hp Dhe 600012.webp",
+      "Parlantes multimedia Hp Dhe 6000123.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 18,
+      "name": "Parlantes Hp Rgb Dhe-6001",
+      "price": 22750,
+      "original_price": null,
+      "stock": 2
+    }
+  },
+  {
+    "n": 209,
+    "draft_name": "PENDRIVE-C 3.2 DATA TRAVELER 70 DT7064GB",
+    "slug": "pendrive-c-3-2-data-traveler-70-dt7064gb",
+    "category": "Accesorios notebook y PC",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": null,
+    "files": [
+      "PENDRIVE-C  3.2 DATA TRAVELER 70 DT7064GB.webp",
+      "PENDRIVE-C  3.2 DATA TRAVELER 70 DT7064GB1.webp",
+      "PENDRIVE-C  3.2 DATA TRAVELER 70 DT7064GB12.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 159,
+      "name": "Pendrive 64Gb Data Traveler Exodia Usb 3.2",
+      "price": 5500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 210,
+    "draft_name": "PLUG A PLUG",
+    "slug": "plug-a-plug",
+    "category": "ACCESORIOS",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "PLUG A PLUG.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 89,
+      "name": "Cable Auxiliar 3.5mm Plug Ultra",
+      "price": 1990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 211,
+    "draft_name": "Power Bank Kingston + pendrive de 16 Gb1",
+    "slug": "power-bank-kingston-pendrive-de-16-gb1",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Kingston",
+    "files": [
+      "Power Bank Kingston + pendrive de 16 Gb1.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 212,
+    "draft_name": "Power Bank Kingston + pendrive de 16 Gb4",
+    "slug": "power-bank-kingston-pendrive-de-16-gb4",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Kingston",
+    "files": [
+      "Power Bank Kingston + pendrive de 16 Gb4.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 213,
+    "draft_name": "Power Bank Kingston + pendrive de 16 Gb5",
+    "slug": "power-bank-kingston-pendrive-de-16-gb5",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Kingston",
+    "files": [
+      "Power Bank Kingston + pendrive de 16 Gb5.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 214,
+    "draft_name": "Power Bank Kingston + pendrive de 16 Gb6",
+    "slug": "power-bank-kingston-pendrive-de-16-gb6",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Kingston",
+    "files": [
+      "Power Bank Kingston + pendrive de 16 Gb6.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 215,
+    "draft_name": "POWER BANK PHILIPS 4000 mAH",
+    "slug": "power-bank-philips-4000-mah",
+    "category": "Cargadores y energía",
+    "category_guess": "Cargadores y energía",
+    "brand": "Philips",
+    "files": [
+      "POWER BANK PHILIPS 4000 mAH.webp",
+      "POWER BANK PHILIPS 4000 mAH1.webp",
+      "POWER BANK PHILIPS 4000 mAH12.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 110,
+      "name": "Powerbank Philips 4000 Mah",
+      "price": 7000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 216,
+    "draft_name": "Powerbank Philco Carga inalambrica tipo c",
+    "slug": "powerbank-philco-carga-inalambrica-tipo-c",
+    "category": "ACCESORIOS",
+    "category_guess": "Cargadores y energía",
+    "brand": "Philco",
+    "files": [
+      "Powerbank Philco Carga inalambrica tipo c.webp",
+      "Powerbank Philco Carga inalambrica tipo c1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 11,
+      "name": "Powerbank Carga Inalámbrica Philco",
+      "price": 15200,
+      "original_price": null,
+      "stock": 1
+    }
+  },
+  {
+    "n": 217,
+    "draft_name": "receptor wifi mini",
+    "slug": "receptor-wifi-mini",
+    "category": "COMPUTACION",
+    "category_guess": "Cables y adaptadores",
+    "brand": null,
+    "files": [
+      "receptor wifi mini.webp",
+      "receptor wifi mini1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 80,
+      "name": "Receptor WiFi Mini",
+      "price": 4900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 218,
+    "draft_name": "RELOJ DIGITAL PHILCO",
+    "slug": "reloj-digital-philco",
+    "category": "HOGAR",
+    "category_guess": "Accesorios para celular",
+    "brand": "Philco",
+    "files": [
+      "RELOJ DIGITAL  PHILCO.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 150,
+      "name": "Reloj Digital Philco con Termometro",
+      "price": 5690,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 219,
+    "draft_name": "Selfie Stick Ultra",
+    "slug": "selfie-stick-ultra",
+    "category": "ACCESORIOS",
+    "category_guess": "Iluminación y fotografía",
+    "brand": "Ultra",
+    "files": [
+      "Selfie Stick Ultra (2).webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 175,
+      "name": "Selfie Stick Bluetooth Ultra",
+      "price": 7500,
+      "original_price": 9690,
+      "stock": 10
+    }
+  },
+  {
+    "n": 220,
+    "draft_name": "SET LIMPIEZA PANTALLA PHILCO 78PLC00801",
+    "slug": "set-limpieza-pantalla-philco-78plc00801",
+    "category": "Accesorios notebook y PC",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": "Philco",
+    "files": [
+      "SET LIMPIEZA PANTALLA PHILCO 78PLC00801.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 185,
+      "name": "Set de Limpieza 4 en 1 Philco",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 221,
+    "draft_name": "SmartBand Philco b0238",
+    "slug": "smartband-philco-b0238",
+    "category": "ACCESORIOS",
+    "category_guess": "Accesorios para celular",
+    "brand": "Philco",
+    "files": [
+      "SmartBand Philco b0238.webp",
+      "SmartBand Philco b02381.webp",
+      "SmartBand Philco b023812.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 14,
+      "name": "Smartband Philco B0238",
+      "price": 11590,
+      "original_price": null,
+      "stock": 1
+    }
+  },
+  {
+    "n": 222,
+    "draft_name": "Soporte Celular Body Glove",
+    "slug": "soporte-celular-body-glove",
+    "category": "ACCESORIOS",
+    "category_guess": "Accesorios para celular",
+    "brand": "Body Glove",
+    "files": [
+      "Soporte Celular Body Glove.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 153,
+      "name": "Soporte para Celular Body Glove",
+      "price": 5200,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 223,
+    "draft_name": "soporte Celular ultra r546",
+    "slug": "soporte-celular-ultra-r546",
+    "category": "ACCESORIOS",
+    "category_guess": "Accesorios para celular",
+    "brand": "Ultra",
+    "files": [
+      "soporte Celular ultra r546.webp",
+      "soporte Celular ultra r5461.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 161,
+      "name": "Soporte para Celular Magnetico Ultra R546",
+      "price": 3990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 224,
+    "draft_name": "soporte de rejilla ultra para celulares",
+    "slug": "soporte-de-rejilla-ultra-para-celulares",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": "Ultra",
+    "files": [
+      "soporte de rejilla ultra para celulares.webp",
+      "soporte de rejilla ultra para celulares1.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 225,
+    "draft_name": "soporte de tv de 37 a 80 pulgadas",
+    "slug": "soporte-de-tv-de-37-a-80-pulgadas",
+    "category": "HOGAR",
+    "category_guess": "Hogar y oficina",
+    "brand": null,
+    "files": [
+      "soporte de tv de 37 a 80 pulgadas.webp",
+      "soporte de tv de 37 a 80 pulgadas1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 133,
+      "name": "Soporte para Tv de 37 a 80 Pulgadas",
+      "price": 12900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 226,
+    "draft_name": "SOPORTE MAGNETICO T. CELULAR R520A",
+    "slug": "soporte-magnetico-t-celular-r520a",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "SOPORTE MAGNETICO T. CELULAR R520A.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 148,
+      "name": "Soporte para Celular Magnetico Ultra R520",
+      "price": 5200,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 227,
+    "draft_name": "SOPORTE MAGNETICO T. CELULAR R520B",
+    "slug": "soporte-magnetico-t-celular-r520b",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": null,
+    "files": [
+      "SOPORTE MAGNETICO T. CELULAR R520B.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 148,
+      "name": "Soporte para Celular Magnetico Ultra R520",
+      "price": 5200,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 228,
+    "draft_name": "soporte para microfono philco",
+    "slug": "soporte-para-microfono-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Micrófonos y streaming",
+    "brand": "Philco",
+    "files": [
+      "soporte para microfono philco.webp",
+      "soporte para microfono philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 10,
+      "name": "Soporte de Escritorio para Micrófono Philco",
+      "price": 7990,
+      "original_price": null,
+      "stock": 1
+    }
+  },
+  {
+    "n": 229,
+    "draft_name": "Soporte smartphone para bicicletas Body glove",
+    "slug": "soporte-smartphone-para-bicicletas-body-glove",
+    "category": "Accesorios para celular",
+    "category_guess": "Accesorios para celular",
+    "brand": "Body Glove",
+    "files": [
+      "Soporte smartphone para bicicletas Body glove.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 152,
+      "name": "Bolso para Bicicletas Body Glove",
+      "price": 6990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 230,
+    "draft_name": "Stand para Streaming Philco",
+    "slug": "stand-para-streaming-philco",
+    "category": "ACCESORIOS",
+    "category_guess": "Micrófonos y streaming",
+    "brand": "Philco",
+    "files": [
+      "Stand para Streaming Philco.webp",
+      "Stand para Streaming Philco1.webp",
+      "Stand para Streaming Philco2.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 29,
+      "name": "Stand Philco para Streaming",
+      "price": 8990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 231,
+    "draft_name": "tarjeta de sonido philco13",
+    "slug": "tarjeta-de-sonido-philco13",
+    "category": "Micrófonos y streaming",
+    "category_guess": "Micrófonos y streaming",
+    "brand": null,
+    "files": [
+      "tarjeta de sonido philco13.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 203,
+      "name": "Tarjeta de sonido usb para pc- notebook",
+      "price": 4990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 232,
+    "draft_name": "tarjeta de sonido philcoP",
+    "slug": "tarjeta-de-sonido-philcop",
+    "category": "Micrófonos y streaming",
+    "category_guess": "Micrófonos y streaming",
+    "brand": null,
+    "files": [
+      "tarjeta de sonido philcoP.webp",
+      "tarjeta de sonido philcoP2.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 203,
+      "name": "Tarjeta de sonido usb para pc- notebook",
+      "price": 4990,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 233,
+    "draft_name": "Teclado alambrico Genius slim star 230 Blanco",
+    "slug": "teclado-alambrico-genius-slim-star-230-blanco",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Genius",
+    "files": [
+      "Teclado alambrico Genius slim star 230 Blanco.webp",
+      "Teclado alambrico Genius slim star 230 Blanco1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 19,
+      "name": "Teclado Genius Slim Star Blanco",
+      "price": 13900,
+      "original_price": null,
+      "stock": 2
+    }
+  },
+  {
+    "n": 234,
+    "draft_name": "Teclado Gaming Backlight Ultra",
+    "slug": "teclado-gaming-backlight-ultra",
+    "category": "COMPUTACION",
+    "category_guess": "Gaming",
+    "brand": "Ultra",
+    "files": [
+      "Teclado Gaming Backlight Ultra.webp",
+      "Teclado Gaming Backlight Ultra1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 37,
+      "name": "Teclado Gaming Backlight Ultra",
+      "price": 9800,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 235,
+    "draft_name": "TECLADO NUMERICO USB ULTRA",
+    "slug": "teclado-numerico-usb-ultra",
+    "category": "COMPUTACION",
+    "category_guess": "Teclados y mouse",
+    "brand": "Ultra",
+    "files": [
+      "TECLADO NUMERICO USB ULTRA.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 196,
+      "name": "Teclado Numerico Ultra",
+      "price": 4900,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 236,
+    "draft_name": "TELEF. INALAMBRICO MOTOROLA M700 NEGRO",
+    "slug": "telef-inalambrico-motorola-m700-negro",
+    "category": "Hogar y oficina",
+    "category_guess": "Hogar y oficina",
+    "brand": "Motorola",
+    "files": [
+      "TELEF. INALAMBRICO MOTOROLA M700 NEGRO.webp",
+      "TELEF. INALAMBRICO MOTOROLA M700 NEGRO1.webp",
+      "TELEF. INALAMBRICO MOTOROLA M700 NEGRO12.webp",
+      "TELEF. INALAMBRICO MOTOROLA M700 NEGRO13.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 195,
+      "name": "Teléfono Inalámbrico Motorola Mod. M700",
+      "price": 22500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 237,
+    "draft_name": "telefono de sobremesa philco blanco",
+    "slug": "telefono-de-sobremesa-philco-blanco",
+    "category": "HOGAR",
+    "category_guess": "Hogar y oficina",
+    "brand": "Philco",
+    "files": [
+      "telefono de sobremesa philco blanco.webp",
+      "telefono de sobremesa philco blanco1.webp",
+      "telefono de sobremesa philco blanco12.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 132,
+      "name": "Telefono Sobremesa Philco",
+      "price": 8500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 238,
+    "draft_name": "Telefono Gondola Philco",
+    "slug": "telefono-gondola-philco",
+    "category": "HOGAR",
+    "category_guess": "Hogar y oficina",
+    "brand": "Philco",
+    "files": [
+      "Telefono Gondola Philco.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 184,
+      "name": "Telefono tipo Gondola Philco",
+      "price": 5990,
+      "original_price": 8500,
+      "stock": 10
+    }
+  },
+  {
+    "n": 239,
+    "draft_name": "TELEFONO PHILCO TIPO GONDOLA NEGRO1",
+    "slug": "telefono-philco-tipo-gondola-negro1",
+    "category": "HOGAR",
+    "category_guess": "Hogar y oficina",
+    "brand": "Philco",
+    "files": [
+      "TELEFONO PHILCO TIPO GONDOLA NEGRO1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 184,
+      "name": "Telefono tipo Gondola Philco",
+      "price": 5990,
+      "original_price": 8500,
+      "stock": 10
+    }
+  },
+  {
+    "n": 240,
+    "draft_name": "TELEFONO PHILCO TIPO GONDOLA1",
+    "slug": "telefono-philco-tipo-gondola1",
+    "category": "Hogar y oficina",
+    "category_guess": "Hogar y oficina",
+    "brand": "Philco",
+    "files": [
+      "TELEFONO PHILCO TIPO GONDOLA1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.67,
+      "id": 132,
+      "name": "Telefono Sobremesa Philco",
+      "price": 8500,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 241,
+    "draft_name": "Tripode con Control Remoto",
+    "slug": "tripode-con-control-remoto",
+    "category": "ACCESORIOS",
+    "category_guess": "Iluminación y fotografía",
+    "brand": null,
+    "files": [
+      "Tripode con Control Remoto.webp",
+      "Trípode con Control Remoto.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 166,
+      "name": "Tripode Philco con Control Remoto",
+      "price": 4350,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 242,
+    "draft_name": "tripode philco tr-50",
+    "slug": "tripode-philco-tr-50",
+    "category": "Iluminación y fotografía",
+    "category_guess": "Iluminación y fotografía",
+    "brand": "Philco",
+    "files": [
+      "tripode philco tr-50.webp",
+      "tripode philco tr-502.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 243,
+    "draft_name": "tripode philco tr50",
+    "slug": "tripode-philco-tr50",
+    "category": "ACCESORIOS",
+    "category_guess": "Iluminación y fotografía",
+    "brand": "Philco",
+    "files": [
+      "tripode philco tr50.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 51,
+      "name": "Tripode Portatil para Camaras Philco Tr50",
+      "price": 15200,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 244,
+    "draft_name": "Ventilador Notebook 17 Ultra azul",
+    "slug": "ventilador-notebook-17-ultra-azul",
+    "category": "COMPUTACION",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": "Ultra",
+    "files": [
+      "Ventilador Notebook 17  Ultra azul.webp"
+    ],
+    "legacy_match": {
+      "score": 0.8,
+      "id": 198,
+      "name": "Ventilador Notebook Hasta 17&#8243; Ultra",
+      "price": 11500,
+      "original_price": 15990,
+      "stock": 10
+    }
+  },
+  {
+    "n": 245,
+    "draft_name": "Ventilador Notebook 17 Ultra1 azul",
+    "slug": "ventilador-notebook-17-ultra1-azul",
+    "category": "Accesorios notebook y PC",
+    "category_guess": "Accesorios notebook y PC",
+    "brand": null,
+    "files": [
+      "Ventilador Notebook 17  Ultra1 azul.webp"
+    ],
+    "legacy_match": {
+      "score": 0.6,
+      "id": 197,
+      "name": "Ventilador para Notebook Iluminado 17&#8243;",
+      "price": 9990,
+      "original_price": 14790,
+      "stock": 10
+    }
+  },
+  {
+    "n": 246,
+    "draft_name": "webcam 1920x1080 hd philco",
+    "slug": "webcam-1920x1080-hd-philco",
+    "category": "Webcams",
+    "category_guess": "Webcams",
+    "brand": "Philco",
+    "files": [
+      "webcam 1920x1080 hd philco.webp",
+      "webcam 1920x1080 hd philco1.webp"
+    ],
+    "legacy_match": {
+      "score": 0.75,
+      "id": 119,
+      "name": "Webcam 1920&#215;1080 Hd Philco",
+      "price": 34000,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 247,
+    "draft_name": "WEBCAM LOGITECH C505",
+    "slug": "webcam-logitech-c505",
+    "category": "COMPUTACION",
+    "category_guess": "Webcams",
+    "brand": "Logitech",
+    "files": [
+      "WEBCAM LOGITECH C505.webp",
+      "WEBCAM LOGITECH C5051.webp",
+      "WEBCAM LOGITECH C5052.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 13,
+      "name": "Webcam Logitech C505",
+      "price": 38500,
+      "original_price": null,
+      "stock": 1
+    }
+  },
+  {
+    "n": 248,
+    "draft_name": "WEBCAM PHILCO 720P 29PLCW1143 1",
+    "slug": "webcam-philco-720p-29plcw1143-1",
+    "category": "Webcams",
+    "category_guess": "Webcams",
+    "brand": "Philco",
+    "files": [
+      "WEBCAM PHILCO 720P 29PLCW1143 1.webp",
+      "WEBCAM PHILCO 720P 29PLCW1143 12.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 249,
+    "draft_name": "webcam philips 1080p",
+    "slug": "webcam-philips-1080p",
+    "category": "COMPUTACION",
+    "category_guess": "Webcams",
+    "brand": "Philips",
+    "files": [
+      "webcam philips 1080p.webp",
+      "webcam philips 1080p1.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 116,
+      "name": "Webcam Philips 1080p Hd",
+      "price": 33790,
+      "original_price": null,
+      "stock": 10
+    }
+  },
+  {
+    "n": 250,
+    "draft_name": "Webcam x212",
+    "slug": "webcam-x212",
+    "category": "Webcams",
+    "category_guess": "Webcams",
+    "brand": null,
+    "files": [
+      "Webcam x212.webp",
+      "Webcam x2123.webp"
+    ],
+    "legacy_match": null
+  },
+  {
+    "n": 251,
+    "draft_name": "Webcam x28",
+    "slug": "webcam-x28",
+    "category": "COMPUTACION",
+    "category_guess": "Webcams",
+    "brand": null,
+    "files": [
+      "Webcam x28.webp",
+      "Webcam x2812.webp",
+      "Webcam x283.webp"
+    ],
+    "legacy_match": {
+      "score": 1,
+      "id": 118,
+      "name": "Webcam Vga X28 con Soporte de Pantalla",
+      "price": 7990,
+      "original_price": null,
+      "stock": 10
+    }
+  }
+]

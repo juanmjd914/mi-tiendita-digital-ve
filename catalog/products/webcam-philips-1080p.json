@@ -1,0 +1,16 @@
+{
+  "slug": "webcam-philips-1080p",
+  "name": "Webcam Philips 1080p HD",
+  "brand": "Philips",
+  "category": "Cámaras y webcams",
+  "price": 33790,
+  "original_price": null,
+  "short_description": "Webcam Full HD 1080p.",
+  "description": "Webcam Philips 1080p HD con conexión USB, fácil de instalar en tu monitor o notebook.",
+  "photos": [
+    "webcam philips 1080p.webp",
+    "webcam philips 1080p1.webp"
+  ],
+  "badge": null,
+  "stock": 0
+}

@@ -1,0 +1,121 @@
+{
+  "slug": "correa-silicona-apple-watch",
+  "name": "Correa de silicona para Apple Watch 38/40/41 mm",
+  "brand": null,
+  "category": "Accesorios para celular",
+  "price": 3900,
+  "original_price": 5000,
+  "short_description": "Correa de silicona compatible con Apple Watch 38, 40 y 41 mm, en 13 colores.",
+  "description": "Correa de silicona suave compatible con Apple Watch de 38, 40 y 41 mm. Disponible en 13 colores.",
+  "photos": [
+    "Correa Applewatch.webp",
+    "Correa Para Applewatch Azul Media Noche.webp",
+    "Correa Para Applewatch Blanco.webp",
+    "Correa Para Applewatch Gris.webp",
+    "Correa Para Applewatch Lavanda.webp",
+    "Correa Para Applewatch Lila.webp",
+    "Correa Para Applewatch Negro.webp",
+    "Correa Para Applewatch Pomegranate.webp",
+    "Correa Para Applewatch Rojo.webp",
+    "Correa Para Applewatch Rosado Brillante.webp",
+    "Correa Para Applewatch Verde.webp",
+    "Correa Para Applewatch Verde Manzana.webp",
+    "Correas para Applewatch_w26_plus.webp"
+  ],
+  "variant_kind": "Color",
+  "variants": [
+    {
+      "label": "Amarillo",
+      "photos": [
+        "Correa Applewatch.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Azul medianoche",
+      "photos": [
+        "Correa Para Applewatch Azul Media Noche.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Blanco",
+      "photos": [
+        "Correa Para Applewatch Blanco.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Gris",
+      "photos": [
+        "Correa Para Applewatch Gris.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Lavanda",
+      "photos": [
+        "Correa Para Applewatch Lavanda.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Lila",
+      "photos": [
+        "Correa Para Applewatch Lila.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Negro",
+      "photos": [
+        "Correa Para Applewatch Negro.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Pomegranate",
+      "photos": [
+        "Correa Para Applewatch Pomegranate.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Rojo",
+      "photos": [
+        "Correa Para Applewatch Rojo.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Rosado brillante",
+      "photos": [
+        "Correa Para Applewatch Rosado Brillante.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Verde",
+      "photos": [
+        "Correa Para Applewatch Verde.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Verde manzana",
+      "photos": [
+        "Correa Para Applewatch Verde Manzana.webp"
+      ],
+      "stock": 0
+    },
+    {
+      "label": "Blanco W26 Plus",
+      "photos": [
+        "Correas para Applewatch_w26_plus.webp"
+      ],
+      "stock": 0
+    }
+  ],
+  "badge": null,
+  "stock": 0
+}
