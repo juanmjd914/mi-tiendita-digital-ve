@@ -31,6 +31,13 @@ export function formatRut(raw) {
   return `${body.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}-${dv}`
 }
 
+// Cantidad entera entre 1 y 99; cualquier otro valor (negativo, 0, decimal, texto) rechaza el pedido.
+function validQty(raw) {
+  const n = Number(raw)
+  if (!Number.isInteger(n) || n < 1 || n > 99) throw new OrderError('Cantidad inválida en el carrito. Actualiza la página e inténtalo de nuevo.')
+  return n
+}
+
 /** items: [{ id, variantId?, qty }] (acepta también `quantity` del formato anterior). */
 export async function buildValidatedItems(items) {
   if (!Array.isArray(items) || items.length === 0) throw new OrderError('Tu carrito está vacío')
@@ -39,7 +46,7 @@ export async function buildValidatedItems(items) {
   const wanted = items.map((i) => ({
     id: Number(i.id),
     variantId: i.variantId == null ? null : Number(i.variantId),
-    qty: Math.max(1, Math.min(99, Math.trunc(Number(i.qty ?? i.quantity) || 1))),
+    qty: validQty(i.qty ?? i.quantity),
   }))
   const ids = [...new Set(wanted.map((w) => w.id))]
   const vids = [...new Set(wanted.map((w) => w.variantId).filter(Boolean))]
