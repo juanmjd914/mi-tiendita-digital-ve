@@ -64,3 +64,11 @@
 .thanks__help p { color: var(--muted); }
 .help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin: 1rem 0; }
 @media (min-width: 640px) { .help-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* Pedir reseña en Google */
+.review-ask { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; border-color: var(--jade-line) !important; }
+.review-ask__text { display: flex; gap: .8rem; align-items: flex-start; flex: 1 1 280px; }
+.review-ask__text .icon { color: var(--warning); flex-shrink: 0; margin-top: .15rem; }
+.review-ask h2 { font-size: 1.05rem; margin: 0 0 .25rem; }
+.review-ask p { margin: 0; color: var(--muted-2); font-size: 14px; }
+@media (max-width: 640px) { .review-ask .btn { width: 100%; } }

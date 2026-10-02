@@ -11,7 +11,8 @@ Estado al cierre del 2026-10-01: sitio completo en local, migraciones 004–008 
 - [ ] **Limpieza después de la revisión** (cuando Juan lo pida): borrar el producto de prueba `producto-de-prueba` (id 408), los pedidos de prueba y sus ítems, reseñas de prueba, registros de `stock_adjustments` de prueba, y reiniciar `order_counters` del día. Preguntar si conserva la cuenta de cliente que creó para probar.
 - [ ] Revisar lo que Juan encuentre. Ya corregido el 2026-10-01: carrusel del inicio (pool con stock), carrito vacío centrado, botón "Vaciar favoritos" y botones de Mis direcciones (estilo `.link-btn` movido a base.css), regreso a Mi cuenta desde Favoritos.
 - [x] **Turnstile** integrado (ver abajo); falta activarlo en Supabase al lanzar.
-- [ ] Commit local de todo el trabajo (pedir permiso; nunca push sin autorización).
+- [x] Commits locales `1c66bc5` y `772efe4` (2026-10-02, con permiso de Juan, sin push).
+- [x] Revisión final técnica (2026-10-02): 493 páginas y 872 recursos sin errores; escritorio y celular OK; panel OK.
 
 ## 1. Antes del lanzamiento
 

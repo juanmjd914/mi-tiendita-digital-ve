@@ -5,7 +5,9 @@ export function initCoverflow(root, { autoplay = 5000 } = {}) {
   const slides = [...root.querySelectorAll('[data-slide]')]
   const dots = root.querySelector('[data-cf-dots]')
   if (!track || slides.length === 0) return
-  let index = Math.min(1, slides.length - 1)
+  let index = 0
+  // Con solo 2 tarjetas se centra la pareja (si no, queda un hueco a un lado)
+  if (slides.length === 2) track.style.setProperty('--shift', '0.5')
   let timer = null
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -17,16 +19,20 @@ export function initCoverflow(root, { autoplay = 5000 } = {}) {
     })
   }
 
+  // Carrusel circular: cada tarjeta se ubica según su distancia a la central (--d), así siempre
+  // hay tarjetas a ambos lados. Las lejanas (|d| ≥ 3) quedan ocultas.
   function go(i) {
     index = (i + slides.length) % slides.length
-    const s = slides[index]
-    const offset = s.offsetLeft - (viewport.clientWidth - s.offsetWidth) / 2
-    track.style.transform = `translateX(${-offset}px)`
     slides.forEach((el, n) => {
-      const d = Math.abs(n - index)
-      el.classList.toggle('is-active', d === 0)
-      el.classList.toggle('is-near', d === 1)
-      el.inert = false
+      let d = ((n - index) % slides.length + slides.length) % slides.length
+      if (d > slides.length / 2) d -= slides.length
+      const a = Math.abs(d)
+      el.style.setProperty('--d', d)
+      el.style.zIndex = String(10 - a)
+      el.classList.toggle('is-active', a === 0)
+      el.classList.toggle('is-near', a === 1)
+      el.classList.toggle('is-far', a >= 3)
+      el.inert = a >= 3
     })
     if (dots) [...dots.children].forEach((d, n) => d.setAttribute('aria-current', String(n === index)))
   }
@@ -59,7 +65,6 @@ export function initCoverflow(root, { autoplay = 5000 } = {}) {
   root.addEventListener('mouseenter', () => clearInterval(timer))
   root.addEventListener('mouseleave', restart)
   root.addEventListener('focusin', () => clearInterval(timer))
-  addEventListener('resize', () => go(index))
 
   go(index)
   restart()

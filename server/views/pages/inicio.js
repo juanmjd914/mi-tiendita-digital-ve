@@ -2,6 +2,7 @@ import { html, raw } from '../html.js'
 import { icon } from '../icons.js'
 import { waLink } from '../layout.js'
 import { coverCard, productUrl, thumb } from '../partials/product.js'
+import { TESTIMONIALS, GOOGLE_RATING, GOOGLE_REVIEW_URL } from '../../store-info.js'
 
 // Reparte productos por categoría en ronda para que el carrusel quede equilibrado y sin repetir.
 function balancedByCategory(products, max) {
@@ -150,6 +151,36 @@ function whatsappCta(settings) {
 </section>`
 }
 
+const AVATAR_COLORS = ['#0f766e', '#7c3aed', '#b45309', '#be123c', '#1d4ed8', '#047857']
+const fmtMonth = (d) => new Date(`${d}T12:00:00`).toLocaleDateString('es-CL', { month: 'long', year: 'numeric' })
+
+// Opiniones reales de Google con inicial de color (sin fotos de perfil)
+function testimonials() {
+  const g = GOOGLE_RATING
+  return html`<section class="wrap section testimonials" aria-labelledby="t-title">
+  <div class="section-head">
+    <div><p class="eyebrow">Opiniones reales en Google</p><h2 id="t-title">Lo que dicen nuestros clientes</h2></div>
+    <a class="g-rating" href="${g.url}" target="_blank" rel="noopener">
+      <strong>${String(g.score.toFixed(1)).replace('.', ',')}</strong>
+      <span><span class="g-rating__stars" aria-hidden="true">★★★★★</span><small>${g.count} opiniones en Google</small></span>
+    </a>
+  </div>
+  <div class="t-grid">${TESTIMONIALS.map((t, i) => html`<figure class="t-card">
+    <div class="t-card__stars" aria-label="5 de 5 estrellas">★★★★★</div>
+    <blockquote>${t.text}</blockquote>
+    <figcaption>
+      <span class="t-card__avatar" style="background:${AVATAR_COLORS[i % AVATAR_COLORS.length]}" aria-hidden="true">${t.name.charAt(0).toUpperCase()}</span>
+      <span><strong>${t.name}</strong><small>Reseña de Google · ${fmtMonth(t.date)}</small></span>
+    </figcaption>
+  </figure>`)}</div>
+  <div class="review-cta">
+    <img class="review-cta__qr" src="/img/qr-resena-google.svg" alt="Código QR para dejar tu opinión en Google" width="96" height="96" loading="lazy">
+    <div class="review-cta__text"><strong>¿Ya compraste con nosotros?</strong><span>Tu opinión ayuda a otros clientes. <span class="review-cta__scan">Escanea el código con tu celular o usa el botón.</span></span></div>
+    <a class="btn btn--primary" href="${GOOGLE_REVIEW_URL}" target="_blank" rel="noopener">${icon('star', { size: 18 })}Déjanos tu opinión en Google</a>
+  </div>
+</section>`
+}
+
 export function inicioBody({ settings, catalog }) {
   // Se prefieren productos con stock solo cuando alcanzan para llenar la sección;
   // si no, se usa el catálogo completo (si no, con 1 producto en stock el carrusel queda vacío).
@@ -162,5 +193,6 @@ ${productStrip(balancedByCategory(pool(28), 28))}
 ${categories(categoriesFrom(catalog))}
 ${offersBanner(catalog.filter((p) => p.badge === 'OFERTA' || (p.original_price && p.original_price > p.price)).length)}
 ${favorites(favs)}
+${testimonials()}
 ${whatsappCta(settings)}`
 }

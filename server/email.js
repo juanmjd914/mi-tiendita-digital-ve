@@ -12,7 +12,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM = process.env.RESEND_FROM ? `Mi Tiendita Digital Ve <${process.env.RESEND_FROM}>` : 'onboarding@resend.dev'
 const SITE = 'https://mitienditadigitalve.com'
 const LOGO = 'https://hhhijebsmajvphazvxlm.supabase.co/storage/v1/object/public/MI%20TIENDITA%20DIGITAL%20VE/logotipo_mi_tiendita_digital_ve-.png'
-import { SOCIAL as STORE_SOCIAL, HOURS_TEXT } from './store-info.js'
+import { SOCIAL as STORE_SOCIAL, HOURS_TEXT, GOOGLE_REVIEW_URL } from './store-info.js'
 const SOCIAL = STORE_SOCIAL.map(([, label, url]) => [label, url])
 
 // Paleta Obsidian Jade
@@ -234,7 +234,9 @@ export async function buildShipped({ order, items }) {
       s, preheader: `Tu pedido #${orderNo(order)} va en camino.`,
       badge: '🚚 En camino', title: '¡Tu pedido va en camino!',
       intro: `${hello(order)}, despachamos tu pedido.${order.tracking_code ? ' Usa el código de seguimiento para revisar su estado.' : ' Te contactaremos si necesitamos coordinar la entrega.'}`,
-      body: orderBody({ order, items: list, s, step: 2, extra: tracking }),
+      body: orderBody({ order, items: list, s, step: 2, extra: tracking }) + section(box(`<p style="margin:0 0 6px;color:${C.text};font:800 15px/1.3 ${HEAD};">⭐ ¿Cómo fue tu experiencia?</p>
+      <p style="margin:0 0 12px;color:${C.muted};font:500 13.5px/1.6 ${FONT};">Cuando recibas tu pedido, cuéntanos qué te pareció. Tu opinión en Google ayuda a otros clientes y a nuestra tienda.</p>
+      ${button(GOOGLE_REVIEW_URL, 'Déjanos tu opinión en Google')}`, jadeBox)),
     }),
   }
 }

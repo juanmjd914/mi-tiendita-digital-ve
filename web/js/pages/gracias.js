@@ -42,6 +42,9 @@ async function load() {
 }
 
 function render(o, status) {
+  // Pedir reseña solo si el pedido sigue en curso (no si el pago fue rechazado o anulado)
+  const reviewBox = $('[data-t-review]')
+  if (reviewBox) reviewBox.hidden = ['rejected', 'cancelled'].includes(status)
   const pickup = o.deliveryMethod === 'pickup'
   const title = $('[data-t-title]')
   const sub = $('[data-t-sub]')

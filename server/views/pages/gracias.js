@@ -1,6 +1,7 @@
 import { html } from '../html.js'
 import { icon } from '../icons.js'
 import { waLink } from '../layout.js'
+import { GOOGLE_REVIEW_URL } from '../../store-info.js'
 import { steps } from './checkout.js'
 
 // La página se completa en el navegador según el estado del pedido (Flow, transferencia o contra entrega).
@@ -52,6 +53,11 @@ export function graciasBody({ settings }) {
       <a class="btn btn--primary" href="/cuenta/pedidos" data-t-myorder>${icon('package', { size: 18 })}Ver mi pedido</a>
       <a class="btn btn--ghost" href="/cuenta/registro" data-t-register hidden>Crea tu cuenta con este correo</a>
     </div>
+
+    <section class="thanks__card review-ask" data-t-review hidden>
+      <div class="review-ask__text">${icon('star', { size: 26 })}<div><h2>¿Cómo fue tu experiencia?</h2><p>Cuando recibas tu pedido, cuéntanos qué te pareció. Tu opinión en Google nos ayuda mucho a crecer.</p></div></div>
+      <a class="btn btn--primary" href="${GOOGLE_REVIEW_URL}" target="_blank" rel="noopener">Déjanos tu opinión en Google</a>
+    </section>
 
     <section class="thanks__help">
       <h2>¿Tienes dudas?</h2>

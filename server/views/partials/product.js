@@ -35,9 +35,19 @@ export function priceBlock(p) {
 }
 
 // Tarjeta de coverflow (Inicio y Favoritos)
-export function coverCard(p) {
+// Distancia circular de la tarjeta i a la central c en un carrusel de n tarjetas (−n/2 … n/2).
+export function coverOffset(i, c, n) {
+  let d = ((i - c) % n + n) % n
+  if (d > n / 2) d -= n
+  return d
+}
+export const coverState = (d) => (d === 0 ? ' is-active' : Math.abs(d) === 1 ? ' is-near' : Math.abs(d) >= 3 ? ' is-far' : '')
+
+// Se usa con Array.map, que entrega (p, i, lista): así cada tarjeta nace ya en su lugar del carrusel.
+export function coverCard(p, i = 0, list = [p]) {
   const out = stockState(p) === 'out'
-  return html`<article class="cover-card" data-slide>
+  const d = coverOffset(i, 0, list.length)
+  return html`<article class="cover-card${coverState(d)}" data-slide style="--d:${d};z-index:${10 - Math.abs(d)}">
   <div class="cover-card__top">
     ${p.badge ? html`<span class="chip${p.badge === 'HOT' ? ' chip--hot' : ''}">${BADGE_LABEL[p.badge] || p.badge}</span>` : html`<span></span>`}
     <button class="wish-btn" type="button" data-wish="${p.id}" aria-pressed="false" aria-label="Agregar a favoritos">${icon('heart', { size: 18 })}</button>
