@@ -109,3 +109,9 @@
 .review-item p { margin: .5rem 0 0; color: var(--text-2); font-size: 14.5px; white-space: pre-line; }
 .reviews-note { margin-top: 1rem; font-size: 14px; color: var(--muted); }
 .reviews-note a { color: var(--jade-2); text-decoration: underline; }
+
+/* Móvil angosto (360–390 px): las piezas de la ficha pueden achicarse por debajo de su contenido;
+   sin esto la galería y la fila de compra empujaban la página a ~408 px de ancho. */
+.pdp > *, .gallery > *, .pdp__info > *, .pdp__trust > li, .pdp__buy > *, .sticky-buy > * { min-width: 0; }
+.pdp__buy .btn { flex: 1 1 auto; }
+.sticky-buy__name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
