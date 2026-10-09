@@ -7,7 +7,8 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const SRC = process.env.PHOTOS_DIR || 'D:/Proyectos Technecreativ/mi tiendita digital ve e-commerce/productos'
+// Fotos originales de los productos: carpeta `material/productos` dentro del proyecto (no se sube a git)
+const SRC = process.env.PHOTOS_DIR || path.join(ROOT, 'material/productos')
 const DIR = path.join(ROOT, 'catalog/products')
 const only = new Set(process.argv.slice(2))
 

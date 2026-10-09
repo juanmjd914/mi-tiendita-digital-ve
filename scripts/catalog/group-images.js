@@ -5,8 +5,9 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-const SRC = process.argv[2] || 'D:/Proyectos Technecreativ/mi tiendita digital ve e-commerce/productos'
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
+// Fotos originales de los productos: carpeta `material/productos` dentro del proyecto (no se sube a git)
+const SRC = process.argv[2] || path.join(ROOT, 'material/productos')
 const LEGACY = JSON.parse(fs.readFileSync(path.join(ROOT, 'catalog/legacy-products.json'), 'utf8'))
 
 const deaccent = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')

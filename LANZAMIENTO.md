@@ -18,7 +18,7 @@ Estado al cierre del 2026-10-01: sitio completo en local, migraciones 004–008 
 
 - [ ] **Cargar el stock** de los 187 productos desde el panel → Stock. Sin stock, la tienda y Merchant Center los muestran "agotados".
 - [x] Rediseño de correos Obsidian Jade + datos escapados + correo de contra entrega + aviso de pedido nuevo a la tienda (2026-10-01). Al lanzar: confirmar que las fotos de productos se vean en Gmail (dependen del dominio real).
-- [x] Mascota del 404: opción A aprobada por Juan (2026-10-01), `web/img/mascota-404.webp`; original en `mi tiendita digital ve e-commerce/assets/mascota-404.png`.
+- [x] Mascota del 404: opción A aprobada por Juan (2026-10-01), `web/img/mascota-404.webp`; original en `material/assets/mascota-404.png` (carpeta local del proyecto, no se sube a git).
 - [x] Cloudflare Turnstile integrado (2026-10-02) en login, registro, recuperar y cambiar contraseña. Claves en `.env` local (`TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`).
 - [x] Supabase Auth (2026-10-02): Redirect URLs, plantillas en español (`supabase/auth-templates/`) y SMTP con Resend.
 - [ ] Datos reales que faltan: imagen del hero limpia, enlaces de Instagram / Facebook / TikTok (`SOCIAL_INSTAGRAM`, `SOCIAL_FACEBOOK`, `SOCIAL_TIKTOK`), horarios, testimonios/cifras reales (si se quieren mostrar).

@@ -11,6 +11,9 @@ node_modules
 dist-ssr
 *.local
 
+# Material de trabajo local (fotos originales de productos, assets, zips de diseño): no va a GitHub ni a Hostinger
+/material/
+
 # Secretos — NUNCA subir
 .env
 .env.local
